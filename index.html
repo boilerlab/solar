@@ -41,7 +41,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .wrap{max-width:1180px;margin:0 auto;display:grid;gap:24px}
 header{display:grid;gap:8px;position:relative;background:var(--leaf);border-radius:20px;padding:28px 250px 28px 28px;overflow:hidden}
 header .hero{position:absolute;right:16px;bottom:0;width:230px;height:auto}
-@media (max-width:760px){header{padding:22px 132px 22px 20px}header .hero{width:120px;right:8px;transform:none}header .terms{display:none}}
+@media (max-width:760px){header{padding:22px 20px}header .hero,header .terms{display:none}}
 .eyebrow{font-family:var(--f-num);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--forest)}
 h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.2;margin:0;text-wrap:balance}
 h1{color:var(--forest);font-weight:800} h1 span{color:var(--forest);background:linear-gradient(transparent 58%,var(--yel) 58%);padding:0 4px}
@@ -144,6 +144,15 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .answer .billq .chips button[aria-pressed=true]{background:var(--forest);color:#fff;border-color:var(--forest)}
 .answer .billq h4 svg{background:var(--surface)}
 .answer .billq .unit{color:var(--forest);font-weight:600}
+.answer .sizeq{width:100%;max-width:420px;text-align:left}
+.answer .sizeq h4 svg{background:var(--surface)}
+.answer .sizeq input{background:var(--surface);border:2px solid var(--forest)}
+.answer .sizeq .unit{color:var(--forest);font-weight:600}
+.orline{display:flex;align-items:center;gap:10px;color:#4a5145;font-size:13px;margin-top:4px}
+.orline::before,.orline::after{content:"";flex:1;height:1px;background:rgba(30,91,46,.35)}
+.mapsbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;font-family:var(--f-display);font-size:18px;font-weight:700;border:2px solid var(--forest);color:var(--forest);background:var(--surface);border-radius:14px;text-decoration:none;box-shadow:0 3px 0 var(--forest)}
+.mapsbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--forest)}
+.mapsbtn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .crt{position:relative;width:min(100%,380px);aspect-ratio:4/3;border-radius:22px/26px;background:radial-gradient(ellipse 75% 70% at 50% 45%,#56625b 0%,#3c4641 55%,#252b28 100%);box-shadow:inset 0 0 50px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,255,255,.08),0 10px 24px rgba(30,40,30,.25);overflow:hidden;display:grid;place-items:center;container-type:inline-size;padding:6%}
 .crt::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);pointer-events:none}
 .crt::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 30% 18%,rgba(255,255,255,.16),transparent 70%);pointer-events:none}
@@ -293,9 +302,12 @@ a.btn{text-decoration:none;display:inline-block}
     <div class="panel qs">
       <div class="q"><h4>จะติดตรงไหน</h4>
         <div class="chips" id="s_where"><button data-v="roof">หลังคาบ้าน</button><button data-v="garage">หลังคาโรงรถ</button><button data-v="ground">พื้นดินว่าง</button><button data-v="float">บ่อน้ำ (ลอยน้ำ)</button></div></div>
-      <div class="q"><h4>ขนาดพื้นที่</h4>
+      <div class="q sizeq"><h4>ขนาดพื้นที่</h4>
         <div class="inrow big-in"><input type="number" id="s_w" value="" placeholder="ยาว" step="0.5" min="0" inputmode="decimal" aria-label="ความยาว (เมตร)"><span class="unit">×</span><input type="number" id="s_l" value="" placeholder="กว้าง" step="0.5" min="0" inputmode="decimal" aria-label="ความกว้าง (เมตร)"><span class="unit">ม.</span></div>
-        <span class="hint" id="s_dimHint"></span></div>
+        <span class="hint" id="s_dimHint"></span>
+        <div class="orline"><span>หรือ ไม่รู้ขนาด</span></div>
+        <a class="mapsbtn" id="s2Maps" href="https://www.google.com/maps/@?api=1&amp;map_action=map&amp;basemap=satellite&amp;zoom=19" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>วัดขนาดจาก Google Maps</a>
+        <span class="hint">มือถือ: แตะค้างที่มุมหลังคา → เลื่อนแถบข้อมูลด้านล่างขึ้น → "วัดระยะทาง" แล้วเลื่อนไปอีกมุม · คอม: คลิกขวา → "วัดระยะทาง"</span></div>
       <div class="q" id="q_mat"><h4>หลังคาแบบไหน</h4>
         <div class="chips" id="s_mat"><button data-v="metal">เมทัลชีท</button><button data-v="tile">กระเบื้อง (ลอนคู่ / ซีแพค)</button><button data-v="concrete">ดาดฟ้าคอนกรีต</button><button data-v="poly">โพลีคาร์บอเนต / ไวนิล</button></div></div>
       <div class="q" id="q_dir"><h4>หลังคาด้านนี้หันไปทางไหน</h4>
@@ -660,7 +672,7 @@ function updateLoc(fromProv){
   const box=$('locbox');
   let la,lo;
   if(fromProv&&$('prov').value!==''){const p=PROV[+$('prov').value];la=p[1];lo=p[2];$('coords').value=`${la.toFixed(4)}, ${lo.toFixed(4)}`;}
-  else{if(!$('coords').value.trim()){loc=null;box.className='locbox';box.innerHTML='ยังไม่ได้ใส่พิกัด ตอนนี้ใช้ผลผลิตไฟตั้งต้น <b>'+fmt(parseFloat($('yield').value)||0)+'</b> kWh/kWp/ปี';$('roofCoord').textContent='';$('lnkPick').href=MAPS_HERE;$('lnkMaps').href=MAPS_HERE;return;}const c=parseCoords($('coords').value);if(!c){box.className='locbox err';box.textContent=/goo\.gl|maps\.app/.test($('coords').value)?'ลิงก์ย่อ (maps.app.goo.gl) ไม่มีตัวเลขพิกัดอยู่ข้างใน ให้เปิดลิงก์แล้วคัดลอกตัวเลขพิกัดมาวางแทน':'อ่านพิกัดไม่ได้ ลองวางแบบ 13.7563, 100.5018';return;}la=c.la;lo=c.lo;$('prov').value='';}
+  else{if(!$('coords').value.trim()){loc=null;box.className='locbox';box.innerHTML='ยังไม่ได้ใส่พิกัด ตอนนี้ใช้ผลผลิตไฟตั้งต้น <b>'+fmt(parseFloat($('yield').value)||0)+'</b> kWh/kWp/ปี';$('roofCoord').textContent='';$('lnkPick').href=MAPS_HERE;$('lnkMaps').href=MAPS_HERE;$('s2Maps').href=MAPS_HERE;return;}const c=parseCoords($('coords').value);if(!c){box.className='locbox err';box.textContent=/goo\.gl|maps\.app/.test($('coords').value)?'ลิงก์ย่อ (maps.app.goo.gl) ไม่มีตัวเลขพิกัดอยู่ข้างใน ให้เปิดลิงก์แล้วคัดลอกตัวเลขพิกัดมาวางแทน':'อ่านพิกัดไม่ได้ ลองวางแบบ 13.7563, 100.5018';return;}la=c.la;lo=c.lo;$('prov').value='';}
   if(la<5||la>21||lo<97||lo>106.5){box.className='locbox err';box.textContent='พิกัดนี้อยู่นอกประเทศไทย ตรวจสอบตัวเลขอีกครั้ง';return;}
   loc=locate(la,lo);
   setRoofLinks(la,lo);
@@ -683,6 +695,7 @@ function setRoofLinks(la,lo){
   $('lnkEarth').href=`https://earth.google.com/web/@${a},${o},20a,120d,35y,0h,45t,0r`;
   $('roofCoord').textContent=`พิกัด ${la.toFixed(5)}, ${lo.toFixed(5)}`;
   $('lnkPick').href=`https://www.google.com/maps/search/?api=1&query=${a},${o}`;
+  $('s2Maps').href=$('lnkMaps').href;
 }
 function coordHint(msg,cls){const h=$('coordHint');h.textContent=msg;h.className='hint'+(cls?' '+cls:'');}
 function setCoords(text,msg){
@@ -1235,7 +1248,7 @@ function renderFit(){
   $('q_mat').hidden=!roofy;$('q_dir').hidden=!roofy;
   $('s_dimHint').textContent=roofy?'วัดหลังคาด้านที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
   $('s2Need').textContent=`ติด ${fmt(S1.size,1)} kW ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
-  if(!(W>0&&L>0)){const e=$('s2Verdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('s2Line').innerHTML='ใส่<b>ขนาดพื้นที่</b>เพื่อดูผล';$('s2Notes').innerHTML='';$('s2Svg').innerHTML='';return;}
+  if(!(W>0&&L>0)){const e=$('s2Verdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('s2Line').innerHTML='ใส่<b>ขนาดพื้นที่</b>เพื่อดูผล';$('s2Notes').innerHTML='';$('s2Svg').innerHTML='';$('s2Svg').style.display='none';return;}
   let v,c,line;const notes=[];
   if(roofy&&S2.mat==='poly'){v='ไม่แนะนำ';c='v-bad';line='หลังคาโพลีคาร์บอเนตหรือไวนิลรับน้ำหนักแผงไม่ได้ ต้องทำโครงใหม่';}
   else if(S2.shade==='heavy'){v='ไม่แนะนำ';c='v-bad';line='เงาบังทั้งวัน แผงจะผลิตไฟได้น้อยมาก ถ้าตัดแต่งต้นไม้ได้ค่อยพิจารณา';}
@@ -1254,7 +1267,7 @@ function renderFit(){
   if(!notes.length)notes.push('ให้ช่างมาดูหน้างานยืนยันขนาดและโครงสร้างอีกครั้งก่อนเซ็นสัญญา');
   $('s2Verdict').textContent=v;$('s2Verdict').className='verdict-big '+c;fitCrt($('s2Verdict'));$('s2Line').innerHTML=line;
   $('s2Notes').innerHTML=notes.map(t=>`<li>${t}</li>`).join('');
-  const svg=$('s2Svg');if(!(W>0&&L>0)){svg.innerHTML='';return;}
+  const svg=$('s2Svg');svg.style.display='';if(!(W>0&&L>0)){svg.innerHTML='';return;}
   const S=Math.min(300/W,170/L),ox=(320-W*S)/2,oy=8+(170-L*S)/2;let g=`<rect x="${ox}" y="${oy}" width="${W*S}" height="${L*S}" rx="3" style="fill:var(--sun-soft);stroke:var(--fr-o);stroke-width:2"/>`;
   if(n){const f=FIT[wh],tw=F.cols*F.px-f.gx,th=F.rows*F.py-f.gy,sx=ox+(W-tw)/2*S,sy=oy+(L-th)/2*S,ord=[];
     for(let r=0;r<F.rows;r++)for(let k=0;k<F.cols;k++)ord.push([r,k]);
@@ -1282,7 +1295,9 @@ function renderQuotes(){
 }
 // icons in front of each question (drawn inline: artifact pages cannot load outside images)
 {const I={bill:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',wallet:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/>',panel:'<path d="M4 18l2-12h12l2 12z"/><path d="M5 12h14M9.5 6l-1 12M14.5 6l1 12"/>',pin:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',ruler:'<rect x="2" y="8" width="20" height="8" rx="1"/><path d="M6 8v3M10 8v4M14 8v3M18 8v4"/>',roof:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',tree:'<path d="M12 3c3 0 5 2.5 5 5 1.5.5 2.5 2 2.5 3.5 0 2-1.8 3.5-4 3.5H8.5c-2.2 0-4-1.5-4-3.5 0-1.5 1-3 2.5-3.5 0-2.5 2-5 5-5z"/><path d="M12 15v6"/>'};
- const order=['sun','wallet','panel','bill','pin','ruler','roof','compass','tree'];
+ // tab 2: the size question sits right under the screen, so the screen stays visible above the phone keyboard
+ document.querySelector('#t2 .answer .crt').insertAdjacentElement('afterend',document.querySelector('#t2 .sizeq'));
+ const order=['sun','wallet','panel','bill','pin','roof','compass','tree','ruler'];
  document.querySelectorAll('#t1 .q h4, #t2 .q h4').forEach((h,i)=>{if(order[i])h.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 24 24" aria-hidden="true">${I[order[i]]}</svg>`);});}
 updateLoc(false);
 simpleSync();
