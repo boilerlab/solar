@@ -137,6 +137,18 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .answer{text-align:center;justify-items:center;padding:28px 20px;gap:14px}
 .answer p{margin:0}
 .simple .answer{order:-1}
+.satbox{grid-column:1/-1}
+.satbox>summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;font-family:var(--f-display);font-size:20px;font-weight:700;color:var(--forest)}
+.satbox>summary::-webkit-details-marker{display:none}
+.satbox>summary svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+@media (max-width:480px){.satbox>summary small{display:none}}
+.satbox>summary small{font-size:13px;font-weight:500;color:var(--muted);font-family:inherit}
+.satbox>summary::after{content:"";margin-left:auto;width:10px;height:10px;border-right:2.5px solid currentColor;border-bottom:2.5px solid currentColor;transform:rotate(45deg);transition:transform .2s}
+.satbox[open]>summary::after{transform:rotate(-135deg)}
+.satsteps{margin:14px 0 4px;padding-left:22px;display:grid;gap:6px;font-size:14px;line-height:1.55}
+.satbody{display:grid;gap:18px;margin-top:14px}
+.satbody #roofPanel{padding:0;border:0;box-shadow:none;background:none}
+.satbody #roofToggle,.satbody .roofIntro{display:none}
 .answer,.tab{scroll-margin-top:12px}
 .answer .billq{width:100%;max-width:420px;text-align:left;margin-top:6px}
 .answer .billq h4{padding-right:64px}
@@ -307,8 +319,8 @@ a.btn{text-decoration:none;display:inline-block}
         <div class="inrow big-in"><input type="number" id="s_w" value="" placeholder="ยาว" step="0.5" min="0" inputmode="decimal" aria-label="ความยาว (เมตร)"><span class="unit">×</span><input type="number" id="s_l" value="" placeholder="กว้าง" step="0.5" min="0" inputmode="decimal" aria-label="ความกว้าง (เมตร)"><span class="unit">ม.</span></div>
         <span class="hint" id="s_dimHint"></span>
         <div class="orline"><span>หรือ ไม่รู้ขนาด</span></div>
-        <a class="mapsbtn" id="s2Maps" href="https://www.google.com/maps/@?api=1&amp;map_action=map&amp;basemap=satellite&amp;zoom=19" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>วัดขนาดจาก Google Maps</a>
-        <span class="hint">มือถือ: แตะค้างที่มุมหลังคา → เลื่อนแถบข้อมูลด้านล่างขึ้น → "วัดระยะทาง" แล้วเลื่อนไปอีกมุม · คอม: คลิกขวา → "วัดระยะทาง"</span></div>
+        <button type="button" class="mapsbtn" id="s2Maps"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>ดูหลังคาจากดาวเทียม</button>
+        <span class="hint">ใส่ตำแหน่งบ้าน แล้ววัดขนาดใน Google Maps หรือวางแผงบนภาพดาวเทียม แอปนับแผงให้</span></div>
       <div class="q" id="q_mat"><h4>หลังคาแบบไหน</h4>
         <div class="chips" id="s_mat"><button data-v="metal">เมทัลชีท</button><button data-v="tile">กระเบื้อง (ลอนคู่ / ซีแพค)</button><button data-v="concrete">ดาดฟ้าคอนกรีต</button><button data-v="poly">โพลีคาร์บอเนต / ไวนิล</button></div></div>
       <div class="q" id="q_dir"><h4>หลังคาด้านนี้หันไปทางไหน</h4>
@@ -325,6 +337,11 @@ a.btn{text-decoration:none;display:inline-block}
       <ul class="tips" id="s2Notes"></ul>
       <p class="note">มีภาพดาวเทียมหรือภาพหลังคาจริง? <button type="button" class="linkbtn" data-go="roof">ลองวางแผงบนภาพ</button></p>
     </div>
+    <details class="panel satbox" id="t2Sat">
+      <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/></svg><span>ดูหลังคาจริงจากดาวเทียม</span><small>ไม่บังคับ</small></summary>
+      <ol class="satsteps"><li>บอกตำแหน่งบ้าน: กด <b>ตำแหน่งปัจจุบัน</b> ถ้ายืนอยู่ที่บ้าน หรือเปิด Google Maps แล้วคัดลอกพิกัดมาวาง</li><li>วัดขนาดใน Google Maps (มือถือ: แตะค้างที่มุมหลังคา → เลื่อนแถบข้อมูลขึ้น → "วัดระยะทาง" · คอม: คลิกขวา → "วัดระยะทาง") แล้วกรอกในช่องขนาดพื้นที่</li><li>หรือดึงภาพดาวเทียม / วางภาพหลังคา แล้ววาดกรอบหลังคา แอปวางแผงและนับให้ กด <b>ใช้ผลนี้ในการคำนวณ</b> จำนวนแผงจะขึ้นที่จอด้านบน</li></ol>
+      <div class="satbody" id="t2SatBody"></div>
+    </details>
   </section>
 
   <section class="tab" id="t3" hidden style="display:grid;gap:24px">
@@ -370,6 +387,7 @@ a.btn{text-decoration:none;display:inline-block}
 
       <div class="group" style="border-top:0;padding-top:0">
         <span class="group-t">ที่ตั้งและหลังคา</span>
+        <p class="note">พิกัดบ้านและภาพดาวเทียมอยู่ในข้อ 2 · <button type="button" class="linkbtn" data-go="roof">แก้ตำแหน่งที่ข้อ 2</button></p>
         <div class="field">
           <label for="coords">พิกัดจาก Google Maps</label>
           <input type="text" id="coords" value="" placeholder="เช่น 14.9799, 102.0978 หรือวางลิงก์ Google Maps">
@@ -493,7 +511,7 @@ a.btn{text-decoration:none;display:inline-block}
 
     <section class="results" aria-live="polite">
       <div class="panel collapsed" id="roofPanel">
-        <div class="row"><h3>ตรวจพื้นที่หลังคา (ไม่บังคับ)</h3><span class="note" id="roofCoord"></span><button class="btn sm" type="button" id="roofToggle">เปิดเครื่องมือวางแผง</button></div>
+        <div class="row"><h3>วางแผงบนภาพหลังคา</h3><span class="note" id="roofCoord"></span><button class="btn sm" type="button" id="roofToggle">เปิดเครื่องมือวางแผง</button></div>
         <p class="note roofIntro">ระบบ 5 kW ใช้แผงราว 8 แผง พื้นที่หลังคาประมาณ 25 ตร.ม. (10 kW ราว 50 ตร.ม.) หลังคาบ้านทั่วไปมักพอ เครื่องมือนี้ใช้เช็คหลังคาที่เล็ก มีหลายด้าน หรือหันไม่ตรงทิศใต้</p>
         <div class="roofbtns">
           <button class="btn solid" type="button" id="fetchSat" hidden>ดึงภาพดาวเทียมของพิกัดนี้</button>
@@ -921,7 +939,11 @@ $('lyApply').addEventListener('click',()=>{
   let bi=-1,bc=-1;LY.faces.forEach((f,fi)=>{const k=faceCount(fi);if(k>bc){bc=k;bi=fi;}});
   let msg=`ใส่ ${fmt(+$('kwp').value,2)} kWp (${LY.count} แผง) ในการคำนวณแล้ว`;
   if(bi>=0&&lyNum('lyPitch',15)>0){const d=dirOf(LY.faces[bi].bearing);$('dir').selectedIndex=d[2];applyYield();msg+=` · ตั้งทิศหน้าแผงเป็น${d[1]}`;}
-  render();$('lyApplied').textContent=msg;
+  render();
+  // feed the panel count into tab 2's screen in place of a typed width × length
+  S2.lyN=LY.count;$('s_w').value='';$('s_l').value='';renderFit();
+  $('lyApplied').textContent=msg+' · ผลขึ้นที่จอด้านบนแล้ว';
+  if(!$('t2').hidden)setTimeout(()=>document.querySelector('#t2 .answer').scrollIntoView({behavior:'smooth',block:'start'}),400);
 });
 (function(){
   const drop=$('drop');
@@ -1187,7 +1209,11 @@ $('copyBtn').addEventListener('click',()=>{const t=$('summary').textContent;
   const fallback=()=>{const r=document.createRange();r.selectNodeContents($('summary'));const s=getSelection();s.removeAllRanges();s.addRange(r);};
   try{navigator.clipboard.writeText(t).then(done,fallback);}catch(e){fallback();}});
 // ===== Simple mode: three plain-language questions on top of the detailed calculator =====
-function showTab(t){document.querySelectorAll('.tab').forEach(s=>{s.hidden=s.id!==t;});document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===t)));if(t==='adv'){requestAnimationFrame(()=>draw());if(!$('coords').value.trim()&&guide<0)setGuide(0);}}
+function showTab(t){document.querySelectorAll('.tab').forEach(s=>{s.hidden=s.id!==t;});document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===t)));if(t==='adv'||t==='t2')requestAnimationFrame(()=>draw());}
+// tab 2 satellite section: open it, scroll to it, and start the blinking guide if no coordinates yet
+function openSat(){showTab('t2');$('t2Sat').open=true;requestAnimationFrame(()=>$('t2Sat').scrollIntoView({behavior:'smooth',block:'start'}));}
+$('t2Sat').addEventListener('toggle',()=>{if(!$('t2Sat').open)return;requestAnimationFrame(()=>draw());if(!$('coords').value.trim()&&guide<0)setGuide(0);});
+$('s2Maps').addEventListener('click',openSat);
 // guided start in tab 4: current location → open Google Maps → paste coordinates, each blinks in turn
 let guide=-1;const GUIDE=['gpsBtn','lnkPick','pasteCoords'];
 function setGuide(i){guide=i;GUIDE.forEach((id,k)=>$(id).classList.toggle('blink',k===i));}
@@ -1196,7 +1222,7 @@ $('coords').addEventListener('paste',()=>{if(guide>=0)setGuide(-1);});
 document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>{showTab(b.dataset.t);const s=$(b.dataset.t),target=s.querySelector('.answer')||s;requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'}));}));
 // Google Maps buttons with no house coordinates yet: find the phone's position first, then open Maps there
 function mapsAt(la,lo){return `https://www.google.com/maps/@?api=1&map_action=map&basemap=satellite&center=${la.toFixed(6)},${lo.toFixed(6)}&zoom=19`;}
-['lnkPick','lnkMaps','s2Maps'].forEach(id=>$(id).addEventListener('click',e=>{
+['lnkPick','lnkMaps'].forEach(id=>$(id).addEventListener('click',e=>{
   if(parseCoords($('coords').value))return;
   const a=e.currentTarget,w=window.open('','_blank');
   if(!w){a.href=MAPS_HERE;return;}
@@ -1206,7 +1232,7 @@ function mapsAt(la,lo){return `https://www.google.com/maps/@?api=1&map_action=ma
   if(!navigator.geolocation){go(MAPS_HERE);return;}
   navigator.geolocation.getCurrentPosition(pos=>go(mapsAt(pos.coords.latitude,pos.coords.longitude)),()=>go(MAPS_HERE),{enableHighAccuracy:true,timeout:10000,maximumAge:60000});
 }));
-document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.go==='roof'){showTab('adv');$('roofPanel').classList.remove('collapsed');roofTgl();$('roofPanel').scrollIntoView({behavior:'smooth'});}else showTab(b.dataset.go);}));
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.go==='roof')openSat();else showTab(b.dataset.go);}));
 const S1={pres:40,loan:1,size:5},S2={where:'roof',mat:'metal',dir:'s',shade:'none'};
 function chipGroup(id,obj,key,cb){const g=$(id);const sync=()=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===String(obj[key]))));
   g.querySelectorAll('button').forEach(b=>{b.type='button';b.addEventListener('click',()=>{const v=b.dataset.v;obj[key]=isNaN(+v)?v:+v;sync();cb();});});sync();}
@@ -1255,14 +1281,14 @@ function fitLayout(W,L,where){const f=FIT[where],pl=lyNum('lyPL',2.38),pw=lyNum(
     if(cols*rows>best.count)best={count:cols*rows,cols,rows,a,bh,px,py};}
   return best;}
 chipGroup('s_where',S2,'where',()=>renderFit());chipGroup('s_mat',S2,'mat',()=>renderFit());chipGroup('s_dir',S2,'dir',()=>renderFit());chipGroup('s_shade',S2,'shade',()=>renderFit());
-['s_w','s_l','s_old'].forEach(id=>$(id).addEventListener('input',()=>renderFit()));
+['s_w','s_l','s_old'].forEach(id=>$(id).addEventListener('input',()=>{if(id!=='s_old')S2.lyN=0;renderFit();}));
 function renderFit(){
   const W=parseFloat($('s_w').value)||0,L=parseFloat($('s_l').value)||0,wh=S2.where,pW=parseFloat($('panelW').value)||600,roofy=wh==='roof'||wh==='garage';
-  const need=Math.ceil(S1.size*1000/pW),min5=Math.ceil(5000/pW),F=fitLayout(W,L,wh),n=F.count,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
+  const need=Math.ceil(S1.size*1000/pW),min5=Math.ceil(5000/pW),F=fitLayout(W,L,wh),dims=W>0&&L>0,lyN=dims?0:(S2.lyN||0),n=dims?F.count:lyN,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
   $('q_mat').hidden=!roofy;$('q_dir').hidden=!roofy;
   $('s_dimHint').textContent=roofy?'วัดหลังคาด้านที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
   $('s2Need').textContent=`ติด ${fmt(S1.size,1)} kW ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
-  if(!(W>0&&L>0)){const e=$('s2Verdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('s2Line').innerHTML='ใส่<b>ขนาดพื้นที่</b>เพื่อดูผล';$('s2Notes').innerHTML='';$('s2Svg').innerHTML='';$('s2Svg').style.display='none';return;}
+  if(!dims&&!lyN){const e=$('s2Verdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('s2Line').innerHTML='ใส่<b>ขนาดพื้นที่</b>เพื่อดูผล';$('s2Notes').innerHTML='';$('s2Svg').innerHTML='';$('s2Svg').style.display='none';return;}
   let v,c,line;const notes=[];
   if(roofy&&S2.mat==='poly'){v='ไม่แนะนำ';c='v-bad';line='หลังคาโพลีคาร์บอเนตหรือไวนิลรับน้ำหนักแผงไม่ได้ ต้องทำโครงใหม่';}
   else if(S2.shade==='heavy'){v='ไม่แนะนำ';c='v-bad';line='เงาบังทั้งวัน แผงจะผลิตไฟได้น้อยมาก ถ้าตัดแต่งต้นไม้ได้ค่อยพิจารณา';}
@@ -1278,10 +1304,11 @@ function renderFit(){
   if(roofy&&S2.dir==='ew')notes.push('ทิศตะวันออกหรือตะวันตกผลิตไฟน้อยกว่าทิศใต้ราว 5–10% ยังใช้ได้ดี ทิศตะวันตกช่วยช่วงบ่ายที่เปิดแอร์');
   if(S2.shade==='some')notes.push('เงาบางช่วงทำให้ผลิตไฟลดลง ให้ช่างวางแผงหลบเงา');
   if($('s_old').checked)notes.push('แผงอยู่ได้ 25 ปี ควรซ่อมหรือเปลี่ยนหลังคาก่อนติด ถ้ารื้อแผงทีหลังจะเสียค่าใช้จ่ายเพิ่ม');
+  if(lyN)notes.unshift(`นับจากแผงที่วางบนภาพดาวเทียม ${lyN} แผง ดูภาพผังได้ในส่วนดาวเทียมด้านล่าง`);
   if(!notes.length)notes.push('ให้ช่างมาดูหน้างานยืนยันขนาดและโครงสร้างอีกครั้งก่อนเซ็นสัญญา');
   $('s2Verdict').textContent=v;$('s2Verdict').className='verdict-big '+c;fitCrt($('s2Verdict'));$('s2Line').innerHTML=line;
   $('s2Notes').innerHTML=notes.map(t=>`<li>${t}</li>`).join('');
-  const svg=$('s2Svg');svg.style.display='';if(!(W>0&&L>0)){svg.innerHTML='';return;}
+  const svg=$('s2Svg');svg.style.display='';if(!dims){svg.innerHTML='';svg.style.display='none';return;}
   const S=Math.min(300/W,170/L),ox=(320-W*S)/2,oy=8+(170-L*S)/2;let g=`<rect x="${ox}" y="${oy}" width="${W*S}" height="${L*S}" rx="3" style="fill:var(--sun-soft);stroke:var(--fr-o);stroke-width:2"/>`;
   if(n){const f=FIT[wh],tw=F.cols*F.px-f.gx,th=F.rows*F.py-f.gy,sx=ox+(W-tw)/2*S,sy=oy+(L-th)/2*S,ord=[];
     for(let r=0;r<F.rows;r++)for(let k=0;k<F.cols;k++)ord.push([r,k]);
@@ -1311,6 +1338,8 @@ function renderQuotes(){
 {const I={bill:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',wallet:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/>',panel:'<path d="M4 18l2-12h12l2 12z"/><path d="M5 12h14M9.5 6l-1 12M14.5 6l1 12"/>',pin:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',ruler:'<rect x="2" y="8" width="20" height="8" rx="1"/><path d="M6 8v3M10 8v4M14 8v3M18 8v4"/>',roof:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',tree:'<path d="M12 3c3 0 5 2.5 5 5 1.5.5 2.5 2 2.5 3.5 0 2-1.8 3.5-4 3.5H8.5c-2.2 0-4-1.5-4-3.5 0-1.5 1-3 2.5-3.5 0-2.5 2-5 5-5z"/><path d="M12 15v6"/>'};
  // tab 2: the size question sits right under the screen, so the screen stays visible above the phone keyboard
  document.querySelector('#t2 .answer .crt').insertAdjacentElement('afterend',document.querySelector('#t2 .sizeq'));
+ // location and the roof-layout tool live in tab 2's satellite section (moved here so the elements keep their handlers)
+ $('t2SatBody').append($('coords').closest('.field'),$('roofPanel'));$('roofPanel').classList.remove('collapsed');
  const order=['sun','wallet','panel','bill','pin','roof','compass','tree','ruler'];
  document.querySelectorAll('#t1 .q h4, #t2 .q h4').forEach((h,i)=>{if(order[i])h.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 24 24" aria-hidden="true">${I[order[i]]}</svg>`);});}
 updateLoc(false);
