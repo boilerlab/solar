@@ -723,7 +723,7 @@ function useRoofImage(im,sat){
   $('roofPanel').classList.remove('collapsed');roofTgl();
   $('drop').hidden=true;$('layoutWrap').hidden=false;$('roofClear').hidden=false;$('satNav').hidden=!sat;
   if(sat){// scale is known from the zoom level: draw a 10 m scale bar and skip step 1
-    const mpp=satMpp(sat.lat,sat.z)/s,y=cv.height-28;LY.sl=[{x:24,y},{x:24+10/mpp,y}];$('lyMeters').value=10;
+    const mpp=satMpp(sat.lat,sat.z)/s,y=44; // top-left, clear of the Google logo and imagery credit at the bottomLY.sl=[{x:24,y},{x:24+10/mpp,y}];$('lyMeters').value=10;
     if(sat.house){const pc=merc(sat.lat,sat.lng,sat.z),ph=merc(sat.house.lat,sat.house.lng,sat.z);LY.pin={x:cv.width/2+(ph.x-pc.x)*2*s,y:cv.height/2+(ph.y-pc.y)*2*s};}
     lyCompute();setMode('roof');}
   else{setMode('scale');lyResult();}
