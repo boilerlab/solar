@@ -19,7 +19,10 @@
 <title>คำนวณโซลาร์ภาคประชาชน</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- fonts load without blocking the first paint; the page shows in system fonts until they arrive -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Kanit:wght@600;700&family=IBM+Plex+Sans+Thai:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@600;700&family=IBM+Plex+Sans+Thai:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap"></noscript>
 <style>
 /* Layout: meter-panel tool — sticky input column left, results ledger right; stacks on phone */
 :root{
@@ -917,7 +920,7 @@ function fetchSat(sat){
   const im=new Image();
   im.onload=()=>{satMsg('');useRoofImage(im,sat);};
   im.onerror=()=>satMsg('ดึงภาพไม่สำเร็จ ตรวจ API key การเปิดใช้ Maps Static API การผูกบัญชีเรียกเก็บเงิน และโดเมนที่อนุญาตให้ key ใช้ได้',true);
-  im.src=`https://maps.googleapis.com/maps/api/staticmap?center=${sat.lat.toFixed(6)},${sat.lng.toFixed(6)}&zoom=${sat.z}&size=640x640&scale=2&maptype=satellite&key=${encodeURIComponent(GMAPS_KEY)}`;
+  im.src=`https://maps.googleapis.com/maps/api/staticmap?center=${sat.lat.toFixed(6)},${sat.lng.toFixed(6)}&zoom=${sat.z}&size=640x640&scale=2&format=jpg&maptype=satellite&key=${encodeURIComponent(GMAPS_KEY)}`;
 }
 if(GMAPS_KEY){$('fetchSat').hidden=false;$('satZoom').hidden=false;$('lnkMaps').classList.remove('solid');}
 $('fetchSat').addEventListener('click',()=>{const c=parseCoords($('coords').value);
