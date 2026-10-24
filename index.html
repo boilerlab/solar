@@ -137,6 +137,7 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .answer{text-align:center;justify-items:center;padding:28px 20px;gap:14px}
 .answer p{margin:0}
 .simple .answer{order:-1}
+.answer,.tab{scroll-margin-top:12px}
 .answer .billq{width:100%;max-width:420px;text-align:left;margin-top:6px}
 .answer .billq h4{padding-right:64px}
 .answer .billq input{background:var(--surface);border:2px solid var(--forest)}
@@ -725,7 +726,8 @@ $('gpsBtn').addEventListener('click',()=>{
     {enableHighAccuracy:true,timeout:15000});
 });
 // no coordinates yet: Google Maps centres this link on the viewer's own current location
-const MAPS_HERE='https://www.google.com/maps/@?api=1&map_action=map&basemap=satellite&zoom=19';
+// a map URL without a centre opens at 0,0 in the Maps app, so default to a Thailand overview
+const MAPS_HERE='https://www.google.com/maps/@?api=1&map_action=map&basemap=satellite&center=13.7367,100.5232&zoom=6';
 let roofURL=null;
 function showRoof(file){
   if(!file||!/^image\//.test(file.type))return;
@@ -1191,7 +1193,19 @@ let guide=-1;const GUIDE=['gpsBtn','lnkPick','pasteCoords'];
 function setGuide(i){guide=i;GUIDE.forEach((id,k)=>$(id).classList.toggle('blink',k===i));}
 GUIDE.forEach((id,k)=>$(id).addEventListener('click',()=>{if(guide===k)setGuide(k+1<GUIDE.length?k+1:-1);}));
 $('coords').addEventListener('paste',()=>{if(guide>=0)setGuide(-1);});
-document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.t)));
+document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>{showTab(b.dataset.t);const s=$(b.dataset.t),target=s.querySelector('.answer')||s;requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'}));}));
+// Google Maps buttons with no house coordinates yet: find the phone's position first, then open Maps there
+function mapsAt(la,lo){return `https://www.google.com/maps/@?api=1&map_action=map&basemap=satellite&center=${la.toFixed(6)},${lo.toFixed(6)}&zoom=19`;}
+['lnkPick','lnkMaps','s2Maps'].forEach(id=>$(id).addEventListener('click',e=>{
+  if(parseCoords($('coords').value))return;
+  const a=e.currentTarget,w=window.open('','_blank');
+  if(!w){a.href=MAPS_HERE;return;}
+  e.preventDefault();
+  try{w.document.write('<p style="font:18px sans-serif;padding:24px">กำลังหาตำแหน่งของคุณ…</p>');}catch(_){}
+  const go=u=>{try{w.location.href=u;}catch(_){location.href=u;}};
+  if(!navigator.geolocation){go(MAPS_HERE);return;}
+  navigator.geolocation.getCurrentPosition(pos=>go(mapsAt(pos.coords.latitude,pos.coords.longitude)),()=>go(MAPS_HERE),{enableHighAccuracy:true,timeout:10000,maximumAge:60000});
+}));
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.go==='roof'){showTab('adv');$('roofPanel').classList.remove('collapsed');roofTgl();$('roofPanel').scrollIntoView({behavior:'smooth'});}else showTab(b.dataset.go);}));
 const S1={pres:40,loan:1,size:5},S2={where:'roof',mat:'metal',dir:'s',shade:'none'};
 function chipGroup(id,obj,key,cb){const g=$(id);const sync=()=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===String(obj[key]))));
