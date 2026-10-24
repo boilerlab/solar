@@ -210,6 +210,9 @@ details.more summary{font-size:14px}
 .lyhint{font-size:13px;color:var(--ink);background:var(--sun-soft);border-radius:8px;padding:8px 10px;margin:0;min-height:calc(4.8em + 16px)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn.danger{border-color:var(--warn);color:var(--warn)}
+.btn.blink{animation:btnBlink 1s ease-in-out infinite}
+@keyframes btnBlink{50%{background:var(--yel);color:var(--forest);border-color:var(--sun);box-shadow:0 0 0 4px rgba(245,184,0,.35),0 0 16px 4px rgba(245,184,0,.6)}}
+@media (prefers-reduced-motion:reduce){.btn.blink{animation:none;background:var(--yel);color:var(--forest);border-color:var(--sun)}}
 .locbtns{display:flex;flex-wrap:wrap;gap:6px}
 .btn.sm{font-size:12.5px;padding:5px 10px}
 #coordHint.ok{color:var(--good)} #coordHint.err{color:var(--warn)}
@@ -254,7 +257,7 @@ a.btn{text-decoration:none;display:inline-block}
     <button type="button" data-t="t1" aria-selected="true"><span class="tn">1</span>คุ้มไหม?</button>
     <button type="button" data-t="t2" aria-selected="false"><span class="tn">2</span>ติดได้ไหม?</button>
     <button type="button" data-t="t3" aria-selected="false"><span class="tn">3</span>ติดกับใคร?</button>
-    <button type="button" data-t="adv" aria-selected="false" class="advbtn">ตัวเลขละเอียด / สำหรับช่าง</button>
+    <button type="button" data-t="adv" aria-selected="false"><span class="tn">4</span>ตัวเลขละเอียด / สำหรับช่าง</button>
   </nav>
 
   <section class="tab simple" id="t1">
@@ -358,9 +361,9 @@ a.btn{text-decoration:none;display:inline-block}
           <label for="coords">พิกัดจาก Google Maps</label>
           <input type="text" id="coords" value="" placeholder="เช่น 14.9799, 102.0978 หรือวางลิงก์ Google Maps">
           <div class="locbtns">
-            <a class="btn sm solid" id="lnkPick" href="https://www.google.com/maps/@?api=1&amp;map_action=map&amp;basemap=satellite&amp;zoom=19" target="_blank" rel="noopener">เปิด Google Maps</a>
-            <button class="btn sm" type="button" id="pasteCoords">วางพิกัด</button>
             <button class="btn sm" type="button" id="gpsBtn">ตำแหน่งปัจจุบัน</button>
+            <a class="btn sm" id="lnkPick" href="https://www.google.com/maps/@?api=1&amp;map_action=map&amp;basemap=satellite&amp;zoom=19" target="_blank" rel="noopener">เปิด Google Maps</a>
+            <button class="btn sm" type="button" id="pasteCoords">วางพิกัด</button>
           </div>
           <span class="hint" id="coordHint">ใน Google Maps คลิกขวาที่หลังคาบ้าน แล้วคลิกตัวเลขพิกัดบรรทัดบนสุดเพื่อคัดลอก กลับมากด "วางพิกัด" หรือ Ctrl+V ในช่องนี้</span>
         </div>
@@ -1169,7 +1172,12 @@ $('copyBtn').addEventListener('click',()=>{const t=$('summary').textContent;
   const fallback=()=>{const r=document.createRange();r.selectNodeContents($('summary'));const s=getSelection();s.removeAllRanges();s.addRange(r);};
   try{navigator.clipboard.writeText(t).then(done,fallback);}catch(e){fallback();}});
 // ===== Simple mode: three plain-language questions on top of the detailed calculator =====
-function showTab(t){document.querySelectorAll('.tab').forEach(s=>{s.hidden=s.id!==t;});document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===t)));if(t==='adv')requestAnimationFrame(()=>draw());}
+function showTab(t){document.querySelectorAll('.tab').forEach(s=>{s.hidden=s.id!==t;});document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===t)));if(t==='adv'){requestAnimationFrame(()=>draw());if(!$('coords').value.trim()&&guide<0)setGuide(0);}}
+// guided start in tab 4: current location → open Google Maps → paste coordinates, each blinks in turn
+let guide=-1;const GUIDE=['gpsBtn','lnkPick','pasteCoords'];
+function setGuide(i){guide=i;GUIDE.forEach((id,k)=>$(id).classList.toggle('blink',k===i));}
+GUIDE.forEach((id,k)=>$(id).addEventListener('click',()=>{if(guide===k)setGuide(k+1<GUIDE.length?k+1:-1);}));
+$('coords').addEventListener('paste',()=>{if(guide>=0)setGuide(-1);});
 document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.t)));
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.go==='roof'){showTab('adv');$('roofPanel').classList.remove('collapsed');roofTgl();$('roofPanel').scrollIntoView({behavior:'smooth'});}else showTab(b.dataset.go);}));
 const S1={pres:40,loan:1,size:5},S2={where:'roof',mat:'metal',dir:'s',shade:'none'};
