@@ -350,9 +350,12 @@ a.btn{text-decoration:none;display:inline-block}
         <div class="chips" id="s_pres"><button data-v="25">ไม่มี ไปทำงานทั้งวัน</button><button data-v="40">อยู่บ้างบางวัน</button><button data-v="55">อยู่บ้านทั้งวัน</button><button data-v="70">เปิดร้าน / ทำกิจการกลางวัน</button></div></div>
       <div class="q"><h4>จะจ่ายอย่างไร</h4>
         <div class="chips" id="s_loan"><button data-v="1">กู้ธนาคารรัฐ (ดอกเบี้ย 2.5%)</button><button data-v="0">จ่ายเงินสด</button></div></div>
+      <div class="q"><h4>เงิน 50,000 บาทจากรัฐเป็นแบบไหน</h4>
+        <div class="chips" id="s_grant"><button data-v="1">ให้เปล่า (หักจากราคา)</button><button data-v="0">เป็นเงินกู้ (ไม่มีส่วนลด)</button></div>
+        <span class="hint">ข่าวยังเขียนไม่ตรงกัน รอมติ ครม. 26 ต.ค. ลองกดดูผลทั้งสองแบบ</span></div>
       <div class="q"><h4>ขนาดที่จะติด</h4>
         <div class="chips" id="s_size"><button data-v="5">5 kW</button><button data-v="7.5">7.5 kW</button><button data-v="10">10 kW</button></div>
-        <span class="hint">โครงการให้ติด 5–10 kW บ้านส่วนใหญ่ 5 kW ก็พอ</span></div>
+        <span class="hint">ข่าวบอกติดได้ไม่เกิน 10 kW บ้านส่วนใหญ่ 5 kW ก็พอ</span></div>
       <details class="more"><summary>ข้อมูลเพิ่ม (ไม่บังคับ)</summary>
         <div class="q" style="margin-top:12px"><label for="s_prov">จังหวัด (ใช้ค่าแสงแดดของพื้นที่)</label><select id="s_prov"></select></div>
         <div class="q" style="margin-top:12px"><label for="s_total">ราคาที่ช่างเสนอ (รวมทั้งหมด)</label><div class="inrow"><input type="number" id="s_total" placeholder="ไม่ทราบ ใช้ราคากลาง" step="1000"><span class="unit">บาท</span></div></div>
@@ -365,6 +368,7 @@ a.btn{text-decoration:none;display:inline-block}
         <div class="chips" id="s_billChips"><button type="button" data-v="800">800</button><button type="button" data-v="1500">1,500</button><button type="button" data-v="2000">2,000</button><button type="button" data-v="2500">2,500</button><button type="button" data-v="4000">4,000</button></div></div>
       <div class="crt"><div class="verdict-big v-idle" id="sVerdict">--/--</div></div>
       <span class="note" id="sSys"></span>
+      <p class="note" id="sPrice" hidden></p>
       <p class="line" id="sLine1"></p>
       <button type="button" class="nextbtn" id="sNext" data-next="t2" hidden><span class="tn">2</span>ไปข้อ 2 พื้นที่พอไหม →</button>
       <p class="note" id="sLine2"></p>
@@ -395,6 +399,7 @@ a.btn{text-decoration:none;display:inline-block}
     <div class="panel answer">
       <span class="note" id="s2Need"></span>
       <div class="crt"><div class="verdict-big v-idle" id="s2Verdict">--/--</div></div>
+      <p class="note">หมายถึงพื้นที่พอ ยังไม่ใช่สิทธิ์เข้าโครงการ</p>
       <p class="line" id="s2Line"></p>
       <button type="button" class="nextbtn" id="s2Next" data-next="t3" hidden><span class="tn">3</span>ไปข้อ 3 ติดกับใคร →</button>
       <svg id="s2Svg" class="fitsvg" viewBox="0 0 320 210" role="img" aria-label="ภาพจำลองการวางแผงบนพื้นที่"></svg>
@@ -418,10 +423,10 @@ a.btn{text-decoration:none;display:inline-block}
   <section class="tab" id="t3" hidden style="display:grid;gap:24px">
     <div class="two">
       <div class="panel">
-        <h3>ตอนนี้: รอรายชื่อช่างจากการไฟฟ้า</h3>
-        <p class="note" style="font-size:14px">ข่าวบอกว่าต้องเลือกผู้ติดตั้งจากรายชื่อที่การไฟฟ้ารับรอง (AVL) ซึ่งยังไม่ประกาศ เมื่อประกาศแล้วจะใส่รายชื่อให้เลือกในหน้านี้ ระหว่างนี้ใช้เช็คลิสต์นี้คัดช่าง</p>
+        <h3>ตอนนี้: รอประกาศเรื่องผู้ติดตั้ง</h3>
+        <p class="note" style="font-size:14px">ข่าวรอบก่อนบอกว่าอาจต้องเลือกผู้ติดตั้งจากรายชื่อที่การไฟฟ้ารับรอง (AVL) ข่าวล่าสุดยังไม่ยืนยัน รอประกาศหลัง ครม. ถ้ามีรายชื่อจะใส่ให้เลือกในหน้านี้ ระหว่างนี้ใช้เช็คลิสต์นี้คัดช่าง</p>
         <ul class="checks">
-          <li>อยู่ในรายชื่อที่การไฟฟ้ารับรอง (เมื่อประกาศแล้ว)</li>
+          <li>อยู่ในรายชื่อที่การไฟฟ้ารับรอง (ถ้ามีประกาศ)</li>
           <li>เป็นบริษัทจดทะเบียน มีที่อยู่และหน้าร้านจริง เช็คได้ที่ <a href="https://datawarehouse.dbd.go.th" target="_blank" rel="noopener">กรมพัฒนาธุรกิจการค้า</a></li>
           <li>มีวิศวกรไฟฟ้าเซ็นรับรองแบบ และติดตั้งตามมาตรฐาน วสท.</li>
           <li>รับประกันงานติดตั้งและหลังคารั่วอย่างน้อย 1–2 ปี บอกเวลาเข้าซ่อมเป็นลายลักษณ์อักษร</li>
@@ -1208,7 +1213,7 @@ function render(){
   if(document.activeElement!==$('billBaht'))$('billBaht').value=Math.round(b0.total);
   $('billHint').textContent=`ค่าไฟประมาณ ${fmt(b0.total)} บาท/เดือน (เฉลี่ย ${fmt(b0.total/Math.max(p.kwh,1),2)} บาท/หน่วย)`;
   $('capexHint').textContent=`งบลงทุนรวม ${fmt(R.capex)} บาท = แผง+ติดตั้ง ${fmt(p.kwp*p.price)}${hy?` + แบต/อินเวอร์เตอร์ไฮบริด ${fmt(R.battCost)}`:''} + ค่าตรวจเชื่อมต่อ ${fmt(p.fee)}`;
-  if(R.sub||R.loan)$('capexHint').textContent+=` · หักเงินสนับสนุน ${fmt(R.sub)} (รัฐโอนหลังเชื่อมระบบ)${R.loan?` · กู้ ${fmt(R.loan)} ผ่อน ${fmt(R.pay)} บาท/เดือน`:''} · เงินที่ลงเอง ${fmt(Math.max(0,R.outlay))} บาท`;
+  if(R.sub||R.loan)$('capexHint').textContent+=` · หักเงินสนับสนุน ${fmt(R.sub)} (ตามข่าว)${R.loan?` · กู้ ${fmt(R.loan)} ผ่อน ${fmt(R.pay)} บาท/เดือน`:''} · เงินที่ลงเอง ${fmt(Math.max(0,R.outlay))} บาท`;
   $('sugText').innerHTML=`ขนาดที่เหมาะกับบ้านนี้ ≈ <b>${fmt(S.kwpSug,1)} kWp</b>${p.useSub&&S.kwpSug<5?' (โครงการกำหนดขั้นต่ำ 5 kW)':''}`;
   $('battSug').innerHTML=`แบตที่พอดีกับระบบนี้ ≈ <b>${fmt(S.battSug,1)} kWh</b>`;
 
@@ -1275,7 +1280,7 @@ function render(){
   if(curtM>1)warn.push(`ไฟส่วนเกินราว ${fmt(curtM)} หน่วย/เดือน ขายไม่ได้เพราะเกินเพดาน ${fmt(p.cap)} kW ลองลดขนาดระบบหรือเพิ่มแบตเตอรี่`);
   if(p.kwp>S.kwpSug*1.6&&!hy)warn.push(`ระบบใหญ่กว่าการใช้ไฟกลางวันของบ้านมาก ไฟส่วนใหญ่จะขายที่ ${fmt(p.sell,2)} บาท ซึ่งต่ำกว่าค่าไฟที่ซื้อ ทำให้คืนทุนช้าลง ลองเทียบกับระบบ Hybrid`);
   if(hy&&p.battKwh>S.battSug*1.5)warn.push(`แบต ${fmt(p.battKwh,1)} kWh ใหญ่เกินไฟส่วนเกินที่แผงผลิตได้ แบตจะชาร์จไม่เต็มเกือบทุกวัน ลดเหลือราว ${fmt(S.battSug,1)} kWh หรือเพิ่มขนาดแผง`);
-  if(p.useSub&&(p.kwp<5||p.kwp>10))warn.push(`ตามข่าวล่าสุด ต้องติดตั้ง 5–10 kW จึงจะได้เงินสนับสนุน ตอนนี้ตั้งไว้ ${fmt(p.kwp,1)} kWp`);
+  if(p.kwp>10)warn.push(`ตามข่าวล่าสุด โครงการให้ติดได้ไม่เกิน 10 kW ตอนนี้ตั้งไว้ ${fmt(p.kwp,1)} kWp`);
   $('warn').hidden=!warn.length;$('warn').innerHTML=warn.join('<br>');
 
   drawDay(R.sim);
@@ -1357,15 +1362,16 @@ function mapsAt(la,lo){return `https://www.google.com/maps/@?api=1&map_action=ma
   navigator.geolocation.getCurrentPosition(pos=>go(mapsAt(pos.coords.latitude,pos.coords.longitude)),()=>go(MAPS_HERE),{enableHighAccuracy:true,timeout:10000,maximumAge:60000});
 }));
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.go==='roof')openSat();else showTab(b.dataset.go);}));
-const S1={pres:40,loan:1,size:5},S2={where:'roof',mat:'metal',dir:'s',shade:'none'};
+const S1={pres:40,loan:1,size:5,grant:1},S2={where:'roof',mat:'metal',dir:'s',shade:'none'};
 function chipGroup(id,obj,key,cb){const g=$(id);const sync=()=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===String(obj[key]))));
   g.querySelectorAll('button').forEach(b=>{b.type='button';b.addEventListener('click',()=>{const v=b.dataset.v;obj[key]=isNaN(+v)?v:+v;sync();cb();});});sync();}
 function simpleSync(){
   const b=parseFloat($('s_bill').value)||0;$('billBaht').value=b;$('kwh').value=kwhFromBill(b);
-  $('day').value=S1.pres;$('useLoan').checked=!!S1.loan;$('useSub').checked=true;$('kwp').value=S1.size;
+  $('day').value=S1.pres;$('useLoan').checked=!!S1.loan;$('useSub').checked=S1.grant!==0;$('kwp').value=S1.size;
   const t=parseFloat($('s_total').value),fee=parseFloat($('fee').value)||0;$('price').value=t>0?Math.round((t-fee)/S1.size):27000;
   render();}
-chipGroup('s_pres',S1,'pres',simpleSync);chipGroup('s_loan',S1,'loan',simpleSync);chipGroup('s_size',S1,'size',simpleSync);
+chipGroup('s_pres',S1,'pres',simpleSync);chipGroup('s_loan',S1,'loan',simpleSync);chipGroup('s_size',S1,'size',simpleSync);chipGroup('s_grant',S1,'grant',simpleSync);
+$('sPrice').addEventListener('click',e=>{if(!e.target.closest('button'))return;const d=document.querySelector('#t1 details.more');d.open=true;d.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>$('s_total').focus(),400);});
 $('s_billChips').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{$('s_bill').value=b.dataset.v;simpleSync();}));
 $('s_bill').addEventListener('input',simpleSync);$('s_total').addEventListener('input',simpleSync);
 $('s_prov').innerHTML=$('prov').innerHTML.replace('— จากพิกัด —','ไม่ระบุ');
@@ -1378,10 +1384,11 @@ function verdictOf(R){
 function renderSimple(){
   const p=read(),R=compute(p,false),[w,c]=verdictOf(R),net=R.benefit/12-R.pay;
   $('s_billChips').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===+$('s_bill').value)));
-  const billIn=parseFloat($('s_bill').value)||0;$('sMeter').hidden=!billIn;
+  const billIn=parseFloat($('s_bill').value)||0;$('sMeter').hidden=!billIn;if(!billIn)$('sPrice').hidden=true;
   $('t1').classList.toggle('pre',!billIn);glowTab('t2',billIn>0);$('sNext').hidden=!billIn;
   if(!billIn){const e=$('sVerdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('sSys').textContent='ยังไม่มีข้อมูล';$('sLine1').innerHTML='กรอก<b>ค่าไฟต่อเดือน</b>เพื่อดูผล';$('sLine2').textContent='';$('sTips').innerHTML='';renderFit();renderQuotes();return;}
-  $('sSys').textContent=`ติดโซลาร์ ${fmt(p.kwp,1)} kW · ${R.loan?'กู้ธนาคารรัฐ':'จ่ายเงินสด'}${R.sub?` · หักเงินสนับสนุน ${fmt(R.sub)} บาท`:''}`;
+  $('sSys').textContent=`ติดโซลาร์ ${fmt(p.kwp,1)} kW · ${R.loan?'กู้ธนาคารรัฐ':'จ่ายเงินสด'}${R.sub?` · หักเงินสนับสนุน ${fmt(R.sub)} บาท`:' · ไม่มีเงินให้เปล่า'}`;
+  $('sPrice').hidden=false;$('sPrice').innerHTML=`คิดจากราคาติดตั้ง ${fmt(p.price)} บาท/kW ${parseFloat($('s_total').value)>0?'(จากราคาที่กรอก)':'(ราคากลาง)'} · <button type="button" class="linkbtn">แก้ได้</button>`;
   $('sVerdict').textContent=w;$('sVerdict').className='verdict-big '+c;fitCrt($('sVerdict'));
   if(R.loan>0)$('sLine1').innerHTML=net>=0?`ทุกเดือน <b>เหลือ ${fmt(net)} บาท</b><br>หลังจ่ายค่างวด ${fmt(R.pay)} บาท นาน ${p.ly} ปี`:`ทุกเดือน <b>ต้องควักเพิ่ม ${fmt(-net)} บาท</b><br>ช่วงผ่อน ${p.ly} ปี ค่างวด ${fmt(R.pay)} บาท`;
   else $('sLine1').innerHTML=`จ่ายเอง ${fmt(Math.max(0,R.outlay))} บาท<br><b>${R.payback!==null?`คืนทุนใน ${fmt(R.payback,1)} ปี`:'คืนทุนไม่ทันใน 20 ปี'}</b>`;
@@ -1396,7 +1403,7 @@ function renderSimple(){
   if(R.loan&&net<0)act.push('ช่วงผ่อนต้องเติมเงินเอง ลองจ่ายเงินสดบางส่วนเพื่อลดยอดกู้ หรือขอผ่อนนานขึ้น');
   if(p.kwh<200)act.push('บ้านใช้ไฟน้อย ประโยชน์ส่วนใหญ่มาจากการขายไฟ ค่าไฟที่ลดได้จะไม่มาก');
   if(!act.length)act.push('ตัวเลขดีแล้ว ขั้นต่อไปคือเช็คพื้นที่ในข้อ 2 และเลือกช่างในข้อ 3');
-  $('sTips').innerHTML=act.slice(0,3).concat(['ระวังคนเก็บมัดจำ "จองสิทธิ์" รัฐโอนเงินสนับสนุนหลังการไฟฟ้าเชื่อมระบบแล้วเท่านั้น']).map(t=>`<li>${t}</li>`).join('');
+  $('sTips').innerHTML=act.slice(0,3).concat(['ระวังคนเก็บมัดจำ "จองสิทธิ์" ลงทะเบียนผ่านช่องทางของรัฐเท่านั้น และอย่าโอนเงินก่อนเซ็นสัญญากับผู้ติดตั้ง']).map(t=>`<li>${t}</li>`).join('');
   renderFit();renderQuotes();
 }
 // ---- question 2: will it fit? ----
@@ -1461,7 +1468,7 @@ function renderQuotes(){
   const p=read();let best=0,bs=-Infinity;
   const out=[1,2,3].map(n=>{const g=k=>$(`q${n}_${k}`),total=parseFloat(g('total').value),kw=parseFloat(g('kw').value)||5;if(!(total>0))return null;
     const R=compute({...p,kwp:kw,price:Math.max(0,(total-p.fee)/kw)},false),[w,c]=verdictOf(R),net=R.benefit/12-R.pay,fl=[];
-    if(!g('avl').checked)fl.push('ยังไม่ยืนยันว่าอยู่ใน AVL');if(!(parseFloat(g('invW').value)>=5))fl.push('ประกันอินเวอร์เตอร์ไม่ถึง 5 ปี');if(!(parseFloat(g('workW').value)>=1))fl.push('ไม่ระบุประกันงานติดตั้ง');if(kw<5||kw>10)fl.push('ขนาดไม่อยู่ใน 5–10 kW');
+    if(!g('avl').checked)fl.push('ยังไม่ยืนยันว่าอยู่ใน AVL');if(!(parseFloat(g('invW').value)>=5))fl.push('ประกันอินเวอร์เตอร์ไม่ถึง 5 ปี');if(!(parseFloat(g('workW').value)>=1))fl.push('ไม่ระบุประกันงานติดตั้ง');if(kw>10)fl.push('เกิน 10 kW ตามข่าว');
     const sc=(R.loan?net:R.benefit/12-R.outlay/120)-fl.length*500;if(sc>bs){bs=sc;best=n;}
     return{n,ppk:total/kw,w,c,net,R,fl};});
   const cell=f=>[1,2,3].map(n=>`<td>${out[n-1]?f(out[n-1]):'<span class="note">–</span>'}</td>`).join('');
@@ -1476,7 +1483,8 @@ function renderQuotes(){
  document.querySelector('#t2 .answer .crt').insertAdjacentElement('afterend',document.querySelector('#t2 .sizeq'));
  // location and the roof-layout tool live in tab 2's satellite section (moved here so the elements keep their handlers)
  $('t2SatBody').append($('coords').closest('.field'),$('roofPanel'));$('roofPanel').classList.remove('collapsed');
- const order=['sun','wallet','panel','bill','pin','roof','compass','tree','ruler'];
+ I.coin='<circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M14.8 9.2c-.4-.9-1.5-1.4-2.8-1.4-1.6 0-2.8.8-2.8 1.9s1.2 1.6 2.8 1.9 2.8.9 2.8 2-1.2 1.9-2.8 1.9c-1.4 0-2.5-.6-2.9-1.5"/>';
+ const order=['sun','wallet','coin','panel','bill','pin','roof','compass','tree','ruler'];
  document.querySelectorAll('#t1 .q h4, #t2 .q h4').forEach((h,i)=>{if(order[i])h.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 24 24" aria-hidden="true">${I[order[i]]}</svg>`);});}
 placeNav('t1');
 // remember answers on this phone, so coming back from Google Maps (which often reloads the page) lands where the user left
@@ -1485,7 +1493,7 @@ function saveState(){try{
   const tab=(document.querySelector('#tabs [aria-selected=true]')||{}).dataset?.t||'t1';
   localStorage.setItem(STKEY,JSON.stringify({ts:Date.now(),tab,y:scrollY,sat:$('t2Sat').open,maps:awaitingMaps,
     v:Object.fromEntries(['s_bill','s_total','s_w','s_l','coords','s2Sb'].map(id=>[id,$(id).value])),old:$('s_old').checked,
-    S1:{pres:S1.pres,loan:S1.loan,size:S1.size},S2:{where:S2.where,mat:S2.mat,dir:S2.dir,shade:S2.shade,ori:S2.ori,sb:S2.sb}}));}catch(e){}}
+    S1:{pres:S1.pres,loan:S1.loan,size:S1.size,grant:S1.grant},S2:{where:S2.where,mat:S2.mat,dir:S2.dir,shade:S2.shade,ori:S2.ori,sb:S2.sb}}));}catch(e){}}
 let stT=0;const saveSoon=()=>{clearTimeout(stT);stT=setTimeout(saveState,300);};
 ['input','change','click'].forEach(ev=>document.addEventListener(ev,saveSoon,true));
 window.addEventListener('pagehide',saveState);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveState();});
@@ -1494,7 +1502,7 @@ try{const s=JSON.parse(localStorage.getItem(STKEY)||'null');if(s&&Date.now()-s.t
 if(restored){
   Object.entries(restored.v||{}).forEach(([id,v])=>{if($(id)&&v!=null)$(id).value=v;});$('s_old').checked=!!restored.old;
   Object.assign(S1,restored.S1||{});Object.assign(S2,restored.S2||{});
-  [['s_pres',S1.pres],['s_loan',S1.loan],['s_size',S1.size],['s_where',S2.where],['s_mat',S2.mat],['s_dir',S2.dir],['s_shade',S2.shade]].forEach(([g,v])=>$(g).querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===String(v)))));
+  [['s_pres',S1.pres],['s_loan',S1.loan],['s_size',S1.size],['s_grant',S1.grant],['s_where',S2.where],['s_mat',S2.mat],['s_dir',S2.dir],['s_shade',S2.shade]].forEach(([g,v])=>$(g).querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===String(v)))));
 }
 updateLoc(false);
 simpleSync();
