@@ -274,7 +274,7 @@ details.more summary{font-size:14px}
 .lyhint{font-size:13px;color:var(--ink);background:var(--sun-soft);border-radius:8px;padding:8px 10px;margin:0;min-height:calc(4.8em + 16px)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn.danger{border-color:var(--warn);color:var(--warn)}
-.btn.blink{animation:btnBlink 1s ease-in-out infinite}
+.btn.blink{animation:btnBlink 1s ease-in-out infinite;border:2px solid #f28c18}
 @keyframes btnBlink{50%{background:#fff;color:var(--forest);border-color:#f28c18;box-shadow:0 0 0 4px rgba(242,140,24,.45),0 0 16px 4px rgba(242,140,24,.45)}}
 @media (prefers-reduced-motion:reduce){.btn.blink{animation:none;background:#fff;color:var(--forest);border-color:#f28c18}}
 .locbtns{display:flex;flex-wrap:wrap;gap:6px}
@@ -746,7 +746,7 @@ a.btn{text-decoration:none;display:inline-block}
 
   <footer class="foot">
     <svg aria-hidden="true"><use href="#blIcon"/></svg>
-    <div><div class="foot-name">BOILER <b>LAB</b> · ครูโบ้ม</div>
+    <div><div class="foot-name">BOILER <b>LAB</b></div>
       <div class="foot-tag"><span>&gt;_</span> Imagination limit <em>not found</em></div>
       <p class="note">แอปนี้ทำโดย Boiler Lab ให้คนที่สนใจโซลาร์ภาคประชาชนใช้ฟรี ตัวเลขเป็นการประมาณเบื้องต้น ไม่ได้เก็บข้อมูลที่กรอก</p></div>
   </footer>
@@ -824,15 +824,23 @@ function setCoords(text,msg){
   updateLoc(false);render();coordHint(msg||'ใช้พิกัดใหม่แล้ว','ok');return true;
 }
 let awaitingMaps=false;
-$('lnkPick').addEventListener('click',()=>{awaitingMaps=true;});
-window.addEventListener('focus',()=>{
-  if(!awaitingMaps)return;awaitingMaps=false;
-  const i=$('coords');i.focus();i.select();i.classList.add('flash');setTimeout(()=>i.classList.remove('flash'),1500);
-  coordHint('กด "วางพิกัด" หรือ Ctrl+V เพื่อใส่พิกัดที่คัดลอกมาจาก Google Maps','');
-});
+const TOUCH=matchMedia('(pointer:coarse)').matches,PASTE_HOW=TOUCH?'แตะค้างในช่องพิกัด แล้วเลือก "วาง"':'กด Ctrl+V ในช่องพิกัด';
+['lnkPick','lnkMaps'].forEach(id=>$(id).addEventListener('click',()=>{awaitingMaps=true;}));
+// back from Google Maps: point at the coordinates box and make the paste button blink
+function backFromMaps(){
+  if(!awaitingMaps||parseCoords($('coords').value))return;awaitingMaps=false;
+  if(typeof setGuide==='function')setGuide(2);
+  const i=$('coords');i.classList.add('flash');setTimeout(()=>i.classList.remove('flash'),1500);
+  coordHint(`กด "วางพิกัด" หรือ ${PASTE_HOW} เพื่อใส่พิกัดที่คัดลอกมาจาก Google Maps`,'');
+}
+window.addEventListener('focus',backFromMaps);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)backFromMaps();});
 $('pasteCoords').addEventListener('click',async()=>{
   try{const t=await navigator.clipboard.readText();setCoords(t,'วางพิกัดจาก Google Maps แล้ว');}
-  catch(e){const i=$('coords');i.focus();i.select();coordHint('เบราว์เซอร์ไม่ให้อ่านคลิปบอร์ด กด Ctrl+V ในช่องพิกัดแทน','err');}
+  catch(e){
+    // many phone browsers (and Facebook's) refuse clipboard reads; if the box already holds coordinates, that's fine
+    if(parseCoords($('coords').value)){coordHint('ใส่พิกัดแล้ว','ok');return;}
+    const i=$('coords');i.focus();i.select();coordHint(`เบราว์เซอร์นี้ไม่ให้ปุ่มอ่านคลิปบอร์ด ${PASTE_HOW} แทน`,'err');}
 });
 $('gpsBtn').addEventListener('click',()=>{
   if(!navigator.geolocation){coordHint('เบราว์เซอร์นี้ไม่รองรับ GPS','err');return;}
@@ -1323,6 +1331,7 @@ let guide=-1;const GUIDE=['gpsBtn','lnkPick','pasteCoords'];
 function setGuide(i){guide=i;GUIDE.forEach((id,k)=>$(id).classList.toggle('blink',k===i));}
 GUIDE.forEach((id,k)=>$(id).addEventListener('click',()=>{if(guide===k)setGuide(k+1<GUIDE.length?k+1:-1);}));
 $('coords').addEventListener('paste',()=>{if(guide>=0)setGuide(-1);});
+$('coords').addEventListener('input',()=>{if(guide>=0&&parseCoords($('coords').value))setGuide(-1);});
 document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>{showTab(b.dataset.t);const s=$(b.dataset.t),target=s.querySelector('.answer')||$('tabs');requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'}));}));
 // Google Maps buttons with no house coordinates yet: find the phone's position first, then open Maps there
 function mapsAt(la,lo){return `https://www.google.com/maps/@?api=1&map_action=map&basemap=satellite&center=${la.toFixed(6)},${lo.toFixed(6)}&zoom=19`;}
@@ -1459,8 +1468,32 @@ function renderQuotes(){
  const order=['sun','wallet','panel','bill','pin','roof','compass','tree','ruler'];
  document.querySelectorAll('#t1 .q h4, #t2 .q h4').forEach((h,i)=>{if(order[i])h.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 24 24" aria-hidden="true">${I[order[i]]}</svg>`);});}
 placeNav('t1');
+// remember answers on this phone, so coming back from Google Maps (which often reloads the page) lands where the user left
+const STKEY='solarState1';
+function saveState(){try{
+  const tab=(document.querySelector('#tabs [aria-selected=true]')||{}).dataset?.t||'t1';
+  localStorage.setItem(STKEY,JSON.stringify({ts:Date.now(),tab,y:scrollY,sat:$('t2Sat').open,maps:awaitingMaps,
+    v:Object.fromEntries(['s_bill','s_total','s_w','s_l','coords','s2Sb'].map(id=>[id,$(id).value])),old:$('s_old').checked,
+    S1:{pres:S1.pres,loan:S1.loan,size:S1.size},S2:{where:S2.where,mat:S2.mat,dir:S2.dir,shade:S2.shade,ori:S2.ori,sb:S2.sb}}));}catch(e){}}
+let stT=0;const saveSoon=()=>{clearTimeout(stT);stT=setTimeout(saveState,300);};
+['input','change','click'].forEach(ev=>document.addEventListener(ev,saveSoon,true));
+window.addEventListener('pagehide',saveState);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveState();});
+let restored=null;
+try{const s=JSON.parse(localStorage.getItem(STKEY)||'null');if(s&&Date.now()-s.ts<12*3600e3&&location.hash!=='#demo')restored=s;}catch(e){}
+if(restored){
+  Object.entries(restored.v||{}).forEach(([id,v])=>{if($(id)&&v!=null)$(id).value=v;});$('s_old').checked=!!restored.old;
+  Object.assign(S1,restored.S1||{});Object.assign(S2,restored.S2||{});
+  [['s_pres',S1.pres],['s_loan',S1.loan],['s_size',S1.size],['s_where',S2.where],['s_mat',S2.mat],['s_dir',S2.dir],['s_shade',S2.shade]].forEach(([g,v])=>$(g).querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===String(v)))));
+}
 updateLoc(false);
 simpleSync();
+if(restored){
+  if(restored.sat)$('t2Sat').open=true;
+  if(restored.tab&&restored.tab!=='t1')showTab(restored.tab);
+  awaitingMaps=!!restored.maps;
+  const recent=Date.now()-restored.ts<3600e3;
+  setTimeout(()=>{if(awaitingMaps&&!parseCoords($('coords').value)){$('coords').scrollIntoView({block:'center'});backFromMaps();}else if(recent)scrollTo(0,restored.y||0);},80);
+}
 // demo mode for screen-recording ads: open the page with #demo and the screen cycles the three states
 if(location.hash==='#demo'){let i=0;const seq=[['คุ้ม','v-good'],['--/--','v-idle'],['ไม่คุ้ม','v-bad']];
   setInterval(()=>{const[t,c]=seq[i++%seq.length],e=$('sVerdict');e.textContent=t;e.className='verdict-big '+c;fitCrt(e);},1600);}
