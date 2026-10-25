@@ -204,9 +204,9 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .answer .tips li{background:var(--surface)} .answer .tips li:last-child{background:#fff;border-left:4px solid var(--bad)}
 .answer .meter .bar{background:rgba(40,73,90,.18)}
 /* menu sits right under the output frame; on wide screens the questions take the right column */
-.simple>.tabs{order:-1;justify-content:center}
-.simple>.tabs .advbtn{margin-left:0}
-@media (min-width:881px){.simple>.answer{grid-column:1;grid-row:1}.simple>.tabs{grid-column:1;grid-row:2;align-self:start}.simple>.qs{grid-column:2;grid-row:1/span 2}.simple>.satbox{grid-column:1/-1;grid-row:3}}
+/* the menu sits at the bottom, just above the guide */
+#tabs{justify-content:center;padding:18px 0 4px;border-top:1px solid var(--line)}
+#tabs .advbtn{margin-left:0}
 /* before the bill is entered, tab 1 shows only the output frame and the menu */
 .simple.pre>.qs{display:none}
 .simple.pre{grid-template-columns:minmax(0,600px);justify-content:center}
@@ -1319,7 +1319,7 @@ $('copyBtn').addEventListener('click',()=>{const t=$('summary').textContent;
 function showTab(t){document.querySelectorAll('.tab').forEach(s=>{s.hidden=s.id!==t;});document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===t)));if(t==='adv'||t==='t2')requestAnimationFrame(()=>draw());
   (window._seen=window._seen||{})[t]=1;const gb=document.querySelector(`#tabs [data-t=${t}]`);if(gb)gb.classList.remove('glow');placeNav(t);}
 // the menu follows the output frame of the open tab; tabs without one get it on top
-function placeNav(t){const s=$(t),a=s.querySelector(':scope>.answer'),n=$('tabs');if(a)a.after(n);else s.before(n);}
+function placeNav(t){$('guide').before($('tabs'));}
 function glowTab(t,on){const b=document.querySelector(`#tabs [data-t=${t}]`);if(b)b.classList.toggle('glow',!!on&&!(window._seen||{})[t]);}
 document.querySelectorAll('[data-guide]').forEach(b=>b.addEventListener('click',()=>{const d=$(b.dataset.guide);d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}));
 // tab 2 satellite section: open it, scroll to it, and start the blinking guide if no coordinates yet
@@ -1332,7 +1332,7 @@ function setGuide(i){guide=i;GUIDE.forEach((id,k)=>$(id).classList.toggle('blink
 GUIDE.forEach((id,k)=>$(id).addEventListener('click',()=>{if(guide===k)setGuide(k+1<GUIDE.length?k+1:-1);}));
 $('coords').addEventListener('paste',()=>{if(guide>=0)setGuide(-1);});
 $('coords').addEventListener('input',()=>{if(guide>=0&&parseCoords($('coords').value))setGuide(-1);});
-document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>{showTab(b.dataset.t);const s=$(b.dataset.t),target=s.querySelector('.answer')||$('tabs');requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'}));}));
+document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>{showTab(b.dataset.t);const s=$(b.dataset.t),target=s.querySelector('.answer')||s;requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'}));}));
 // Google Maps buttons with no house coordinates yet: find the phone's position first, then open Maps there
 function mapsAt(la,lo){return `https://www.google.com/maps/@?api=1&map_action=map&basemap=satellite&center=${la.toFixed(6)},${lo.toFixed(6)}&zoom=19`;}
 ['lnkPick','lnkMaps'].forEach(id=>$(id).addEventListener('click',e=>{
