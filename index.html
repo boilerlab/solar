@@ -27,11 +27,11 @@
 <style>
 /* Layout: meter-panel tool — sticky input column left, results ledger right; stacks on phone */
 :root{
-  /* palette sampled from the owner's reference photo: dusty blue-grey plaster wall (#93abb7) */
-  --bg:#edf2f4; --surface:#f8fafb; --ink:#1c2a31; --muted:#56666f; --line:#d2dde2;
-  --leaf:#dae5ea; --leaf-2:#b7cad3; --forest:#28495a; --lime:#93abb7; --yel:#a9bfc9; --pv:#1f4fa3;
-  --fr-g:#93abb7; --fr-o:#c3d3da; --bad:#c8443f;
-  --cell:#3b6577; --cell-soft:#e0eaee; --sun:#f5b800; --sun-soft:#f4f0e2;
+  /* light neon sky blue (owner's choice, brighter than the dusty-wall reference) */
+  --bg:#eef9fe; --surface:#fbfeff; --ink:#10303f; --muted:#4f6b78; --line:#cbe9f5;
+  --leaf:#d9f3fd; --leaf-2:#9fe0f7; --forest:#0b5a7a; --lime:#3fd0ff; --yel:#b8ecfd; --pv:#1f4fa3;
+  --fr-g:#3fd0ff; --fr-o:#b5e6f8; --bad:#d9443e;
+  --cell:#0a8fc2; --cell-soft:#dcf4fd; --sun:#f5b800; --sun-soft:#fdf6df;
   --batt:#7c4ddb; --batt-soft:#eee7fb;
   --good:#1e7a3c; --good-soft:#dff1d6; --warn:#a86400; --grid:#8f9a8c;
   --f-display:"Kanit","IBM Plex Sans Thai",system-ui,sans-serif;
@@ -41,7 +41,7 @@
 /* single ivory look in every theme (owner's choice) */
 :root{color-scheme:light}
 *{box-sizing:border-box}
-body{background-color:var(--bg);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .45 0 0 0 0 .5 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+body{background-color:var(--bg);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .55 0 0 0 0 .7 0 0 0 .045 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
 .wrap{max-width:1180px;margin:0 auto;display:grid;gap:24px}
 header{display:grid;gap:8px;position:relative;background:var(--leaf);border-radius:20px;padding:28px 250px 28px 28px;overflow:hidden}
@@ -166,19 +166,19 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .answer .sizeq h4 svg{background:var(--surface)}
 .answer .sizeq input{background:var(--surface);border:2px solid var(--forest)}
 .answer .sizeq .unit{color:var(--forest);font-weight:600}
-.orline{display:flex;align-items:center;gap:10px;color:#34454e;font-size:13px;margin-top:4px}
-.orline::before,.orline::after{content:"";flex:1;height:1px;background:rgba(40,73,90,.35)}
+.orline{display:flex;align-items:center;gap:10px;color:#2a4a58;font-size:13px;margin-top:4px}
+.orline::before,.orline::after{content:"";flex:1;height:1px;background:rgba(11,90,122,.3)}
 .mapsbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;font-family:var(--f-display);font-size:18px;font-weight:700;border:2px solid var(--forest);color:var(--forest);background:var(--surface);border-radius:14px;text-decoration:none;box-shadow:0 3px 0 var(--forest)}
 .mapsbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--forest)}
 .mapsbtn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.crt{position:relative;width:min(100%,380px);aspect-ratio:4/3;border-radius:22px/26px;background:radial-gradient(ellipse 75% 70% at 50% 45%,#55626a 0%,#3b464d 55%,#22292e 100%);box-shadow:inset 0 0 50px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,255,255,.08),0 10px 24px rgba(30,40,30,.25);overflow:hidden;display:grid;place-items:center;container-type:inline-size;padding:6%}
+.crt{position:relative;width:min(100%,380px);aspect-ratio:4/3;border-radius:22px/26px;background:radial-gradient(ellipse 85% 80% at 50% 45%,#77868e 0%,#64737b 60%,#4f5c63 100%);box-shadow:inset 0 0 26px rgba(0,0,0,.28),inset 0 2px 0 rgba(255,255,255,.14),0 10px 24px rgba(11,90,122,.18);overflow:hidden;display:grid;place-items:center;container-type:inline-size;padding:6%}
 .crt::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);pointer-events:none}
 .crt::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 30% 18%,rgba(255,255,255,.16),transparent 70%);pointer-events:none}
 .crt .verdict-big{position:relative;z-index:1;line-height:1.1;text-align:center;font-size:30cqw}
 .answer .crt .v-good{color:#b9ff72;text-shadow:0 0 4px rgba(185,255,114,.9),0 0 18px rgba(110,255,70,.5)}
 .answer .crt .v-mid{color:#ffd24a;text-shadow:0 0 4px rgba(255,210,74,.9),0 0 18px rgba(255,170,40,.5)}
 .answer .crt .v-bad{color:#ff6f61;text-shadow:0 0 4px rgba(255,111,97,.9),0 0 18px rgba(255,60,40,.5)}
-.answer .crt .v-idle{color:#a9bdb0;text-shadow:0 0 6px rgba(169,189,176,.6);animation:crtBlink 1.2s steps(2,start) infinite}
+.answer .crt .v-idle{color:#ff9a90;text-shadow:0 0 6px rgba(255,120,110,.55),0 0 16px rgba(255,90,80,.3);animation:crtBlink 1.2s steps(2,start) infinite}
 @keyframes crtBlink{to{opacity:.35}}
 @media (prefers-reduced-motion:reduce){.answer .crt .v-idle{animation:none}}
 .qs{background:var(--leaf)}
@@ -193,9 +193,9 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .answer #sSys,.answer #s2Need{background:var(--forest);color:var(--yel);padding:5px 14px;border-radius:999px;font-weight:600;font-size:13px;max-width:100%}
 .answer .verdict-big{font-weight:800;letter-spacing:-.01em}
 .answer .v-good{color:var(--forest)} .answer .v-mid{color:#9a4d00} .answer .v-bad{color:var(--bad)}
-.answer .note{color:#2f3f48}
+.answer .note{color:#2a4a58}
 .answer .tips li{background:var(--surface)} .answer .tips li:last-child{background:#fff;border-left:4px solid var(--bad)}
-.answer .meter .bar{background:rgba(40,73,90,.18)}
+.answer .meter .bar{background:rgba(11,90,122,.15)}
 /* menu sits right under the output frame; on wide screens the questions take the right column */
 .simple>.tabs{order:-1;justify-content:center}
 .simple>.tabs .advbtn{margin-left:0}
@@ -206,8 +206,8 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .qs-t{font-family:var(--f-display);font-size:15px;font-weight:600;color:var(--muted);margin:0}
 /* the next step's tab glows once the current answer is on screen */
 .tabs button.glow{animation:tabGlow 1.1s ease-in-out infinite;border-color:var(--forest)}
-@keyframes tabGlow{50%{background:#fff;box-shadow:0 0 0 4px rgba(147,171,183,.55),0 0 22px 6px rgba(255,255,255,.95)}}
-@media (prefers-reduced-motion:reduce){.tabs button.glow{animation:none;background:#fff;box-shadow:0 0 0 4px rgba(147,171,183,.55)}}
+@keyframes tabGlow{50%{background:#fff;box-shadow:0 0 0 4px rgba(63,208,255,.5),0 0 22px 6px rgba(63,208,255,.55)}}
+@media (prefers-reduced-motion:reduce){.tabs button.glow{animation:none;background:#fff;box-shadow:0 0 0 4px rgba(63,208,255,.5)}}
 .brand{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:700;font-size:17px;letter-spacing:.04em;color:#12161d}
 .brand svg{width:34px;height:34px;flex:none}
 .brand b,.foot-name b{color:#1f7fe0;font-weight:700}
@@ -268,7 +268,7 @@ details.more summary{font-size:14px}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn.danger{border-color:var(--warn);color:var(--warn)}
 .btn.blink{animation:btnBlink 1s ease-in-out infinite}
-@keyframes btnBlink{50%{background:#fff;color:var(--forest);border-color:var(--forest);box-shadow:0 0 0 4px rgba(147,171,183,.55),0 0 16px 4px rgba(255,255,255,.95)}}
+@keyframes btnBlink{50%{background:#fff;color:var(--forest);border-color:var(--forest);box-shadow:0 0 0 4px rgba(63,208,255,.5),0 0 16px 4px rgba(63,208,255,.55)}}
 @media (prefers-reduced-motion:reduce){.btn.blink{animation:none;background:#fff;color:var(--forest);border-color:var(--forest)}}
 .locbtns{display:flex;flex-wrap:wrap;gap:6px}
 .btn.sm{font-size:12.5px;padding:5px 10px}
@@ -348,8 +348,8 @@ a.btn{text-decoration:none;display:inline-block}
     <div class="panel answer">
       <span class="stamp" aria-label="ข้อมูล ณ 24 ต.ค. 69">ข้อมูล<br>ณ 24 ต.ค.<br>69</span>
       <div class="q billq"><h4>ค่าไฟเดือนละประมาณกี่บาท</h4>
-        <div class="inrow big-in"><input type="number" id="s_bill" value="" placeholder="เช่น 2000" min="0" step="100" inputmode="numeric"><span class="unit">บาท/เดือน</span></div>
-        <div class="chips" id="s_billChips"><button type="button" data-v="800">800</button><button type="button" data-v="1500">1,500</button><button type="button" data-v="2500">2,500</button><button type="button" data-v="4000">4,000</button></div></div>
+        <div class="inrow big-in"><input type="number" id="s_bill" value="" placeholder="เช่น 1800" min="0" step="100" inputmode="numeric"><span class="unit">บาท/เดือน</span></div>
+        <div class="chips" id="s_billChips"><button type="button" data-v="800">800</button><button type="button" data-v="1500">1,500</button><button type="button" data-v="2000">2,000</button><button type="button" data-v="2500">2,500</button><button type="button" data-v="4000">4,000</button></div></div>
       <div class="crt"><div class="verdict-big v-idle" id="sVerdict">--/--</div></div>
       <span class="note" id="sSys"></span>
       <p class="line" id="sLine1"></p>
