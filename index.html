@@ -143,6 +143,9 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .answer p{margin:0}
 .simple .answer{order:-1}
 .satbox{grid-column:1/-1}
+.pageh{grid-column:1/-1;order:-2;display:grid;gap:4px}
+.pageh h2{font-family:var(--f-display);font-size:clamp(22px,4vw,28px);font-weight:700;color:var(--forest)}
+.pageh p{margin:0;font-size:14px;color:var(--muted)}
 .satbox>summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;font-family:var(--f-display);font-size:20px;font-weight:700;color:var(--forest)}
 .satbox>summary::-webkit-details-marker{display:none}
 .satbox>summary svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
@@ -322,7 +325,7 @@ a.btn{text-decoration:none;display:inline-block}
     </svg>
     <div class="eyebrow">Solar ภาคประชาชน · Net Billing · ปี 2569</div>
     <h1>ติด<span>โซลาร์ภาคประชาชน</span> คุ้มไหม?</h1>
-    <p class="lede">ตอบ 3 คำถามก่อนตัดสินใจ: คุ้มไหม ติดตรงไหนได้ และจะติดกับใคร</p>
+    <p class="lede">ตอบ 3 คำถามก่อนตัดสินใจ: คุ้มไหม พื้นที่พอไหม และจะติดกับใคร</p>
     <div class="terms">
       <span class="chip">รับซื้อไฟส่วนเกิน <b>2.20</b> บาท/หน่วย</span>
       <button type="button" class="chip" data-guide="g5">ขายได้ไม่เกิน <b>5</b> kW (AC) ต่อมิเตอร์ ⓘ</button>
@@ -335,7 +338,7 @@ a.btn{text-decoration:none;display:inline-block}
 
   <nav class="tabs" id="tabs" aria-label="คำถาม">
     <button type="button" data-t="t1" aria-selected="true"><span class="tn">1</span>คุ้มไหม?</button>
-    <button type="button" data-t="t2" aria-selected="false"><span class="tn">2</span>ติดได้ไหม?</button>
+    <button type="button" data-t="t2" aria-selected="false"><span class="tn">2</span>พื้นที่พอไหม?</button>
     <button type="button" data-t="t3" aria-selected="false"><span class="tn">3</span>ติดกับใคร?</button>
     <button type="button" data-t="adv" aria-selected="false"><span class="tn">4</span>ตัวเลขละเอียด / สำหรับช่าง</button>
   </nav>
@@ -363,7 +366,7 @@ a.btn{text-decoration:none;display:inline-block}
       <div class="crt"><div class="verdict-big v-idle" id="sVerdict">--/--</div></div>
       <span class="note" id="sSys"></span>
       <p class="line" id="sLine1"></p>
-      <button type="button" class="nextbtn" id="sNext" data-next="t2" hidden><span class="tn">2</span>ไปข้อ 2 ติดได้ไหม →</button>
+      <button type="button" class="nextbtn" id="sNext" data-next="t2" hidden><span class="tn">2</span>ไปข้อ 2 พื้นที่พอไหม →</button>
       <p class="note" id="sLine2"></p>
       <div class="meter" id="sMeter"><span class="note" id="sMeterTxt"></span><div class="bar"><div class="fill" id="sMeterFill"></div></div></div>
       <ul class="tips" id="sTips"></ul>
@@ -372,6 +375,7 @@ a.btn{text-decoration:none;display:inline-block}
   </section>
 
   <section class="tab simple" id="t2" hidden>
+    <div class="pageh"><h2>เช็คว่าพื้นที่พอวางแผงไหม</h2><p>หลังคา โรงรถ พื้นดิน หรือบ่อน้ำ วางแผงได้กี่แผ่น · หน้านี้ไม่ใช่การเช็คสิทธิ์เข้าโครงการ คุณสมบัติผู้มีสิทธิ์ยังรอประกาศ</p></div>
     <div class="panel qs">
       <div class="q"><h4>จะติดตรงไหน</h4>
         <div class="chips" id="s_where"><button data-v="roof">หลังคาบ้าน</button><button data-v="garage">หลังคาโรงรถ</button><button data-v="ground">พื้นดินว่าง</button><button data-v="float">บ่อน้ำ (ลอยน้ำ)</button></div></div>
@@ -1426,8 +1430,8 @@ function renderFit(){
   else if(S2.shade==='heavy'){v='ไม่แนะนำ';c='v-bad';line='เงาบังทั้งวัน แผงจะผลิตไฟได้น้อยมาก ถ้าตัดแต่งต้นไม้ได้ค่อยพิจารณา';}
   else if(n<min5){v='พื้นที่ไม่พอ';c='v-bad';line=`วางได้ ${n} แผง ต้องมีอย่างน้อย ${min5} แผงสำหรับ 5 kW<br>ใช้พื้นที่ราว ${aNeed(min5)} ตร.ม.`;}
   else{const cond=wh!=='roof'||S2.mat==='tile'||$('s_old').checked||S2.shade==='some'||(roofy&&S2.dir==='n');
-    if(n<need){v='ติดได้ 5 kW';c='v-mid';line=`ติด ${fmt(S1.size,1)} kW ไม่พอ<br>วางได้สูงสุด ${n} แผง (${fmt(n*pW/1000,1)} kW)`;}
-    else{v=cond?'ติดได้ ต้องเช็คก่อน':'ติดได้';c=cond?'v-mid':'v-good';line=`วางได้ <b>${n} แผง</b> (${fmt(n*pW/1000,1)} kW)<br>ใช้จริง ${need} แผง`;}}
+    if(n<need){v='พอแค่ 5 kW';c='v-mid';line=`ติด ${fmt(S1.size,1)} kW ไม่พอ<br>วางได้สูงสุด ${n} แผง (${fmt(n*pW/1000,1)} kW)`;}
+    else{v=cond?'พอ ต้องเช็คก่อน':'พื้นที่พอ';c=cond?'v-mid':'v-good';line=`วางได้ <b>${n} แผง</b> (${fmt(n*pW/1000,1)} kW)<br>ใช้จริง ${need} แผง`;}}
   if(wh==='roof'){if(S2.mat==='metal')notes.push('เมทัลชีทติดง่ายที่สุด ใช้ขายึดแบบหนีบลอน ไม่ต้องเจาะหลังคา');if(S2.mat==='tile')notes.push('กระเบื้องแตกง่าย ต้องใช้ขายึดแบบตะขอและช่างที่ชำนาญ ถ้าทำไม่ดีหลังคาจะรั่ว');if(S2.mat==='concrete')notes.push('ดาดฟ้าคอนกรีตใช้โครงตั้งเอียง ไม่ต้องเจาะ ต้องเว้นระยะไม่ให้แถวบังกันเอง');}
   if(wh==='garage')notes.push('หลังคาโรงรถส่วนมากโครงเบา ต้องให้ช่างหรือวิศวกรเช็คว่ารับน้ำหนักเพิ่มราว 15 กก./ตร.ม. ได้');
   if(wh==='ground')notes.push('ต้องทำฐานและโครงเหล็ก ล้อมรั้วกันคนและสัตว์ ยกให้พ้นระดับน้ำท่วม และเดินสายถึงมิเตอร์ ค่าติดตั้งมักสูงกว่าบนหลังคา');
