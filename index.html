@@ -207,6 +207,9 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 /* the menu sits at the bottom, just above the guide */
 #tabs{justify-content:center;padding:18px 0 4px;border-top:1px solid var(--line)}
 #tabs .advbtn{margin-left:0}
+.nextbtn{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-size:19px;font-weight:700;padding:10px 20px 10px 12px;border-radius:14px;border:2px solid #f28c18;background:var(--surface);color:var(--forest);cursor:pointer;animation:tabGlow 1.1s ease-in-out infinite}
+.nextbtn .tn{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--yel);color:var(--forest);font-size:15px}
+@media (prefers-reduced-motion:reduce){.nextbtn{animation:none}}
 /* before the bill is entered, tab 1 shows only the output frame and the menu */
 .simple.pre>.qs{display:none}
 .simple.pre{grid-template-columns:minmax(0,600px);justify-content:center}
@@ -359,6 +362,7 @@ a.btn{text-decoration:none;display:inline-block}
       <div class="crt"><div class="verdict-big v-idle" id="sVerdict">--/--</div></div>
       <span class="note" id="sSys"></span>
       <p class="line" id="sLine1"></p>
+      <button type="button" class="nextbtn" id="sNext" data-next="t2" hidden><span class="tn">2</span>ไปข้อ 2 ติดได้ไหม →</button>
       <p class="note" id="sLine2"></p>
       <div class="meter" id="sMeter"><span class="note" id="sMeterTxt"></span><div class="bar"><div class="fill" id="sMeterFill"></div></div></div>
       <ul class="tips" id="sTips"></ul>
@@ -387,6 +391,7 @@ a.btn{text-decoration:none;display:inline-block}
       <span class="note" id="s2Need"></span>
       <div class="crt"><div class="verdict-big v-idle" id="s2Verdict">--/--</div></div>
       <p class="line" id="s2Line"></p>
+      <button type="button" class="nextbtn" id="s2Next" data-next="t3" hidden><span class="tn">3</span>ไปข้อ 3 ติดกับใคร →</button>
       <svg id="s2Svg" class="fitsvg" viewBox="0 0 320 210" role="img" aria-label="ภาพจำลองการวางแผงบนพื้นที่"></svg>
       <div class="fitp" id="s2Params" hidden>
         <div class="rotrow"><button type="button" class="btn sm solid" id="s2Rot">หมุนแผง 90°</button><span class="note" id="s2RotTxt"></span></div>
@@ -1321,6 +1326,7 @@ function showTab(t){document.querySelectorAll('.tab').forEach(s=>{s.hidden=s.id!
 // the menu follows the output frame of the open tab; tabs without one get it on top
 function placeNav(t){$('guide').before($('tabs'));}
 function glowTab(t,on){const b=document.querySelector(`#tabs [data-t=${t}]`);if(b)b.classList.toggle('glow',!!on&&!(window._seen||{})[t]);}
+document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.next;showTab(t);const s=$(t);requestAnimationFrame(()=>(s.querySelector('.answer')||s).scrollIntoView({behavior:'smooth',block:'start'}));}));
 document.querySelectorAll('[data-guide]').forEach(b=>b.addEventListener('click',()=>{const d=$(b.dataset.guide);d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}));
 // tab 2 satellite section: open it, scroll to it, and start the blinking guide if no coordinates yet
 function openSat(){showTab('t2');$('t2Sat').open=true;requestAnimationFrame(()=>$('t2Sat').scrollIntoView({behavior:'smooth',block:'start'}));}
@@ -1368,7 +1374,7 @@ function renderSimple(){
   const p=read(),R=compute(p,false),[w,c]=verdictOf(R),net=R.benefit/12-R.pay;
   $('s_billChips').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===+$('s_bill').value)));
   const billIn=parseFloat($('s_bill').value)||0;$('sMeter').hidden=!billIn;
-  $('t1').classList.toggle('pre',!billIn);glowTab('t2',billIn>0);
+  $('t1').classList.toggle('pre',!billIn);glowTab('t2',billIn>0);$('sNext').hidden=!billIn;
   if(!billIn){const e=$('sVerdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('sSys').textContent='ยังไม่มีข้อมูล';$('sLine1').innerHTML='กรอก<b>ค่าไฟต่อเดือน</b>เพื่อดูผล';$('sLine2').textContent='';$('sTips').innerHTML='';renderFit();renderQuotes();return;}
   $('sSys').textContent=`ติดโซลาร์ ${fmt(p.kwp,1)} kW · ${R.loan?'กู้ธนาคารรัฐ':'จ่ายเงินสด'}${R.sub?` · หักเงินสนับสนุน ${fmt(R.sub)} บาท`:''}`;
   $('sVerdict').textContent=w;$('sVerdict').className='verdict-big '+c;fitCrt($('sVerdict'));
@@ -1409,7 +1415,7 @@ function renderFit(){
   $('q_mat').hidden=!roofy;$('q_dir').hidden=!roofy;
   $('s_dimHint').textContent=roofy?'วัดหลังคาด้านที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
   $('s2Need').textContent=`ติด ${fmt(S1.size,1)} kW ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
-  glowTab('t3',dims||lyN>0);
+  glowTab('t3',dims||lyN>0);$('s2Next').hidden=!(dims||lyN>0);
   [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
   $('s2Sb').placeholder=FIT[wh].sb;$('s2Params').hidden=!dims;S2.curA=F.a;
   $('s2RotTxt').textContent=F.count?(F.a===lyNum('lyPW',1.13)?'แผงแนวตั้ง':'แผงแนวนอน')+(S2.ori?'':' · อัตโนมัติ (วางได้มากสุด)'):'';
