@@ -165,6 +165,11 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .answer .billq h4 svg{background:var(--surface)}
 .answer .billq .unit{color:var(--forest);font-weight:600}
 .answer .sizeq{width:100%;max-width:420px;text-align:left}
+.fitp{width:100%;max-width:420px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;text-align:left}
+.fitp .rotrow{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.fitp label{display:grid;gap:2px;font-size:13px;font-weight:600;color:#2f3f48}
+.fitp input{background:var(--surface);font-size:16px}
+.sat2go{width:100%;max-width:420px;display:grid;gap:8px;text-align:left}
 .answer .sizeq h4 svg{background:var(--surface)}
 .answer .sizeq input{background:var(--surface);border:2px solid var(--forest)}
 .answer .sizeq .unit{color:var(--forest);font-weight:600}
@@ -207,9 +212,9 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .simple.pre{grid-template-columns:minmax(0,600px);justify-content:center}
 .qs-t{font-family:var(--f-display);font-size:15px;font-weight:600;color:var(--muted);margin:0}
 /* the next step's tab glows once the current answer is on screen */
-.tabs button.glow{animation:tabGlow 1.1s ease-in-out infinite;border-color:var(--forest)}
-@keyframes tabGlow{50%{background:#fff;box-shadow:0 0 0 4px rgba(147,171,183,.55),0 0 22px 6px rgba(255,255,255,.95)}}
-@media (prefers-reduced-motion:reduce){.tabs button.glow{animation:none;background:#fff;box-shadow:0 0 0 4px rgba(147,171,183,.55)}}
+.tabs button.glow{animation:tabGlow 1.1s ease-in-out infinite;border-color:#f28c18}
+@keyframes tabGlow{50%{background:#fff;border-color:#f28c18;box-shadow:0 0 0 4px rgba(242,140,24,.45),0 0 20px 6px rgba(242,140,24,.45)}}
+@media (prefers-reduced-motion:reduce){.tabs button.glow{animation:none;background:#fff;box-shadow:0 0 0 4px rgba(242,140,24,.45)}}
 .brand{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:700;font-size:17px;letter-spacing:.04em;color:#12161d}
 .brand svg{width:34px;height:34px;flex:none}
 .brand b,.foot-name b{color:#1f7fe0;font-weight:700}
@@ -270,8 +275,8 @@ details.more summary{font-size:14px}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn.danger{border-color:var(--warn);color:var(--warn)}
 .btn.blink{animation:btnBlink 1s ease-in-out infinite}
-@keyframes btnBlink{50%{background:#fff;color:var(--forest);border-color:var(--forest);box-shadow:0 0 0 4px rgba(147,171,183,.55),0 0 16px 4px rgba(255,255,255,.95)}}
-@media (prefers-reduced-motion:reduce){.btn.blink{animation:none;background:#fff;color:var(--forest);border-color:var(--forest)}}
+@keyframes btnBlink{50%{background:#fff;color:var(--forest);border-color:#f28c18;box-shadow:0 0 0 4px rgba(242,140,24,.45),0 0 16px 4px rgba(242,140,24,.45)}}
+@media (prefers-reduced-motion:reduce){.btn.blink{animation:none;background:#fff;color:var(--forest);border-color:#f28c18}}
 .locbtns{display:flex;flex-wrap:wrap;gap:6px}
 .btn.sm{font-size:12.5px;padding:5px 10px}
 #coordHint.ok{color:var(--good)} #coordHint.err{color:var(--warn)}
@@ -368,7 +373,6 @@ a.btn{text-decoration:none;display:inline-block}
       <div class="q sizeq"><h4>ขนาดพื้นที่</h4>
         <div class="inrow big-in"><input type="number" id="s_w" value="" placeholder="ยาว" step="0.5" min="0" inputmode="decimal" aria-label="ความยาว (เมตร)"><span class="unit">×</span><input type="number" id="s_l" value="" placeholder="กว้าง" step="0.5" min="0" inputmode="decimal" aria-label="ความกว้าง (เมตร)"><span class="unit">ม.</span></div>
         <span class="hint" id="s_dimHint"></span>
-        <div class="orline"><span>หรือ ไม่รู้ขนาด</span></div>
         <button type="button" class="mapsbtn" id="s2Maps"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>ดูหลังคาจากดาวเทียม</button>
         <span class="hint">ใส่ตำแหน่งบ้าน แล้ววัดขนาดใน Google Maps หรือวางแผงบนภาพดาวเทียม แอปนับแผงให้</span></div>
       <div class="q" id="q_mat"><h4>หลังคาแบบไหน</h4>
@@ -384,8 +388,15 @@ a.btn{text-decoration:none;display:inline-block}
       <div class="crt"><div class="verdict-big v-idle" id="s2Verdict">--/--</div></div>
       <p class="line" id="s2Line"></p>
       <svg id="s2Svg" class="fitsvg" viewBox="0 0 320 210" role="img" aria-label="ภาพจำลองการวางแผงบนพื้นที่"></svg>
+      <div class="fitp" id="s2Params" hidden>
+        <div class="rotrow"><button type="button" class="btn sm solid" id="s2Rot">หมุนแผง 90°</button><span class="note" id="s2RotTxt"></span></div>
+        <label>แผงยาว<span class="inrow"><input type="number" id="s2PL" step="0.01" min="0.5" inputmode="decimal"><span class="unit">ม.</span></span></label>
+        <label>แผงกว้าง<span class="inrow"><input type="number" id="s2PW" step="0.01" min="0.5" inputmode="decimal"><span class="unit">ม.</span></span></label>
+        <label>กำลังแผง<span class="inrow"><input type="number" id="s2Wt" step="5" min="100" inputmode="numeric"><span class="unit">W</span></span></label>
+        <label>เว้นจากขอบ<span class="inrow"><input type="number" id="s2Sb" step="0.1" min="0" inputmode="decimal"><span class="unit">ม.</span></span></label>
+      </div>
+      <div class="sat2go" id="s2Go"><div class="orline"><span>ไม่รู้ขนาด หรืออยากดูหลังคาจริง</span></div></div>
       <ul class="tips" id="s2Notes"></ul>
-      <p class="note">มีภาพดาวเทียมหรือภาพหลังคาจริง? <button type="button" class="linkbtn" data-go="roof">ลองวางแผงบนภาพ</button></p>
     </div>
     <details class="panel satbox" id="t2Sat">
       <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/></svg><span>ดูหลังคาจริงจากดาวเทียม</span><small>ไม่บังคับ</small></summary>
@@ -1370,11 +1381,18 @@ function renderSimple(){
 }
 // ---- question 2: will it fit? ----
 const FIT={roof:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},garage:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},ground:{sb:.5,gx:.02,gy:1.2,tilt:15,area:1.9},float:{sb:1,gx:.4,gy:.6,tilt:12,area:2.1}};
-function fitLayout(W,L,where){const f=FIT[where],pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),ct=Math.cos(f.tilt*Math.PI/180);let best={count:0};
-  for(const[a,b]of[[pw,pl],[pl,pw]]){const bh=b*ct,px=a+f.gx,py=bh+f.gy,cols=Math.max(0,Math.floor((W-2*f.sb+f.gx)/px)),rows=Math.max(0,Math.floor((L-2*f.sb+f.gy)/py));
+function fitLayout(W,L,where){const f={...FIT[where]};if(S2.sb>=0)f.sb=S2.sb;const pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),ct=Math.cos(f.tilt*Math.PI/180);let best={count:0};
+  const oris=S2.ori==='p'?[[pw,pl]]:S2.ori==='l'?[[pl,pw]]:[[pw,pl],[pl,pw]];
+  for(const[a,b]of oris){const bh=b*ct,px=a+f.gx,py=bh+f.gy,cols=Math.max(0,Math.floor((W-2*f.sb+f.gx)/px)),rows=Math.max(0,Math.floor((L-2*f.sb+f.gy)/py));
     if(cols*rows>best.count)best={count:cols*rows,cols,rows,a,bh,px,py};}
   return best;}
 chipGroup('s_where',S2,'where',()=>renderFit());chipGroup('s_mat',S2,'mat',()=>renderFit());chipGroup('s_dir',S2,'dir',()=>renderFit());chipGroup('s_shade',S2,'shade',()=>renderFit());
+// tab 2 layout controls under the drawing: rotate panels, panel size and watt, edge setback
+$('s2Go').append($('s2Maps'),$('s2Maps').nextElementSibling);
+$('s2Rot').addEventListener('click',()=>{const pw=lyNum('lyPW',1.13);S2.ori=S2.ori?(S2.ori==='p'?'l':'p'):(S2.curA===pw?'l':'p');renderFit();});
+[['s2PL','lyPL'],['s2PW','lyPW']].forEach(([a,b])=>$(a).addEventListener('input',()=>{$(b).value=$(a).value;$(b).dispatchEvent(new Event('input'));renderFit();}));
+$('s2Wt').addEventListener('input',()=>{$('panelW').value=$('s2Wt').value;$('panelW').dispatchEvent(new Event('input',{bubbles:true}));});
+$('s2Sb').addEventListener('input',()=>{const v=parseFloat($('s2Sb').value);S2.sb=isFinite(v)?v:undefined;renderFit();});
 ['s_w','s_l','s_old'].forEach(id=>$(id).addEventListener('input',()=>{if(id!=='s_old')S2.lyN=0;renderFit();}));
 function renderFit(){
   const W=parseFloat($('s_w').value)||0,L=parseFloat($('s_l').value)||0,wh=S2.where,pW=parseFloat($('panelW').value)||600,roofy=wh==='roof'||wh==='garage';
@@ -1383,6 +1401,9 @@ function renderFit(){
   $('s_dimHint').textContent=roofy?'วัดหลังคาด้านที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
   $('s2Need').textContent=`ติด ${fmt(S1.size,1)} kW ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
   glowTab('t3',dims||lyN>0);
+  [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
+  $('s2Sb').placeholder=FIT[wh].sb;$('s2Params').hidden=!dims;S2.curA=F.a;
+  $('s2RotTxt').textContent=F.count?(F.a===lyNum('lyPW',1.13)?'แผงแนวตั้ง':'แผงแนวนอน')+(S2.ori?'':' · อัตโนมัติ (วางได้มากสุด)'):'';
   if(!dims&&!lyN){const e=$('s2Verdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('s2Line').innerHTML='ใส่<b>ขนาดพื้นที่</b>เพื่อดูผล';$('s2Notes').innerHTML='';$('s2Svg').innerHTML='';$('s2Svg').style.display='none';return;}
   let v,c,line;const notes=[];
   if(roofy&&S2.mat==='poly'){v='ไม่แนะนำ';c='v-bad';line='หลังคาโพลีคาร์บอเนตหรือไวนิลรับน้ำหนักแผงไม่ได้ ต้องทำโครงใหม่';}
