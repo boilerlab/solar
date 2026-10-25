@@ -210,7 +210,7 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 /* the menu sits at the bottom, just above the guide */
 #tabs{justify-content:center;padding:18px 0 4px;border-top:1px solid var(--line)}
 #tabs .advbtn{margin-left:0}
-.nextbtn{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-size:19px;font-weight:700;padding:10px 20px 10px 12px;border-radius:14px;border:2px solid #f28c18;background:var(--surface);color:var(--forest);cursor:pointer;animation:tabGlow 1.1s ease-in-out infinite}
+.nextbtn{display:flex;align-items:center;gap:10px;white-space:nowrap;max-width:100%;font-family:var(--f-display);font-size:clamp(15px,4.4vw,19px);font-weight:700;padding:10px 20px 10px 12px;border-radius:14px;border:2px solid #f28c18;background:var(--surface);color:var(--forest);cursor:pointer;animation:tabGlow 1.1s ease-in-out infinite}
 .nextbtn .tn{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--yel);color:var(--forest);font-size:15px}
 @media (prefers-reduced-motion:reduce){.nextbtn{animation:none}}
 /* before the bill is entered, tab 1 shows only the output frame and the menu */
@@ -286,6 +286,7 @@ details.more summary{font-size:14px}
 .locbtns{display:flex;flex-wrap:wrap;gap:6px}
 .btn.sm{font-size:12.5px;padding:5px 10px}
 #coordHint.ok{color:var(--good)} #coordHint.err{color:var(--warn)}
+#s_totalHint{font-size:12.5px;color:var(--muted)} #s_totalHint.err{color:var(--bad);font-weight:600}
 #coords.flash{border-color:var(--cell);box-shadow:0 0 0 3px var(--cell-soft)}
 a.btn{text-decoration:none;display:inline-block}
 .drop{display:grid;place-items:center;gap:8px;min-height:200px;border:2px dashed var(--line);border-radius:12px;background:var(--bg);color:var(--muted);text-align:center;padding:16px;cursor:pointer;font-size:14px}
@@ -358,7 +359,7 @@ a.btn{text-decoration:none;display:inline-block}
         <span class="hint">ข่าวบอกติดได้ไม่เกิน 10 kW บ้านส่วนใหญ่ 5 kW ก็พอ</span></div>
       <details class="more"><summary>ข้อมูลเพิ่ม (ไม่บังคับ)</summary>
         <div class="q" style="margin-top:12px"><label for="s_prov">จังหวัด (ใช้ค่าแสงแดดของพื้นที่)</label><select id="s_prov"></select></div>
-        <div class="q" style="margin-top:12px"><label for="s_total">ราคาที่ช่างเสนอ (รวมทั้งหมด)</label><div class="inrow"><input type="number" id="s_total" placeholder="ไม่ทราบ ใช้ราคากลาง" step="1000"><span class="unit">บาท</span></div></div>
+        <div class="q" style="margin-top:12px"><label for="s_total">ราคาที่ช่างเสนอ (รวมทั้งหมด)</label><div class="inrow"><input type="number" id="s_total" placeholder="ไม่ทราบ ใช้ราคากลาง" step="1000"><span class="unit">บาท</span></div><span class="hint" id="s_totalHint">ราคารวมทั้งระบบก่อนหักเงินสนับสนุน เช่น 5 kW ราว 135,000 บาท</span></div>
       </details>
     </div>
     <div class="panel answer">
@@ -1368,7 +1369,11 @@ function chipGroup(id,obj,key,cb){const g=$(id);const sync=()=>g.querySelectorAl
 function simpleSync(){
   const b=parseFloat($('s_bill').value)||0;$('billBaht').value=b;$('kwh').value=kwhFromBill(b);
   $('day').value=S1.pres;$('useLoan').checked=!!S1.loan;$('useSub').checked=S1.grant!==0;$('kwp').value=S1.size;
-  const t=parseFloat($('s_total').value),fee=parseFloat($('fee').value)||0;$('price').value=t>0?Math.round((t-fee)/S1.size):27000;
+  // a total under ~10,000 baht/kW is almost always a typo (e.g. 15,000 for a whole system); keep the market price and say so
+  const t=parseFloat($('s_total').value),fee=parseFloat($('fee').value)||0,ppk=t>0?(t-fee)/S1.size:0;S1.priceOk=ppk>=10000;
+  $('price').value=S1.priceOk?Math.round(ppk):27000;
+  const th=$('s_totalHint');th.className='hint'+(t>0&&!S1.priceOk?' err':'');
+  th.textContent=t>0&&!S1.priceOk?`ราคานี้ต่ำผิดปกติ (${fmt(Math.max(0,ppk))} บาท/kW) แอปจึงยังใช้ราคากลาง 27,000 บาท/kW · กรอกราคารวมทั้งระบบ เช่น 135,000`:'ราคารวมทั้งระบบก่อนหักเงินสนับสนุน เช่น 5 kW ราว 135,000 บาท';
   render();}
 chipGroup('s_pres',S1,'pres',simpleSync);chipGroup('s_loan',S1,'loan',simpleSync);chipGroup('s_size',S1,'size',simpleSync);chipGroup('s_grant',S1,'grant',simpleSync);
 $('sPrice').addEventListener('click',e=>{if(!e.target.closest('button'))return;const d=document.querySelector('#t1 details.more');d.open=true;d.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>$('s_total').focus(),400);});
@@ -1388,9 +1393,10 @@ function renderSimple(){
   $('t1').classList.toggle('pre',!billIn);glowTab('t2',billIn>0);$('sNext').hidden=!billIn;
   if(!billIn){const e=$('sVerdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('sSys').textContent='ยังไม่มีข้อมูล';$('sLine1').innerHTML='กรอก<b>ค่าไฟต่อเดือน</b>เพื่อดูผล';$('sLine2').textContent='';$('sTips').innerHTML='';renderFit();renderQuotes();return;}
   $('sSys').textContent=`ติดโซลาร์ ${fmt(p.kwp,1)} kW · ${R.loan?'กู้ธนาคารรัฐ':'จ่ายเงินสด'}${R.sub?` · หักเงินสนับสนุน ${fmt(R.sub)} บาท`:' · ไม่มีเงินให้เปล่า'}`;
-  $('sPrice').hidden=false;$('sPrice').innerHTML=`คิดจากราคาติดตั้ง ${fmt(p.price)} บาท/kW ${parseFloat($('s_total').value)>0?'(จากราคาที่กรอก)':'(ราคากลาง)'} · <button type="button" class="linkbtn">แก้ได้</button>`;
+  $('sPrice').hidden=false;$('sPrice').innerHTML=`คิดจากราคาติดตั้ง ${fmt(p.price)} บาท/kW ${parseFloat($('s_total').value)>0&&S1.priceOk?'(จากราคาที่กรอก)':'(ราคากลาง)'} · <button type="button" class="linkbtn">แก้ได้</button>`;
   $('sVerdict').textContent=w;$('sVerdict').className='verdict-big '+c;fitCrt($('sVerdict'));
   if(R.loan>0)$('sLine1').innerHTML=net>=0?`ทุกเดือน <b>เหลือ ${fmt(net)} บาท</b><br>หลังจ่ายค่างวด ${fmt(R.pay)} บาท นาน ${p.ly} ปี`:`ทุกเดือน <b>ต้องควักเพิ่ม ${fmt(-net)} บาท</b><br>ช่วงผ่อน ${p.ly} ปี ค่างวด ${fmt(R.pay)} บาท`;
+  else if(R.outlay<=0)$('sLine1').innerHTML=`ไม่ต้องจ่ายเอง<br><b>เงินสนับสนุนครอบคลุมทั้งหมด</b>`;
   else $('sLine1').innerHTML=`จ่ายเอง ${fmt(Math.max(0,R.outlay))} บาท<br><b>${R.payback!==null?`คืนทุนใน ${fmt(R.payback,1)} ปี`:'คืนทุนไม่ทันใน 20 ปี'}</b>`;
   $('sLine2').textContent=`${R.loan?'ผ่อนหมดแล้ว':'หลังคืนทุน'} ได้ประโยชน์เดือนละราว ${fmt(R.benefit/12)} บาท · รวม ${p.years} ปี ${R.netAtTerm>=0?'ได้กำไร':'ขาดทุน'} ${fmt(Math.abs(R.netAtTerm))} บาท`;
   const pvM=R.sim.pvDay*365/12,pct=pvM?Math.min(1,R.sim.self*365/12/pvM):0,lab=pct>=.5?'ดีมาก':pct>=.35?'ปานกลาง':'ต่ำ';
