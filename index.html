@@ -45,6 +45,10 @@
   --f-num:"IBM Plex Mono",ui-monospace,monospace;
 }
 /* single ivory look in every theme (owner's choice) */
+.iab{display:none;position:sticky;top:0;z-index:50;margin:0 0 10px;padding:10px 12px;border-radius:12px;background:#28495a;color:#fff;font-size:14px;line-height:1.45;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.iab.on{display:block}.iab b{color:#ffd9a8}.iab .row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.iab a,.iab button{font:inherit;font-weight:600;border:0;border-radius:999px;padding:8px 14px;cursor:pointer;text-decoration:none}
+.iab .go{background:#f28c18;color:#fff}.iab .cp{background:#fff;color:#28495a}.iab .x{background:transparent;color:#cfe0e8;margin-left:auto;padding:8px 6px}
 :root{color-scheme:light}
 *{box-sizing:border-box}
 body{background-color:var(--bg);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .45 0 0 0 0 .5 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
@@ -348,6 +352,7 @@ a.btn{text-decoration:none;display:inline-block}
     <path d="M168.14,1.80 L170.82,16.11 L185.14,18.80 L170.82,21.49 L168.14,35.80 L165.45,21.49 L151.14,18.80 L165.45,16.11 Z" fill="url(#blGold)"/>
   </g></symbol></defs></svg>
 <div class="wrap">
+  <div class="iab" id="iab" role="region" aria-label="เปิดในเบราว์เซอร์"><span id="iabMsg"></span><div class="row"><a class="go" id="iabGo" href="#">เปิดใน Chrome</a><button class="cp" id="iabCp" type="button">คัดลอกลิงก์</button><button class="x" id="iabX" type="button" aria-label="ปิด">ปิด ✕</button></div></div>
   <header>
     <svg class="hero" viewBox="0 0 240 170" aria-hidden="true">
       <circle cx="192" cy="40" r="30" style="fill:none;stroke:var(--fr-g);stroke-width:3;stroke-dasharray:1 7;stroke-linecap:round"/>
@@ -1729,6 +1734,23 @@ if(restored){
 // demo mode for screen-recording ads: open the page with #demo and the screen cycles the three states
 if(location.hash==='#demo'){let i=0;const seq=[['คุ้ม','v-good'],['--/--','v-idle'],['ไม่คุ้ม','v-bad']];
   setInterval(()=>{const[t,c]=seq[i++%seq.length],e=$('sVerdict');e.textContent=t;e.className='verdict-big '+c;fitCrt(e);},1600);}
+})();
+</script>
+<script>
+// in-app browser (Facebook / Messenger / IG / Line): offer to open in a real browser so Google Maps, paste and saved answers work
+(function(){const ua=navigator.userAgent||'',inApp=/FBAN|FBAV|FB_IAB|FBIOS|FB4A|Messenger|Instagram|\bLine\//i.test(ua);
+  if(!inApp)return;try{if(sessionStorage.getItem('iabX'))return;}catch(e){}
+  const and=/Android/i.test(ua),ios=/iPhone|iPad|iPod/i.test(ua),line=/\bLine\//i.test(ua),u=location.href.split('#')[0],go=document.getElementById('iabGo');
+  const app=line?'Line':/Instagram/i.test(ua)?'Instagram':/Messenger/i.test(ua)?'Messenger':'Facebook';
+  let msg=`กำลังเปิดในแอป ${app} · <b>เปิดใน Chrome จะใช้ได้ครบกว่า</b> (ปุ่มเปิด Google Maps, วางพิกัด, จำคำตอบ)`;
+  if(line){const x=new URL(u);x.searchParams.set('openExternalBrowser','1');go.href=x.href;go.textContent='เปิดในเบราว์เซอร์';}
+  else if(and){go.href=`intent://${location.host}${location.pathname}${location.search}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(u)};end`;}
+  else if(ios){go.href='x-safari-'+u;go.textContent='เปิดใน Safari';msg+='<br>ถ้าปุ่มไม่ทำงาน: แตะ ⋯ มุมขวาบน › เปิดในเบราว์เซอร์';}
+  else go.style.display='none';
+  document.getElementById('iabMsg').innerHTML=msg;document.getElementById('iab').classList.add('on');
+  document.getElementById('iabCp').onclick=e=>{const b=e.currentTarget,done=()=>{b.textContent='คัดลอกแล้ว ✓';};
+    if(navigator.clipboard)navigator.clipboard.writeText(u).then(done,()=>prompt('คัดลอกลิงก์นี้',u));else prompt('คัดลอกลิงก์นี้',u);};
+  document.getElementById('iabX').onclick=()=>{document.getElementById('iab').classList.remove('on');try{sessionStorage.setItem('iabX','1');}catch(e){}};
 })();
 </script>
 
