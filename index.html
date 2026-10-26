@@ -445,7 +445,7 @@ a.btn{text-decoration:none;display:inline-block}
     </div>
     <details class="panel satbox" id="t2Sat">
       <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/></svg><span>ดูหลังคาจริงจากดาวเทียม</span><small>ไม่บังคับ</small></summary>
-      <ol class="satsteps"><li>บอกตำแหน่งบ้าน: กด <b>ตำแหน่งปัจจุบัน</b> ถ้ายืนอยู่ที่บ้าน หรือเปิด Google Maps แล้วคัดลอกพิกัดมาวาง</li><li>วัดขนาดใน Google Maps (มือถือ: แตะค้างที่มุมหลังคา → เลื่อนแถบข้อมูลขึ้น → "วัดระยะทาง" · คอม: คลิกขวา → "วัดระยะทาง") แล้วกรอกในช่องขนาดพื้นที่</li><li>หรือดึงภาพดาวเทียม / วางภาพหลังคา แล้ววาดกรอบหลังคา แอปวางแผงและนับให้ กด <b>ใช้ผลนี้ในการคำนวณ</b> จำนวนแผงจะขึ้นที่จอด้านบน</li></ol>
+      <ol class="satsteps"><li><b>อยู่ที่บ้าน:</b> กด <b>ตำแหน่งปัจจุบัน</b></li><li><b>ไม่ได้อยู่บ้าน:</b> กด <b>เปิด Google Maps</b> แตะค้างที่หลังคาบ้าน คัดลอกตัวเลขพิกัด กลับมากด <b>วางพิกัด</b></li><li>แอปดึงภาพดาวเทียมซูมใกล้สุดให้เอง แตะมุมหลังคาในภาพจนครบรอบ แอปวางแผงและนับให้ แล้วกด <b>ใช้ผลนี้ในการคำนวณ</b></li></ol>
       <div class="satbody" id="t2SatBody"></div>
     </details>
   </section>
@@ -621,9 +621,7 @@ a.btn{text-decoration:none;display:inline-block}
         <p class="note roofIntro">ระบบ 5 kW ใช้แผงราว 8 แผง พื้นที่หลังคาประมาณ 25 ตร.ม. (10 kW ราว 50 ตร.ม.) หลังคาบ้านทั่วไปมักพอ เครื่องมือนี้ใช้เช็คหลังคาที่เล็ก มีหลายด้าน หรือหันไม่ตรงทิศใต้</p>
         <div class="roofbtns">
           <button class="btn solid" type="button" id="fetchSat" hidden>ดึงภาพดาวเทียมของพิกัดนี้</button>
-          <select id="satZoom" hidden aria-label="ระดับซูม" style="width:auto"><option value="21">ซูม 21 (ใกล้สุด)</option><option value="20" selected>ซูม 20</option><option value="19">ซูม 19</option><option value="18">ซูม 18</option></select>
-          <a class="btn solid" id="lnkMaps" href="https://www.google.com/maps/@?api=1&amp;map_action=map&amp;basemap=satellite&amp;zoom=19" target="_blank" rel="noopener">เปิดภาพดาวเทียม Google Maps</a>
-          <a class="btn" id="lnkEarth" href="https://earth.google.com/web/" target="_blank" rel="noopener">เปิด Google Earth 3D</a>
+          <select id="satZoom" hidden aria-label="ระดับซูม" style="width:auto"><option value="21" selected>ซูม 21 (ใกล้สุด)</option><option value="20">ซูม 20</option><option value="19">ซูม 19</option><option value="18">ซูม 18</option></select>
           <button class="btn" type="button" id="roofClear" hidden>ล้างภาพ</button>
         </div>
         <p class="note" id="satMsg" hidden></p>
@@ -678,7 +676,11 @@ a.btn{text-decoration:none;display:inline-block}
             <div style="display:grid;gap:4px;justify-items:end"><button class="btn solid" type="button" id="lyApply" disabled>ใช้ผลนี้ในการคำนวณ</button><span class="note" id="lyApplied"></span></div>
           </div>
         </div>
-        <p class="note">ปุ่มด้านบนเปิดภาพดาวเทียมที่พิกัดของลูกค้าในแท็บใหม่ ภาพที่วางในกรอบจะแสดงเฉพาะบนเครื่องนี้และไม่ถูกอัปโหลดไปที่ไหน</p>
+        <div class="roofbtns">
+          <a class="btn" id="lnkMaps" href="https://www.google.com/maps/@?api=1&amp;map_action=map&amp;basemap=satellite&amp;zoom=19" target="_blank" rel="noopener">ดูที่นี่ใน Google Maps</a>
+          <a class="btn" id="lnkEarth" href="https://earth.google.com/web/" target="_blank" rel="noopener">เปิด Google Earth 3D</a>
+        </div>
+        <p class="note">ภาพที่วางในกรอบแสดงเฉพาะบนเครื่องนี้ ไม่ถูกอัปโหลดไปที่ไหน</p>
       </div>
 
       <div class="panel" id="cashPanel">
@@ -866,8 +868,12 @@ function setCoords(text,msg){
   if(!c){coordHint('สิ่งที่คัดลอกไว้ไม่ใช่พิกัด ใน Google Maps คลิกขวาที่บ้าน แล้วคลิกตัวเลขพิกัดบรรทัดบนสุด','err');return false;}
   $('coords').value=`${c.la.toFixed(6)}, ${c.lo.toFixed(6)}`;
   $('coords').classList.add('flash');setTimeout(()=>$('coords').classList.remove('flash'),1200);
-  updateLoc(false);render();coordHint(msg||'ใช้พิกัดใหม่แล้ว','ok');return true;
+  updateLoc(false);render();coordHint(msg||'ใช้พิกัดใหม่แล้ว','ok');if(typeof setGuide==='function')setGuide(-1);autoSat();return true;
 }
+// as soon as the house coordinates are known, pull the satellite image at the closest zoom and bring the user to it
+let lastSatAt='';
+function autoSat(){if(!GMAPS_KEY||$('t2').hidden)return;const c=parseCoords($('coords').value);if(!c)return;const k=c.la.toFixed(5)+','+c.lo.toFixed(5);if(k===lastSatAt)return;lastSatAt=k;
+  $('satZoom').value='21';$('fetchSat').click();setTimeout(()=>$('fetchSat').scrollIntoView({behavior:'smooth',block:'start'}),200);}
 let awaitingMaps=false;
 const TOUCH=matchMedia('(pointer:coarse)').matches,PASTE_HOW=TOUCH?'แตะค้างในช่องพิกัด แล้วเลือก "วาง"':'กด Ctrl+V ในช่องพิกัด';
 ['lnkPick','lnkMaps'].forEach(id=>$(id).addEventListener('click',()=>{awaitingMaps=true;}));
@@ -931,7 +937,7 @@ function lyNum(id,d){const v=parseFloat($(id).value);return isFinite(v)?v:d;}
 function lyScale(){if(LY.sl.length<2)return null;const m=lyNum('lyMeters',0);const px=Math.hypot(LY.sl[1].x-LY.sl[0].x,LY.sl[1].y-LY.sl[0].y);return m>0&&px>0?m/px:null;}
 function toImg(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*cv.width/r.width,y:(e.clientY-r.top)*cv.height/r.height};}
 function dispK(){const r=cv.getBoundingClientRect();return r.width?cv.width/r.width:1;}
-function setMode(m){LY.mode=m;$('placeTools').hidden=m!=='place';document.querySelectorAll('#lyMode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));$('lyHint').textContent=HINTS[m];cv.style.cursor=m==='edit'?'pointer':'crosshair';draw();}
+function setMode(m){LY.mode=m;$('placeTools').hidden=m!=='place';document.querySelectorAll('#lyMode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));$('lyHint').textContent=matchMedia('(pointer:coarse)').matches?HINTS[m].replace(/คลิก/g,'แตะ'):HINTS[m];cv.style.cursor=m==='edit'?'pointer':'crosshair';draw();}
 function inPoly(p,P){let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const a=P[i],b=P[j];if((a.y>p.y)!==(b.y>p.y)&&p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x)c=!c;}return c;}
 function segDist(p,a,b){const dx=b.x-a.x,dy=b.y-a.y,l=dx*dx+dy*dy;let t=l?((p.x-a.x)*dx+(p.y-a.y)*dy)/l:0;t=Math.max(0,Math.min(1,t));return Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy);}
 function segX(a,b,c,d){const o=(p,q,r)=>Math.sign((q.x-p.x)*(r.y-p.y)-(q.y-p.y)*(r.x-p.x));return o(a,b,c)*o(a,b,d)<0&&o(c,d,a)*o(c,d,b)<0;}
@@ -1370,14 +1376,14 @@ document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',(
 document.querySelectorAll('[data-guide]').forEach(b=>b.addEventListener('click',()=>{const d=$(b.dataset.guide);d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}));
 // tab 2 satellite section: open it, scroll to it, and start the blinking guide if no coordinates yet
 function openSat(){showTab('t2');$('t2Sat').open=true;requestAnimationFrame(()=>$('t2Sat').scrollIntoView({behavior:'smooth',block:'start'}));}
-$('t2Sat').addEventListener('toggle',()=>{if(!$('t2Sat').open)return;requestAnimationFrame(()=>draw());if(!$('coords').value.trim()&&guide<0)setGuide(0);});
+$('t2Sat').addEventListener('toggle',()=>{if(!$('t2Sat').open)return;requestAnimationFrame(()=>draw());if(!LY.img)setTimeout(autoSat,300);if(!$('coords').value.trim()&&guide<0)setGuide(0);});
 $('s2Maps').addEventListener('click',openSat);
 // guided start in tab 4: current location → open Google Maps → paste coordinates, each blinks in turn
 let guide=-1;const GUIDE=['gpsBtn','lnkPick','pasteCoords'];
 function setGuide(i){guide=i;GUIDE.forEach((id,k)=>$(id).classList.toggle('blink',k===i));}
 GUIDE.forEach((id,k)=>$(id).addEventListener('click',()=>{if(guide===k)setGuide(k+1<GUIDE.length?k+1:-1);}));
 $('coords').addEventListener('paste',()=>{if(guide>=0)setGuide(-1);});
-$('coords').addEventListener('input',()=>{if(guide>=0&&parseCoords($('coords').value))setGuide(-1);});
+let satT=0;$('coords').addEventListener('input',()=>{if(guide>=0&&parseCoords($('coords').value))setGuide(-1);clearTimeout(satT);satT=setTimeout(autoSat,900);});
 document.querySelectorAll('#tabs button[data-t]').forEach(b=>b.addEventListener('click',()=>{showTab(b.dataset.t);const s=$(b.dataset.t),target=s.querySelector('.answer')||s;requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'}));}));
 // Google Maps buttons with no house coordinates yet: find the phone's position first, then open Maps there
 function mapsAt(la,lo){return `https://www.google.com/maps/@?api=1&map_action=map&basemap=satellite&center=${la.toFixed(6)},${lo.toFixed(6)}&zoom=19`;}
@@ -1595,6 +1601,8 @@ function renderQuotes(){
 {const I={bill:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',wallet:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/>',panel:'<path d="M4 18l2-12h12l2 12z"/><path d="M5 12h14M9.5 6l-1 12M14.5 6l1 12"/>',pin:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',ruler:'<rect x="2" y="8" width="20" height="8" rx="1"/><path d="M6 8v3M10 8v4M14 8v3M18 8v4"/>',roof:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',tree:'<path d="M12 3c3 0 5 2.5 5 5 1.5.5 2.5 2 2.5 3.5 0 2-1.8 3.5-4 3.5H8.5c-2.2 0-4-1.5-4-3.5 0-1.5 1-3 2.5-3.5 0-2.5 2-5 5-5z"/><path d="M12 15v6"/>'};
  // tab 2: the size question sits right under the screen, so the screen stays visible above the phone keyboard
  $('s2Pick').insertAdjacentElement('afterend',document.querySelector('#t2 .sizeq'));
+ // the satellite image sits right under the fetch button; its tools follow below
+ {const lw=$('layoutWrap');lw.prepend($('lyHint'));lw.prepend(lw.querySelector('.canvaswrap'));}
  // phones have no Ctrl+V or drag-and-drop: the roof-image box opens the photo picker instead
  if(matchMedia('(pointer:coarse)').matches)$('dropText').innerHTML='<span class="big">แตะตรงนี้เพื่อเลือกภาพหลังคา</span><br>1) ใน Google Maps เปิดภาพดาวเทียม ซูมให้เห็นหลังคาเต็มจอ แล้วแคปหน้าจอ<br>2) กลับมาแตะตรงนี้ เลือกภาพจากอัลบั้ม / แกลเลอรี<br>ใช้ภาพโดรนหรือภาพที่ลูกค้าส่งมาก็ได้';
  // location and the roof-layout tool live in tab 2's satellite section (moved here so the elements keep their handlers)
