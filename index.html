@@ -177,7 +177,9 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .answer .billq .chips button[aria-pressed=true]{background:var(--forest);color:#fff;border-color:var(--forest)}
 .answer .billq h4 svg{background:var(--surface)}
 .answer .billq .unit{color:var(--forest);font-weight:600}
-.answer .sizeq{width:100%;max-width:420px;text-align:left}
+.answer .sizeq{width:100%;max-width:420px;text-align:left;border:2px solid transparent;border-radius:14px;padding:8px 10px}
+.answer .sizeq.needfill{border-color:#f28c18;animation:tabGlow 1.1s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.answer .sizeq.needfill{animation:none}}
 .answer{grid-template-columns:minmax(0,1fr)}
 .pick,.pickrow{min-width:0}
 .pick{width:100%;max-width:420px;display:grid;gap:12px;text-align:left}
@@ -979,7 +981,7 @@ function fillFace(P,sc){
   return{panels:best.map(([u,v])=>[back(u,v),back(u+du,v),back(u+du,v+dv),back(u,v+dv)]),rc:best.map(([u,v])=>[Math.round((v-vmin)/(dv+gap)),Math.round((u-umin)/(du+gap))]),area:Math.abs(area)/2,bearing};
 }
 function faceCount(fi){return LY.faces[fi].panels.filter((_,i)=>!LY.removed.has(fi+'-'+i)).length;}
-function lyCompute(){const sc=lyScale();LY.faces=sc?LY.polys.map(P=>fillFace(P,sc)):[];applyLimit();lyResult();draw();}
+function lyCompute(){const sc=lyScale();LY.faces=sc?lyPolys().map(P=>fillFace(P,sc)):[];applyLimit();lyResult();draw();}
 // Keep only the wanted number of panels: best-facing roof first (closest to south), then panels nearest that face's centre
 function applyLimit(){
   LY.removed.clear();const W=parseFloat($('panelW').value)||600,t=parseFloat($('lyTarget').value);
@@ -992,7 +994,7 @@ function applyLimit(){
     const rk=Object.keys(rows).map(Number).sort((a,b)=>a-b);rk.forEach(r=>rows[r].sort((a,b)=>a[0]-b[0]));
     const keep=new Set();
     if(left>0){const maxC=Math.max(...rk.map(r=>rows[r].length));let n=Math.min(rk.length,Math.ceil(left/maxC)),chosen;
-      for(;n<=rk.length;n++){const st=Math.max(0,Math.min(rk.length-n,Math.round((rk.length-1)/2-(n-1)/2)));chosen=rk.slice(st,st+n);if(chosen.reduce((s,r)=>s+rows[r].length,0)>=left||n===rk.length)break;}
+      for(;n<=rk.length;n++){chosen=rk.slice(0,n);if(chosen.reduce((s,r)=>s+rows[r].length,0)>=left||n===rk.length)break;}
       let need=Math.min(left,chosen.reduce((s,r)=>s+rows[r].length,0));
       const byLen=chosen.slice().sort((a,b)=>rows[a].length-rows[b].length);let slots=byLen.length;
       for(const r of byLen){const a=Math.min(rows[r].length,Math.ceil(need/slots));const st=Math.floor((rows[r].length-a)/2);rows[r].slice(st,st+a).forEach(([,i])=>keep.add(i));need-=a;slots--;}}
@@ -1034,12 +1036,14 @@ function draw(){
   if(LY.pin){cx.beginPath();cx.arc(LY.pin.x,LY.pin.y,9*k,0,Math.PI*2);cx.strokeStyle='#ff3b30';cx.lineWidth=lw*1.5;cx.stroke();dot(LY.pin,2.5*k,'#ff3b30');}
   if(LY.mode==='place'&&LY.hover){const g=ghostAt(LY.hover);if(g){path(g.q,true);cx.fillStyle=g.ok?'rgba(70,150,255,.55)':'rgba(255,80,60,.55)';cx.fill();cx.setLineDash([5*k,3*k]);cx.strokeStyle='#fff';cx.lineWidth=lw;cx.stroke();cx.setLineDash([]);}}
 }
+// outlines that get panels: closed ones plus the one being drawn once it has 3 corners
+function lyPolys(){return LY.mode==='roof'&&LY.cur.length>=3?[...LY.polys,LY.cur]:LY.polys;}
 function closePoly(){if(LY.cur.length<3)return;LY.polys.push(LY.cur);LY.cur=[];LY.removed.clear();lyCompute();}
 cv.addEventListener('pointerdown',e=>{
   if(!LY.img)return;e.preventDefault();const p=toImg(e),k=dispK();
   if(LY.mode==='scale'){if(LY.sl.length>=2)LY.sl=[];LY.sl.push(p);
     if(LY.sl.length===2){lyCompute();if(lyNum('lyMeters',0)>0){if(!LY.polys.length)setMode('roof');}else $('lyMeters').focus();}else draw();return;}
-  if(LY.mode==='roof'){if(LY.cur.length>=3&&Math.hypot(p.x-LY.cur[0].x,p.y-LY.cur[0].y)<14*k){closePoly();return;}LY.cur.push(p);draw();return;}
+  if(LY.mode==='roof'){if(LY.cur.length>=3&&Math.hypot(p.x-LY.cur[0].x,p.y-LY.cur[0].y)<14*k){closePoly();return;}LY.cur.push(p);lyCompute();return;}
   if(LY.mode==='place'||LY.mode==='edit'){const mi=LY.manual.findIndex(m=>inPoly(p,m.q));if(mi>=0){LY.manual.splice(mi,1);lyResult();draw();return;}}
   if(LY.mode==='place'){const g=ghostAt(p);if(!g){$('lyHint').textContent='ต้องวัดสเกลก่อน (ขั้นที่ 1) แอปจึงรู้ขนาดแผงบนภาพ';return;}if(g.ok){LY.manual.push(g);lyResult();draw();}return;}
   for(let fi=0;fi<LY.faces.length;fi++){const ps=LY.faces[fi].panels;for(let i=0;i<ps.length;i++)if(inPoly(p,ps[i])){const id=fi+'-'+i;LY.removed.has(id)?LY.removed.delete(id):LY.removed.add(id);lyResult();draw();return;}}
@@ -1048,7 +1052,7 @@ cv.addEventListener('pointermove',e=>{if(LY.mode==='place'||LY.mode==='roof'&&LY
 cv.addEventListener('pointerleave',()=>{if(LY.hover){LY.hover=null;draw();}});
 document.querySelectorAll('#lyMode button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.m)));
 $('lyClose').addEventListener('click',closePoly);
-$('lyUndo').addEventListener('click',()=>{if(LY.mode==='place'&&LY.manual.length){LY.manual.pop();lyResult();draw();return;}if(LY.cur.length)LY.cur.pop();else if(LY.polys.length){LY.polys.pop();LY.removed.clear();lyCompute();return;}else if(LY.sl.length){LY.sl.pop();lyCompute();return;}draw();});
+$('lyUndo').addEventListener('click',()=>{if(LY.mode==='place'&&LY.manual.length){LY.manual.pop();lyResult();draw();return;}if(LY.cur.length){LY.cur.pop();LY.removed.clear();lyCompute();return;}else if(LY.polys.length){LY.polys.pop();LY.removed.clear();lyCompute();return;}else if(LY.sl.length){LY.sl.pop();lyCompute();return;}draw();});
 $('lyClearRoof').addEventListener('click',()=>{LY.polys=[];LY.cur=[];LY.removed.clear();lyCompute();});
 $('lyReplace').addEventListener('click',()=>$('roofFile').click());
 // ---- manual placement: ghost panel follows the cursor, snaps to neighbours, aligns to the eave of the roof under it ----
@@ -1521,10 +1525,10 @@ function fitShape(W,L,where,P){const f={...FIT[where]};if(S2.sb>=0)f.sb=S2.sb;co
   for(const[a,b]of oris){const d=dim(a,b);if(d.needW<=W+1e-9&&d.needL<=L+1e-9)return{ok:true,...d};}
   return{ok:false,...oris.map(([a,b])=>dim(a,b)).sort((x,y)=>x.needW*x.needL-y.needW*y.needL)[0]};}
 // the roof outline and panels drawn on the satellite photo, redrawn as a plain diagram (the photo itself cannot be copied)
-function lyVector(svg,use){const pts=[...LY.polys.flat(),...LY.manual.flatMap(m=>m.q)];if(!pts.length)return false;
+function lyVector(svg,use){const pts=[...lyPolys().flat(),...LY.manual.flatMap(m=>m.q)];if(!pts.length)return false;
   const xs=pts.map(q=>q.x),ys=pts.map(q=>q.y),x0=Math.min(...xs),y0=Math.min(...ys),w=Math.max(...xs)-x0||1,h=Math.max(...ys)-y0||1,S=Math.min(304/w,240/h),ox=(320-w*S)/2,oy=8,VH=Math.round(h*S+40);
   const pg=(P,st)=>`<polygon points="${P.map(q=>((q.x-x0)*S+ox).toFixed(1)+','+((q.y-y0)*S+oy).toFixed(1)).join(' ')}" style="${st}"/>`;
-  let g='';LY.polys.forEach(P=>g+=pg(P,'fill:var(--sun-soft);stroke:var(--fr-o);stroke-width:2;stroke-linejoin:round'));
+  let g='';lyPolys().forEach(P=>g+=pg(P,'fill:var(--sun-soft);stroke:var(--fr-o);stroke-width:2;stroke-linejoin:round'));
   const ON='fill:var(--pv);stroke:#fff;stroke-width:.8',OFFS='fill:none;stroke:var(--grid);stroke-width:.8;stroke-dasharray:3 2';
   LY.faces.forEach((f,fi)=>f.panels.forEach((q,i)=>{g+=pg(q,LY.removed.has(fi+'-'+i)?OFFS:ON);}));
   LY.manual.forEach(m=>g+=pg(m.q,ON));
@@ -1554,6 +1558,7 @@ function renderFit(){
   $('s2Need').textContent=P?`ติด ${fmt(S1.size,1)} kW ตามแบบ ${P.label} (${need} แผง × ${fmt(pW)} W) · แตะแบบเดิมซ้ำเพื่อกลับไปใช้ขนาดจากข้อ 1`:`ติด ${fmt(S1.size,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
   $('s2CountTxt').textContent=`${need} แผง · ${fmt(need*pW/1000,2)} kW`;
   $('s_sizeHint').textContent=S1.custom&&!P?`ตอนนี้ใช้ ${fmt(S1.size,2)} kW (${need} แผง) ที่ปรับจำนวนในข้อ 2 · กดขนาดด้านบนเพื่อเปลี่ยน`:P?`ตอนนี้ใช้ ${fmt(S1.size,1)} kW ตามแบบวางแผง "${P.label}" ที่เลือกในข้อ 2 · กดขนาดด้านบนเพื่อเปลี่ยน`:`ข่าวบอกติดได้ไม่เกิน 10 kW · ขั้นต่ำที่แนะนำ 5 kW (แผง ${fmt(pW)} W ${min5} แผง) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!P||!!S1.custom);
+  document.querySelector('#t2 .sizeq').classList.toggle('needfill',!dims&&!lyN);
   glowTab('t3',dims||lyN>0);$('s2Next').hidden=!(dims||lyN>0);
   [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
   $('s2Sb').placeholder=FIT[wh].sb;$('s2Params').hidden=!dims;S2.curA=F.a;
@@ -1637,7 +1642,7 @@ function renderQuotes(){
 // icons in front of each question (drawn inline: artifact pages cannot load outside images)
 {const I={bill:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',wallet:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/>',panel:'<path d="M4 18l2-12h12l2 12z"/><path d="M5 12h14M9.5 6l-1 12M14.5 6l1 12"/>',pin:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',ruler:'<rect x="2" y="8" width="20" height="8" rx="1"/><path d="M6 8v3M10 8v4M14 8v3M18 8v4"/>',roof:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',tree:'<path d="M12 3c3 0 5 2.5 5 5 1.5.5 2.5 2 2.5 3.5 0 2-1.8 3.5-4 3.5H8.5c-2.2 0-4-1.5-4-3.5 0-1.5 1-3 2.5-3.5 0-2.5 2-5 5-5z"/><path d="M12 15v6"/>'};
  // tab 2: the size question sits right under the screen, so the screen stays visible above the phone keyboard
- $('s2Pick').insertAdjacentElement('afterend',document.querySelector('#t2 .sizeq'));
+ document.querySelector('#t2 .answer .crt').insertAdjacentElement('afterend',document.querySelector('#t2 .sizeq'));
  // the satellite image sits right under the fetch button; its tools follow below
  {const lw=$('layoutWrap');lw.prepend($('lyHint'));lw.prepend(lw.querySelector('.lyresult'));lw.prepend(lw.querySelector('.canvaswrap'));
   // how-to steps sit under the image, where the user is working
