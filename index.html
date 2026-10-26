@@ -153,6 +153,9 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .answer p{margin:0}
 .simple .answer{order:-1}
 .satbox{grid-column:1/-1}
+.answer .satbox{width:100%;grid-column:auto;text-align:left;box-shadow:0 3px 0 var(--forest);border:2px solid var(--forest);background:var(--surface);padding:12px 14px;border-radius:14px}
+.answer .satbox>summary{font-size:18px}
+.answer .satbox[open]{box-shadow:none}
 .pageh{grid-column:1/-1;order:-2;display:grid;gap:4px}
 .pageh h2{font-family:var(--f-display);font-size:clamp(22px,4vw,28px);font-weight:700;color:var(--forest)}
 .pageh p{margin:0;font-size:14px;color:var(--muted)}
@@ -456,7 +459,7 @@ a.btn{text-decoration:none;display:inline-block}
     </div>
     <details class="panel satbox" id="t2Sat">
       <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/></svg><span>ดูหลังคาจริงจากดาวเทียม</span><small>ไม่บังคับ</small></summary>
-      <ol class="satsteps"><li><b>อยู่ที่บ้าน:</b> กด <b>ตำแหน่งปัจจุบัน</b></li><li><b>ไม่ได้อยู่บ้าน:</b> กด <b>เปิด Google Maps</b> แตะค้างที่หลังคาบ้าน คัดลอกตัวเลขพิกัด กลับมากด <b>วางพิกัด</b></li><li>แอปดึงภาพดาวเทียมซูมใกล้สุดให้เอง แตะมุมหลังคาในภาพจนครบรอบ แอปวางแผงตามจำนวนที่ใช้จริงลงบนภาพ และส่งผลขึ้นจอด้านบนให้เอง กด <b>+ แผง / − แผง</b> ที่จอ ภาพจะเปลี่ยนตาม</li></ol>
+      <ol class="satsteps"><li><b>อยู่ที่บ้าน:</b> กด <b>ตำแหน่งปัจจุบัน</b></li><li><b>ไม่ได้อยู่บ้าน:</b> กด <b>เปิด Google Maps</b> แตะค้างที่หลังคาบ้าน คัดลอกตัวเลขพิกัด กลับมากด <b>วางพิกัด</b></li><li>แอปดึงภาพดาวเทียมซูมใกล้สุดให้เอง พร้อมวางแผงตามจำนวนที่เลือกไว้ลงบนภาพ <b>ลากกลุ่มแผงไปวางบนหลังคา</b> หมุนให้แนวแผงขนานกับชายคา ถ้าแผงล้นหลังคาแปลว่าพื้นที่ไม่พอ ปรับจำนวนด้วย <b>+ แผง / − แผง</b></li></ol>
       <div class="satbody" id="t2SatBody"></div>
     </details>
   </section>
@@ -1568,6 +1571,8 @@ function fitLayout(W,L,where){const f={...FIT[where]};if(S2.sb>=0)f.sb=S2.sb;con
 chipGroup('s_where',S2,'where',()=>renderFit());chipGroup('s_mat',S2,'mat',()=>renderFit());chipGroup('s_dir',S2,'dir',()=>renderFit());chipGroup('s_shade',S2,'shade',()=>renderFit());
 // tab 2 layout controls under the drawing: rotate panels, panel size and watt, edge setback
 $('s2Go').append($('s2Maps'),$('s2Maps').nextElementSibling);
+// the satellite section itself sits where the "ดูหลังคาจากดาวเทียม" button was; its heading is the button now
+$('s2Maps').hidden=true;$('s2Maps').nextElementSibling.hidden=true;$('s2Go').append($('t2Sat'));
 $('s2Rot').addEventListener('click',()=>{const pw=lyNum('lyPW',1.13);S2.ori=S2.ori?(S2.ori==='p'?'l':'p'):(S2.curA===pw?'l':'p');renderFit();});
 [['s2PL','lyPL'],['s2PW','lyPW']].forEach(([a,b])=>$(a).addEventListener('input',()=>{$(b).value=$(a).value;$(b).dispatchEvent(new Event('input'));renderFit();}));
 $('s2Wt').addEventListener('input',()=>{$('panelW').value=$('s2Wt').value;$('panelW').dispatchEvent(new Event('input',{bubbles:true}));});
