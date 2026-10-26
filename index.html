@@ -174,6 +174,16 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .answer .billq h4 svg{background:var(--surface)}
 .answer .billq .unit{color:var(--forest);font-weight:600}
 .answer .sizeq{width:100%;max-width:420px;text-align:left}
+.answer{grid-template-columns:minmax(0,1fr)}
+.pick,.pickrow{min-width:0}
+.pick{width:100%;max-width:420px;display:grid;gap:12px;text-align:left}
+.pickrow h4{font-family:var(--f-display);font-size:16px;color:var(--forest);margin:0 0 6px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.pickrow h4 small{font-family:var(--f-body);font-size:12px;font-weight:500;color:#2f3f48}
+.swipe{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.swipe .opt{flex:0 0 96px;scroll-snap-align:start;display:grid;justify-items:center;gap:2px;padding:6px 4px 6px;border-radius:12px;border:2px solid transparent;background:var(--surface);color:var(--ink);font:inherit;font-size:13px;font-weight:600;line-height:1.25;cursor:pointer;text-align:center}
+.swipe .opt svg{width:84px;height:59px;display:block}
+.swipe .opt small{font-family:var(--f-num);font-size:11.5px;font-weight:500;color:var(--muted)}
+.swipe .opt[aria-pressed=true]{border-color:#f28c18;box-shadow:0 0 0 3px rgba(242,140,24,.3)}
 .fitp{width:100%;max-width:420px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;text-align:left}
 .fitp .rotrow{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .fitp label{display:grid;gap:2px;font-size:13px;font-weight:600;color:#2f3f48}
@@ -395,7 +405,7 @@ a.btn{text-decoration:none;display:inline-block}
         <span class="hint" id="s_dimHint"></span>
         <button type="button" class="mapsbtn" id="s2Maps"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>ดูหลังคาจากดาวเทียม</button>
         <span class="hint">ใส่ตำแหน่งบ้าน แล้ววัดขนาดใน Google Maps หรือวางแผงบนภาพดาวเทียม แอปนับแผงให้</span></div>
-      <div class="q" id="q_mat"><h4>หลังคาแบบไหน</h4>
+      <div class="q" id="q_mat"><h4>หลังคาทำจากอะไร</h4>
         <div class="chips" id="s_mat"><button data-v="metal">เมทัลชีท</button><button data-v="tile">กระเบื้อง (ลอนคู่ / ซีแพค)</button><button data-v="concrete">ดาดฟ้าคอนกรีต</button><button data-v="poly">โพลีคาร์บอเนต / ไวนิล</button></div></div>
       <div class="q" id="q_dir"><h4>หลังคาด้านนี้หันไปทางไหน</h4>
         <div class="chips" id="s_dir"><button data-v="s">ใต้</button><button data-v="ew">ตะวันออก / ตะวันตก</button><button data-v="n">เหนือ</button><button data-v="flat">แบนราบ</button></div></div>
@@ -406,6 +416,10 @@ a.btn{text-decoration:none;display:inline-block}
     <div class="panel answer">
       <span class="note" id="s2Need"></span>
       <div class="crt"><div class="verdict-big v-idle" id="s2Verdict">--/--</div></div>
+      <div class="pick" id="s2Pick">
+        <div class="pickrow" id="roofRow"><h4>หลังคาแบบไหน <small>ปัดดูเพิ่ม →</small></h4><div class="swipe" id="roofPick"></div></div>
+        <div class="pickrow"><h4>วางแผงแบบไหน <small>แตะซ้ำเพื่อยกเลิก</small></h4><div class="swipe" id="layPick"></div></div>
+      </div>
       <p class="note">หมายถึงพื้นที่พอ ยังไม่ใช่สิทธิ์เข้าโครงการ</p>
       <p class="line" id="s2Line"></p>
       <button type="button" class="nextbtn" id="s2Next" data-next="t3" hidden><span class="tn">3</span>ไปข้อ 3 ติดกับใคร →</button>
@@ -1372,7 +1386,13 @@ document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=
 const S1={pres:40,loan:1,size:5,grant:1},S2={where:'roof',mat:'metal',dir:'s',shade:'none'};
 function chipGroup(id,obj,key,cb){const g=$(id);const sync=()=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===String(obj[key]))));
   g.querySelectorAll('button').forEach(b=>{b.type='button';b.addEventListener('click',()=>{const v=b.dataset.v;obj[key]=isNaN(+v)?v:+v;sync();cb();});});sync();}
+// picture pickers: a roof shape redraws the arrangements; an arrangement sets the system size from its panel count
+$('roofPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;S2.roof=b.dataset.v;renderFit();});
+$('layPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;S2.lay=S2.lay===b.dataset.v?null:b.dataset.v;simpleSync();});
+$('s_size').addEventListener('click',()=>{S2.lay=null;},true);
 function simpleSync(){
+  if(S2.lay&&presetOf(S2.lay)){S1.size=+(presetOf(S2.lay).n*(parseFloat($('panelW').value)||620)/1000).toFixed(2);}
+  $('s_size').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===S1.size)));
   const b=parseFloat($('s_bill').value)||0;$('billBaht').value=b;$('kwh').value=kwhFromBill(b);
   $('day').value=S1.pres;$('useLoan').checked=!!S1.loan;$('useSub').checked=S1.grant!==0;$('kwp').value=S1.size;
   // a total under ~10,000 baht/kW is almost always a typo (e.g. 15,000 for a whole system); keep the market price and say so
@@ -1420,6 +1440,38 @@ function renderSimple(){
 }
 // ---- question 2: will it fit? ----
 const FIT={roof:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},garage:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},ground:{sb:.5,gx:.02,gy:1.2,tilt:15,area:1.9},float:{sb:1,gx:.4,gy:.6,tilt:12,area:2.1}};
+// ---- tab 2 picture pickers: roof shape and panel arrangement ----
+function roofTypes(){return [{id:'gable',label:'จั่ว',two:1},{id:'hip',label:'ปั้นหยา',two:1},{id:'shed',label:'เพิงหมาแหงน',two:0},{id:'butterfly',label:'ผีเสื้อ',two:1},{id:'flat',label:'ดาดฟ้า / แบน',two:0}];}
+function layPresets(){return [['r5','เรียง 5',1,5,1],['r6','เรียง 6',1,6,1],['p6','คู่ 6 · 2 แถว',2,3,1],['s6','คู่ 6 · สองฝั่ง',1,3,2],['p8','คู่ 8 · 2 แถว',2,4,1],['s8','คู่ 8 · สองฝั่ง',1,4,2],['p10','คู่ 10 · 2 แถว',2,5,1],['s10','คู่ 10 · สองฝั่ง',1,5,2],['t15','3 แถว 15',3,5,1]].map(([id,label,rows,cols,sides])=>({id,label,rows,cols,sides,n:rows*cols*sides}));}
+function presetOf(id){return layPresets().find(p=>p.id===id)||null;}
+function roofOf(){const r=S2.where==='roof'||S2.where==='garage'?(S2.roof||'gable'):'ground';return r;}
+// elevation drawing of a house with each roof shape
+function roofSVG(t){const st='fill:#28495a',wall='<rect x="22" y="40" width="56" height="22" style="fill:#f8fafb;stroke:#28495a;stroke-width:2.5"/><rect x="44" y="48" width="12" height="14" style="fill:#a9bfc9"/>';
+  const R={gable:'<polygon points="12,42 50,12 88,42" style="'+st+'"/>',hip:'<polygon points="12,42 34,18 66,18 88,42" style="'+st+'"/>',
+    shed:'<polygon points="14,24 88,38 88,44 14,30" style="'+st+'"/>',butterfly:'<polygon points="12,22 50,34 88,22 88,28 50,40 12,28" style="'+st+'"/>',
+    flat:'<rect x="16" y="33" width="68" height="7" style="'+st+'"/><rect x="16" y="28" width="4" height="6" style="'+st+'"/><rect x="80" y="28" width="4" height="6" style="'+st+'"/>'}[t];
+  const w=t==='shed'?'<polygon points="22,32 78,42 78,62 22,62" style="fill:#f8fafb;stroke:#28495a;stroke-width:2.5"/><rect x="44" y="48" width="12" height="14" style="fill:#a9bfc9"/>':wall;
+  return `<svg viewBox="0 0 100 70" aria-hidden="true">${w}${R}</svg>`;}
+// plan (top) view of the chosen roof with the panel arrangement drawn on it
+function laySVG(roof,P){const ln='stroke:#28495a;stroke-width:1.6;fill:none';let g='<rect x="8" y="6" width="84" height="58" rx="2" style="fill:#dfe8ec;stroke:#28495a;stroke-width:2"/>';
+  let A={x:12,y:37,w:76,h:24},B={x:12,y:9,w:76,h:24};
+  if(roof==='gable')g+='<path d="M8 35h84" style="'+ln+'"/>';
+  else if(roof==='butterfly')g+='<path d="M8 35h84" style="'+ln+';stroke-dasharray:3 2"/>';
+  else if(roof==='hip'){g+='<path d="M30 35h40M8 6l22 29M92 6l-22 29M8 64l22-29M92 64l-22-29" style="'+ln+'"/>';A={x:24,y:38,w:52,h:22};B={x:24,y:10,w:52,h:22};}
+  else{A={x:12,y:10,w:76,h:50};B=null;if(roof==='flat')g+='<rect x="11" y="9" width="78" height="52" style="'+ln+';stroke-width:1"/>';if(roof==='shed')g+='<path d="M50 12v8M47 17l3 3 3-3" style="'+ln+'"/>';}
+  const grid=(r,rows,cols)=>{const c=Math.min((r.w-2)/cols,(r.h-2)/(rows*1.55)),pw=c*.9,ph=c*1.55*.9,x0=r.x+(r.w-cols*c)/2,y0=r.y+(r.h-rows*c*1.55)/2;let s='';
+    for(let i=0;i<rows;i++)for(let j=0;j<cols;j++)s+=`<rect x="${(x0+j*c+c*.05).toFixed(1)}" y="${(y0+i*c*1.55+c*.08).toFixed(1)}" width="${pw.toFixed(1)}" height="${ph.toFixed(1)}" style="fill:#1f4fa3;stroke:#fff;stroke-width:.6"/>`;return s;};
+  if(P){g+=grid(A,P.rows,P.cols);if(P.sides===2&&B)g+=grid(B,P.rows,P.cols);}
+  return `<svg viewBox="0 0 100 70" aria-hidden="true">${g}</svg>`;}
+let pickKey='';
+function renderPick(){const roofy=S2.where==='roof'||S2.where==='garage',roof=roofOf(),two=roofy&&roofTypes().find(r=>r.id===roof).two,pW=parseFloat($('panelW').value)||620;
+  $('roofRow').hidden=!roofy;
+  if(S2.lay&&presetOf(S2.lay).sides===2&&!two){S2.lay=null;}
+  const key=roof+'|'+two;
+  if(!$('roofPick').childElementCount)$('roofPick').innerHTML=roofTypes().map(r=>`<button type="button" class="opt" data-v="${r.id}">${roofSVG(r.id)}<span>${r.label}</span></button>`).join('');
+  if(key!==pickKey){pickKey=key;const sl=$('layPick').scrollLeft;$('layPick').innerHTML=layPresets().filter(p=>p.sides===1||two).map(p=>`<button type="button" class="opt" data-v="${p.id}">${laySVG(roof,p)}<span>${p.label}</span><small></small></button>`).join('');$('layPick').scrollLeft=sl;}
+  $('roofPick').querySelectorAll('.opt').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===(S2.roof||'gable'))));
+  $('layPick').querySelectorAll('.opt').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.v===S2.lay));b.querySelector('small').textContent=fmt(presetOf(b.dataset.v).n*pW/1000,1)+' kW';});}
 function fitLayout(W,L,where){const f={...FIT[where]};if(S2.sb>=0)f.sb=S2.sb;const pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),ct=Math.cos(f.tilt*Math.PI/180);let best={count:0};
   const oris=S2.ori==='p'?[[pw,pl]]:S2.ori==='l'?[[pl,pw]]:[[pw,pl],[pl,pw]];
   // tilted mounts (ground, floating) group panels into tables 1–3 panels deep; the shade gap f.gy is only needed between tables
@@ -1436,7 +1488,8 @@ $('s2Sb').addEventListener('input',()=>{const v=parseFloat($('s2Sb').value);S2.s
 ['s_w','s_l','s_old'].forEach(id=>$(id).addEventListener('input',()=>{if(id!=='s_old')S2.lyN=0;renderFit();}));
 function renderFit(){
   const W=parseFloat($('s_w').value)||0,L=parseFloat($('s_l').value)||0,wh=S2.where,pW=parseFloat($('panelW').value)||600,roofy=wh==='roof'||wh==='garage';
-  const need=Math.ceil(S1.size*1000/pW),min5=Math.ceil(5000/pW),F=fitLayout(W,L,wh),dims=W>0&&L>0,lyN=dims?0:(S2.lyN||0),n=dims?F.count:lyN,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
+  renderPick();const P=S2.lay?presetOf(S2.lay):null;
+  const need=P?P.n:Math.ceil(S1.size*1000/pW),min5=Math.ceil(5000/pW),F=fitLayout(W,L,wh),dims=W>0&&L>0,lyN=dims?0:(S2.lyN||0),n=dims?(P&&P.sides===2?2*F.count:F.count):lyN,needSide=P&&P.sides===2?Math.ceil(need/2):need,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
   $('q_mat').hidden=!roofy;$('q_dir').hidden=!roofy;
   $('s_dimHint').textContent=roofy?'วัดหลังคาด้านที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
   $('s2Need').textContent=`ติด ${fmt(S1.size,1)} kW ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
@@ -1448,14 +1501,15 @@ function renderFit(){
   let v,c,line;const notes=[];
   if(roofy&&S2.mat==='poly'){v='ไม่แนะนำ';c='v-bad';line='หลังคาโพลีคาร์บอเนตหรือไวนิลรับน้ำหนักแผงไม่ได้ ต้องทำโครงใหม่';}
   else if(S2.shade==='heavy'){v='ไม่แนะนำ';c='v-bad';line='เงาบังทั้งวัน แผงจะผลิตไฟได้น้อยมาก ถ้าตัดแต่งต้นไม้ได้ค่อยพิจารณา';}
-  else if(n<min5){v='พื้นที่ไม่พอ';c='v-bad';line=`วางได้ ${n} แผง ต้องมีอย่างน้อย ${min5} แผงสำหรับ 5 kW<br>ใช้พื้นที่ราว ${aNeed(min5)} ตร.ม.`;}
+  else if(n<need&&(P||n<min5)){v='พื้นที่ไม่พอ';c='v-bad';line=`วางได้ ${n} แผง ต้องใช้ ${need} แผง${P&&P.sides===2?' (สองฝั่ง)':''}<br>ใช้พื้นที่ราว ${aNeed(need)} ตร.ม.`;}
   else{const cond=wh!=='roof'||S2.mat==='tile'||$('s_old').checked||S2.shade==='some'||(roofy&&S2.dir==='n');
     if(n<need){v='พอแค่ 5 kW';c='v-mid';line=`ติด ${fmt(S1.size,1)} kW ไม่พอ<br>วางได้สูงสุด ${n} แผง (${fmt(n*pW/1000,1)} kW)`;}
-    else{v=cond?'พอ ต้องเช็คก่อน':'พื้นที่พอ';c=cond?'v-mid':'v-good';line=`วางได้ <b>${n} แผง</b> (${fmt(n*pW/1000,1)} kW)<br>ใช้จริง ${need} แผง`;}}
+    else{v=cond?'พอ ต้องเช็คก่อน':'พื้นที่พอ';c=cond?'v-mid':'v-good';line=`วางได้ <b>${n} แผง</b>${P&&P.sides===2?' รวมสองฝั่ง':''} (${fmt(n*pW/1000,1)} kW)<br>ใช้จริง ${need} แผง${P?` · ${P.label}`:''}`;}}
   if(wh==='roof'){if(S2.mat==='metal')notes.push('เมทัลชีทติดง่ายที่สุด ใช้ขายึดแบบหนีบลอน ไม่ต้องเจาะหลังคา');if(S2.mat==='tile')notes.push('กระเบื้องแตกง่าย ต้องใช้ขายึดแบบตะขอและช่างที่ชำนาญ ถ้าทำไม่ดีหลังคาจะรั่ว');if(S2.mat==='concrete')notes.push('ดาดฟ้าคอนกรีตใช้โครงตั้งเอียง ไม่ต้องเจาะ ต้องเว้นระยะไม่ให้แถวบังกันเอง');}
   if(wh==='garage')notes.push('หลังคาโรงรถส่วนมากโครงเบา ต้องให้ช่างหรือวิศวกรเช็คว่ารับน้ำหนักเพิ่มราว 15 กก./ตร.ม. ได้');
   if(wh==='ground')notes.push('ต้องทำฐานและโครงเหล็ก ล้อมรั้วกันคนและสัตว์ ยกให้พ้นระดับน้ำท่วม และเดินสายถึงมิเตอร์ ค่าติดตั้งมักสูงกว่าบนหลังคา');
   if(wh==='float')notes.push('ใช้ทุ่นลอยน้ำเฉพาะ บ่อต้องมีน้ำตลอดปี ค่าใช้จ่ายสูงกว่า ข่าวบอกว่าโครงการรองรับแต่ยังรอรายละเอียด');
+  if(P&&P.sides===2)notes.unshift(`แบบสองฝั่ง: ช่องขนาดพื้นที่คือหลังคาฝั่งเดียว แอปคิดว่าอีกฝั่งขนาดเท่ากัน ฝั่งละ ${needSide} แผง · ${S2.dir==='ew'?'ตะวันออกกับตะวันตกผลิตไฟใกล้เคียงกัน ได้ไฟทั้งเช้าและบ่าย':'ฝั่งที่หันทิศเหนือผลิตไฟได้น้อยลงราว 15–20% ถ้าพื้นที่ฝั่งใต้พอ ใช้แบบ 2 แถวดีกว่า'}`);
   if(!roofy&&n)notes.push(`วางแผงเอียง ${FIT[wh].tilt}° เป็นโต๊ะละ ${F.k} แผงซ้อน เว้นระยะ ${fmt(FIT[wh].gy,1)} ม. ระหว่างแถวกันเงาบังกัน และเว้นขอบ ${fmt(S2.sb>=0?S2.sb:FIT[wh].sb,1)} ม. ไว้เดินดูแล จึงใช้พื้นที่มากกว่าบนหลังคา`);
   if(roofy&&S2.dir==='n')notes.push('ด้านทิศเหนือผลิตไฟได้น้อยลงราว 15–20% ถ้ามีด้านอื่นให้เลือกด้านใต้ ตะวันออก หรือตะวันตก');
   if(roofy&&S2.dir==='ew')notes.push('ทิศตะวันออกหรือตะวันตกผลิตไฟน้อยกว่าทิศใต้ราว 5–10% ยังใช้ได้ดี ทิศตะวันตกช่วยช่วงบ่ายที่เปิดแอร์');
@@ -1470,8 +1524,8 @@ function renderFit(){
   if(n){const f=FIT[wh],tw=F.cols*F.px-f.gx,th=F.th,rowY=r=>Math.floor(r/F.k)*F.ty+(r%F.k)*(F.bh+0.02),sx=ox+(W-tw)/2*S,sy=oy+(L-th)/2*S,ord=[];
     for(let r=0;r<F.rows;r++)for(let k=0;k<F.cols;k++)ord.push([r,k]);
     ord.sort((A,B)=>Math.abs(A[0]-(F.rows-1)/2)-Math.abs(B[0]-(F.rows-1)/2)||Math.abs(A[1]-(F.cols-1)/2)-Math.abs(B[1]-(F.cols-1)/2));
-    ord.forEach(([r,k],i)=>{const on=i<need;g+=`<rect x="${(sx+k*F.px*S).toFixed(1)}" y="${(sy+rowY(r)*S).toFixed(1)}" width="${(F.a*S).toFixed(1)}" height="${(F.bh*S).toFixed(1)}" style="fill:${on?'var(--pv)':'none'};stroke:${on?'#fff':'var(--grid)'};stroke-width:1${on?'':';stroke-dasharray:3 2'}"/>`;});}
-  g+=`<text x="160" y="205" text-anchor="middle" style="fill:var(--muted);font-size:12px;font-family:var(--f-num)">${fmt(W,1)} × ${fmt(L,1)} ม. · สีน้ำเงิน = แผงที่ใช้ ${Math.min(need,n)} แผง</text>`;
+    ord.forEach(([r,k],i)=>{const on=i<needSide;g+=`<rect x="${(sx+k*F.px*S).toFixed(1)}" y="${(sy+rowY(r)*S).toFixed(1)}" width="${(F.a*S).toFixed(1)}" height="${(F.bh*S).toFixed(1)}" style="fill:${on?'var(--pv)':'none'};stroke:${on?'#fff':'var(--grid)'};stroke-width:1${on?'':';stroke-dasharray:3 2'}"/>`;});}
+  g+=`<text x="160" y="205" text-anchor="middle" style="fill:var(--muted);font-size:12px;font-family:var(--f-num)">${fmt(W,1)} × ${fmt(L,1)} ม. · สีน้ำเงิน = แผงที่ใช้ ${Math.min(needSide,F.count)} แผง${P&&P.sides===2?' ต่อฝั่ง':''}</text>`;
   svg.innerHTML=g;
 }
 // ---- question 3: who to install with — compare up to three quotes ----
@@ -1494,7 +1548,7 @@ function renderQuotes(){
 // icons in front of each question (drawn inline: artifact pages cannot load outside images)
 {const I={bill:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',wallet:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/>',panel:'<path d="M4 18l2-12h12l2 12z"/><path d="M5 12h14M9.5 6l-1 12M14.5 6l1 12"/>',pin:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',ruler:'<rect x="2" y="8" width="20" height="8" rx="1"/><path d="M6 8v3M10 8v4M14 8v3M18 8v4"/>',roof:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',tree:'<path d="M12 3c3 0 5 2.5 5 5 1.5.5 2.5 2 2.5 3.5 0 2-1.8 3.5-4 3.5H8.5c-2.2 0-4-1.5-4-3.5 0-1.5 1-3 2.5-3.5 0-2.5 2-5 5-5z"/><path d="M12 15v6"/>'};
  // tab 2: the size question sits right under the screen, so the screen stays visible above the phone keyboard
- document.querySelector('#t2 .answer .crt').insertAdjacentElement('afterend',document.querySelector('#t2 .sizeq'));
+ $('s2Pick').insertAdjacentElement('afterend',document.querySelector('#t2 .sizeq'));
  // location and the roof-layout tool live in tab 2's satellite section (moved here so the elements keep their handlers)
  $('t2SatBody').append($('coords').closest('.field'),$('roofPanel'));$('roofPanel').classList.remove('collapsed');
  I.coin='<circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M14.8 9.2c-.4-.9-1.5-1.4-2.8-1.4-1.6 0-2.8.8-2.8 1.9s1.2 1.6 2.8 1.9 2.8.9 2.8 2-1.2 1.9-2.8 1.9c-1.4 0-2.5-.6-2.9-1.5"/>';
@@ -1507,7 +1561,7 @@ function saveState(){try{
   const tab=(document.querySelector('#tabs [aria-selected=true]')||{}).dataset?.t||'t1';
   localStorage.setItem(STKEY,JSON.stringify({ts:Date.now(),tab,y:scrollY,sat:$('t2Sat').open,maps:awaitingMaps,
     v:Object.fromEntries(['s_bill','s_total','s_w','s_l','coords','s2Sb'].map(id=>[id,$(id).value])),old:$('s_old').checked,
-    S1:{pres:S1.pres,loan:S1.loan,size:S1.size,grant:S1.grant},S2:{where:S2.where,mat:S2.mat,dir:S2.dir,shade:S2.shade,ori:S2.ori,sb:S2.sb}}));}catch(e){}}
+    S1:{pres:S1.pres,loan:S1.loan,size:S1.size,grant:S1.grant},S2:{where:S2.where,mat:S2.mat,dir:S2.dir,shade:S2.shade,ori:S2.ori,sb:S2.sb,roof:S2.roof,lay:S2.lay}}));}catch(e){}}
 let stT=0;const saveSoon=()=>{clearTimeout(stT);stT=setTimeout(saveState,300);};
 ['input','change','click'].forEach(ev=>document.addEventListener(ev,saveSoon,true));
 window.addEventListener('pagehide',saveState);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveState();});
