@@ -177,6 +177,10 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .answer .billq .chips button{background:var(--surface)}
 .answer .billq .chips{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .answer .billq .chips button{padding:8px 0;font-size:14px}
+.answer .sizeq1 .chips{grid-template-columns:repeat(3,minmax(0,1fr))}
+.answer .sizeq1 .chips button{font-size:15.5px;font-weight:600}
+.answer .sizeq1 h4{padding-right:0}
+.answer .sizeq1 .hint{font-size:12.5px;color:#2f3f48}
 .answer .billq .chips button[aria-pressed=true]{background:var(--forest);color:#fff;border-color:var(--forest)}
 .answer .billq h4 svg{background:var(--surface)}
 .answer .billq .unit{color:var(--forest);font-weight:600}
@@ -234,7 +238,7 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
   linear-gradient(var(--forest),var(--forest)) right top/30px 4px no-repeat,linear-gradient(var(--forest),var(--forest)) right top/4px 30px no-repeat,
   linear-gradient(var(--forest),var(--forest)) left bottom/30px 4px no-repeat,linear-gradient(var(--forest),var(--forest)) left bottom/4px 30px no-repeat,
   linear-gradient(var(--forest),var(--forest)) right bottom/30px 4px no-repeat,linear-gradient(var(--forest),var(--forest)) right bottom/4px 30px no-repeat}
-.answer #sSys,.answer #s2Need{background:var(--forest);color:var(--yel);padding:5px 14px;border-radius:999px;font-weight:600;font-size:13px;max-width:100%}
+.answer #sSys,.answer #s2Need{background:#f28c18;color:#fff;padding:7px 16px;border-radius:999px;font-weight:700;font-size:14.5px;line-height:1.45;max-width:100%;box-shadow:0 2px 0 #b45c00;text-shadow:0 1px 0 rgba(0,0,0,.18)}
 .answer .verdict-big{font-weight:800;letter-spacing:-.01em}
 .answer .v-good{color:var(--forest)} .answer .v-mid{color:#9a4d00} .answer .v-bad{color:var(--bad)}
 .answer .note{color:#2f3f48}
@@ -1684,6 +1688,8 @@ function renderQuotes(){
  I.coin='<circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M14.8 9.2c-.4-.9-1.5-1.4-2.8-1.4-1.6 0-2.8.8-2.8 1.9s1.2 1.6 2.8 1.9 2.8.9 2.8 2-1.2 1.9-2.8 1.9c-1.4 0-2.5-.6-2.9-1.5"/>';
  const order=['sun','wallet','coin','panel','bill','pin','roof','compass','tree','ruler'];
  document.querySelectorAll('#t1 .q h4, #t2 .q h4').forEach((h,i)=>{if(order[i])h.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 24 24" aria-hidden="true">${I[order[i]]}</svg>`);});}
+// menu 1: the system-size question sits under the bill question in the answer frame
+{const q=$('s_size').closest('.q'),bq=document.querySelector('#t1 .answer .billq');q.classList.add('billq','sizeq1');bq.after(q);}
 placeNav('t1');
 // remember answers on this phone, so coming back from Google Maps (which often reloads the page) lands where the user left
 const STKEY='solarState1';
