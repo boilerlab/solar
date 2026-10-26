@@ -188,6 +188,11 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .swipe .opt svg{width:84px;height:59px;display:block}
 .swipe .opt small{font-family:var(--f-body);font-size:11.5px;font-weight:500;color:var(--muted);white-space:nowrap}
 .swipe .opt small.low{color:#b45c00}
+.carebtn{display:flex;gap:8px;align-items:flex-start;max-width:420px;text-align:left;font-size:13px;line-height:1.45;background:var(--surface);border:1.5px dashed #b45c00;border-radius:10px;padding:8px 12px;cursor:pointer}
+.carebtn input{margin-top:3px;accent-color:#b45c00}
+.pcount{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;max-width:420px}
+.pcount .btn{font-size:15px;padding:6px 14px;background:var(--surface)}
+.pcount span{font-family:var(--f-display);font-size:17px;font-weight:700;color:var(--forest);min-width:150px;text-align:center}
 .laymin{margin:2px 0 0;font-size:12.5px;color:#2f3f48}
 .swipe .opt[aria-pressed=true]{border-color:#f28c18;box-shadow:0 0 0 3px rgba(242,140,24,.3)}
 .fitp{width:100%;max-width:420px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;text-align:left}
@@ -395,6 +400,7 @@ a.btn{text-decoration:none;display:inline-block}
       <div class="crt"><div class="verdict-big v-idle" id="sVerdict">--/--</div></div>
       <span class="note" id="sSys"></span>
       <p class="note" id="sPrice" hidden></p>
+      <label class="carebtn" id="careBox" hidden><input type="checkbox" id="s_care"> <span><b>คิดแบบระวัง</b> · ขายไฟได้ 80% · ผลิตไฟน้อยลง 10% · อินเวอร์เตอร์เสียปีที่ 5</span></label>
       <p class="line" id="sLine1"></p>
       <button type="button" class="nextbtn" id="sNext" data-next="t2" hidden><span class="tn">2</span>ไปข้อ 2 พื้นที่พอไหม →</button>
       <p class="note" id="sLine2"></p>
@@ -433,6 +439,7 @@ a.btn{text-decoration:none;display:inline-block}
       <p class="line" id="s2Line"></p>
       <button type="button" class="nextbtn" id="s2Next" data-next="t3" hidden><span class="tn">3</span>ไปข้อ 3 ติดกับใคร →</button>
       <svg id="s2Svg" class="fitsvg" viewBox="0 0 320 210" role="img" aria-label="ภาพจำลองการวางแผงบนพื้นที่"></svg>
+      <div class="pcount" id="s2Count"><button type="button" class="btn" data-d="-1" aria-label="ลดแผง 1 แผ่น">− แผง</button><span id="s2CountTxt"></span><button type="button" class="btn" data-d="1" aria-label="เพิ่มแผง 1 แผ่น">+ แผง</button></div>
       <div class="fitp" id="s2Params" hidden>
         <div class="rotrow"><button type="button" class="btn sm solid" id="s2Rot">หมุนแผง 90°</button><span class="note" id="s2RotTxt"></span></div>
         <label>แผงยาว<span class="inrow"><input type="number" id="s2PL" step="0.01" min="0.5" inputmode="decimal"><span class="unit">ม.</span></span></label>
@@ -460,6 +467,7 @@ a.btn{text-decoration:none;display:inline-block}
           <li>เป็นบริษัทจดทะเบียน มีที่อยู่และหน้าร้านจริง เช็คได้ที่ <a href="https://datawarehouse.dbd.go.th" target="_blank" rel="noopener">กรมพัฒนาธุรกิจการค้า</a></li>
           <li>มีวิศวกรไฟฟ้าเซ็นรับรองแบบ และติดตั้งตามมาตรฐาน วสท.</li>
           <li>รับประกันงานติดตั้งและหลังคารั่วอย่างน้อย 1–2 ปี บอกเวลาเข้าซ่อมเป็นลายลักษณ์อักษร</li>
+          <li class="alert"><b>ถ้าร้านปิดกิจการ ใครดูแล?</b> เลือกร้านที่เปิดมาแล้วหลายปี และขอให้ประกันอุปกรณ์ลงชื่อเราตรงกับผู้ผลิตหรือตัวแทนในไทย จะเคลมได้แม้ร้านปิด</li>
           <li>มีผลงานติดตั้งใกล้บ้านให้ไปดูหรือโทรถามเจ้าของได้</li>
           <li>จ่ายเงินตามงวดงาน ไม่จ่ายมัดจำ "จองสิทธิ์"</li>
           <li class="alert">ขอใบเสนอราคาอย่างน้อย 2–3 เจ้า แล้วกรอกเทียบในตารางด้านล่าง</li>
@@ -469,7 +477,7 @@ a.btn{text-decoration:none;display:inline-block}
         <h3>เลือกอุปกรณ์</h3>
         <ul class="checks">
           <li>อินเวอร์เตอร์ต้องเป็นรุ่นที่ขึ้นทะเบียนกับการไฟฟ้า ดูรายชื่อของ กฟภ. ได้ที่ <a href="https://smartlist.pea.co.th/products" target="_blank" rel="noopener">smartlist.pea.co.th</a> (บ้านในเขต กฟน. ให้ถามการไฟฟ้าเขต)</li>
-          <li>อินเวอร์เตอร์ควรรับประกันอย่างน้อย 5 ปี ถ้าได้ 10 ปีดีกว่า เพราะเป็นชิ้นที่เสียบ่อยที่สุด</li>
+          <li class="alert"><b>อินเวอร์เตอร์รับประกัน 10 ปี</b> (อย่างน้อยให้ครอบคลุมช่วงผ่อน 7 ปี) เป็นชิ้นที่เสียบ่อยที่สุด ถ้าเสียระหว่างผ่อนต้องจ่ายเองราว 20,000–40,000 บาท ถามให้ชัดว่าประกันกับผู้ผลิตโดยตรงหรือกับร้าน</li>
           <li>แผงควรรับประกันสินค้า 12 ปีขึ้นไป และรับประกันกำลังผลิต 25–30 ปี มีตัวแทนในไทย</li>
           <li>โครงยึดเป็นอะลูมิเนียมหรือสแตนเลส น็อตไม่เป็นสนิม</li>
           <li>มีเบรกเกอร์ฝั่ง DC และ AC อุปกรณ์กันฟ้าผ่า (SPD) และสายดิน</li>
@@ -998,6 +1006,8 @@ function lyResult(){
   LY.count=n;$('lyCount').textContent=fmt(n);$('lyKwp').textContent=fmt(n*W/1000,2);
   $('lyMeta').innerHTML=(LY.faces.length||LY.manual.length)?capLine(W)+rows.join('<br>')+`<br>สเกล 1 ม. = ${fmt(1/sc,1)} พิกเซล · แผง ${fmt(W)} W`:'ยังไม่ได้วาดกรอบหลังคา ไปที่ขั้นที่ 2';
   $('lyApply').disabled=!n;
+  // in tab 2 the result goes straight into the screen above, no button press needed
+  if(typeof S2==='object'&&!$('t2').hidden){clearTimeout(LY.autoT);LY.autoT=setTimeout(()=>{if(LY.count)applyLy(false);else if(S2.lyN){S2.lyN=0;renderFit();}},450);}
 }
 function tag(t,x,y,k,bg){cx.font=`600 ${Math.round(13*k)}px "IBM Plex Sans Thai",sans-serif`;const w=cx.measureText(t).width+12*k,h=22*k;cx.fillStyle=bg||'rgba(10,16,30,.78)';cx.fillRect(x-w/2,y-h/2,w,h);cx.fillStyle='#fff';cx.textAlign='center';cx.textBaseline='middle';cx.fillText(t,x,y+k);}
 function path(P,close){cx.beginPath();P.forEach((p,j)=>j?cx.lineTo(p.x,p.y):cx.moveTo(p.x,p.y));if(close)cx.closePath();}
@@ -1092,7 +1102,7 @@ $('lySug').addEventListener('click',()=>{$('lyTarget').value=suggestions(read())
 $('lyMeters').addEventListener('change',()=>{if(lyScale()&&!LY.polys.length&&LY.mode==='scale')setMode('roof');});
 $('panelW').addEventListener('input',lyCompute);
 window.addEventListener('resize',()=>draw());
-$('lyApply').addEventListener('click',()=>{
+function applyLy(scroll){
   const W=parseFloat($('panelW').value)||600;$('kwp').value=+(LY.count*W/1000).toFixed(2);
   let bi=-1,bc=-1;LY.faces.forEach((f,fi)=>{const k=faceCount(fi);if(k>bc){bc=k;bi=fi;}});
   let msg=`ใส่ ${fmt(+$('kwp').value,2)} kWp (${LY.count} แผง) ในการคำนวณแล้ว`;
@@ -1101,8 +1111,9 @@ $('lyApply').addEventListener('click',()=>{
   // feed the panel count into tab 2's screen in place of a typed width × length
   S2.lyN=LY.count;$('s_w').value='';$('s_l').value='';renderFit();
   $('lyApplied').textContent=msg+' · ผลขึ้นที่จอด้านบนแล้ว';
-  if(!$('t2').hidden)setTimeout(()=>document.querySelector('#t2 .answer').scrollIntoView({behavior:'smooth',block:'start'}),400);
-});
+  if(scroll&&!$('t2').hidden)setTimeout(()=>document.querySelector('#t2 .answer').scrollIntoView({behavior:'smooth',block:'start'}),400);
+}
+$('lyApply').addEventListener('click',()=>applyLy(true));
 (function(){
   const drop=$('drop');
   $('roofFile').addEventListener('change',e=>{showRoof(e.target.files[0]);e.target.value='';});
@@ -1163,6 +1174,8 @@ function simulate(p,kwp,usable,degFactor){
 }
 
 function compute(p,hybrid){
+  // careful mode: 10% less sunshine yield, only 80% of surplus actually sold, inverter fails in year 5 (still paying the loan) and again in year 15
+  const care=!!window.CAREFUL;if(care)p={...p,yield:p.yield*0.9};const sf=care?0.8:1;
   const usable=hybrid?p.battKwh*p.dod:0;
   const m=365/12;
   const sim=simulate(p,p.kwp,usable,1);
@@ -1177,15 +1190,15 @@ function compute(p,hybrid){
     const s=simulate(p,p.kwp,usable,Math.pow(1-p.deg,y-1));
     const g=Math.max(0,p.kwh-(s.self+s.dis)*m);
     const save=(bill(p.kwh,p).total-bill(g,p).total)*12*Math.pow(1+p.esc,y-1);
-    const inc=y<=p.years?s.exp*m*12*p.sell:0;
-    let cf=save+inc-p.om-(y===12?p.inv:0)-(y<=p.ly?pay*12:0);
+    const inc=y<=p.years?s.exp*m*12*p.sell*sf:0;
+    let cf=save+inc-p.om-((care?(y===5||y===15):y===12)?p.inv:0)-(y<=p.ly?pay*12:0);
     if(hybrid&&y===Math.round(p.battLife)&&y<N)cf-=p.battKwh*p.battPrice*p.repl;
     const prev=cum;cum+=cf;cums.push(cum);
     if(payback===null&&cum>=0&&cf>0)payback=(y-1)+(-prev/cf);
     if(y===p.years)netAtTerm=cum;
   }
-  const saveY1=(b0.total-b1.total)*12,incY1=expM*12*p.sell;
-  return {sim,offsetM,expM,gridM,b0,b1,capex,battCost,saveY1,incY1,benefit:saveY1+incY1,payback,cums,netAtTerm,usable,sub,loan,pay,outlay};
+  const saveY1=(b0.total-b1.total)*12,incY1=expM*12*p.sell*sf;
+  return {omM:p.om/12,care,sim,offsetM,expM,gridM,b0,b1,capex,battCost,saveY1,incY1,benefit:saveY1+incY1,payback,cums,netAtTerm,usable,sub,loan,pay,outlay};
 }
 
 function niceStep(max){const raw=max/4||1,p=Math.pow(10,Math.floor(Math.log10(raw)));const n=raw/p;return(n<1.5?1:n<3?2:n<7?5:10)*p;}
@@ -1404,9 +1417,15 @@ function chipGroup(id,obj,key,cb){const g=$(id);const sync=()=>g.querySelectorAl
 // picture pickers: a roof shape redraws the arrangements; an arrangement sets the system size from its panel count
 $('roofPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;S2.roof=b.dataset.v;renderFit();});
 // remember the menu-1 size while an arrangement is chosen, and go back to it when the arrangement is cleared
-$('layPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;if(!S2.lay)S1.baseSize=S1.size;S2.lay=S2.lay===b.dataset.v?null:b.dataset.v;if(!S2.lay)S1.size=S1.baseSize||5;simpleSync();});
-$('s_size').addEventListener('click',()=>{S2.lay=null;},true);
+$('layPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;if(!S2.lay&&!S1.custom)S1.baseSize=S1.size;S1.custom=false;S2.lay=S2.lay===b.dataset.v?null:b.dataset.v;if(!S2.lay)S1.size=S1.baseSize||5;simpleSync();});
+$('s_size').addEventListener('click',()=>{S2.lay=null;S1.custom=false;},true);
+$('s_care').addEventListener('change',()=>{S1.care=$('s_care').checked;simpleSync();});
+// +/- one panel: the count becomes the system size (capped at the scheme's 10 kW)
+$('s2Count').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const pW=parseFloat($('panelW').value)||620,P=S2.lay?presetOf(S2.lay):null;
+  let cnt=P?P.n:panelsFor(S1.size,pW);cnt=Math.min(panelsFor(10,pW),Math.max(1,cnt+(+b.dataset.d)));
+  if(!S2.lay&&!S1.custom)S1.baseSize=S1.size;S2.lay=null;S1.custom=true;S1.size=+(cnt*pW/1000).toFixed(2);simpleSync();});
 function simpleSync(){
+  window.CAREFUL=!!S1.care;$('s_care').checked=!!S1.care;
   if(S2.lay&&presetOf(S2.lay)){S1.size=+(presetOf(S2.lay).n*(parseFloat($('panelW').value)||620)/1000).toFixed(2);}
   $('s_size').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===S1.size)));
   const b=parseFloat($('s_bill').value)||0;$('billBaht').value=b;$('kwh').value=kwhFromBill(b);
@@ -1426,21 +1445,21 @@ $('s_prov').addEventListener('change',()=>{$('prov').value=$('s_prov').value;if(
 // size the word to the screen width: count Thai base letters, ignore vowel and tone marks
 function fitCrt(el){const n=el.textContent.replace(/[ัิ-ฺ็-๎\s]/g,'').length||1;el.style.fontSize=Math.min(30,140/n)+'cqw';}
 function verdictOf(R){
-  if(R.loan>0){const n=R.benefit/12-R.pay;return n>=300?['คุ้ม','v-good']:n>=-200?['พอไหว','v-mid']:['ยังไม่คุ้ม','v-bad'];}
+  if(R.loan>0){const n=R.benefit/12-R.pay-(R.omM||0);return n>=300?['คุ้ม','v-good']:n>=-200?['พอไหว','v-mid']:['ยังไม่คุ้ม','v-bad'];}
   const pb=R.payback;return pb!==null&&pb<=6?['คุ้ม','v-good']:pb!==null&&pb<=9?['พอไหว','v-mid']:['ยังไม่คุ้ม','v-bad'];}
 function renderSimple(){
-  const p=read(),R=compute(p,false),[w,c]=verdictOf(R),net=R.benefit/12-R.pay;
+  const p=read(),R=compute(p,false),[w,c]=verdictOf(R),net=R.benefit/12-R.pay-R.omM;
   $('s_billChips').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===+$('s_bill').value)));
-  const billIn=parseFloat($('s_bill').value)||0;$('sMeter').hidden=!billIn;if(!billIn)$('sPrice').hidden=true;
+  const billIn=parseFloat($('s_bill').value)||0;$('sMeter').hidden=!billIn;$('careBox').hidden=!billIn;if(!billIn)$('sPrice').hidden=true;
   $('t1').classList.toggle('pre',!billIn);glowTab('t2',billIn>0);$('sNext').hidden=!billIn;
   if(!billIn){const e=$('sVerdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('sSys').textContent='ยังไม่มีข้อมูล';$('sLine1').innerHTML='กรอก<b>ค่าไฟต่อเดือน</b>เพื่อดูผล';$('sLine2').textContent='';$('sTips').innerHTML='';renderFit();renderQuotes();return;}
   $('sSys').textContent=`ติดโซลาร์ ${fmt(p.kwp,1)} kW · ${R.loan?'กู้ธนาคารรัฐ':'จ่ายเงินสด'}${R.sub?` · หักเงินสนับสนุน ${fmt(R.sub)} บาท`:' · ไม่มีเงินให้เปล่า'}`;
   $('sPrice').hidden=false;$('sPrice').innerHTML=`คิดจากราคาติดตั้ง ${fmt(p.price)} บาท/kW ${parseFloat($('s_total').value)>0&&S1.priceOk?'(จากราคาที่กรอก)':'(ราคากลาง)'} · <button type="button" class="linkbtn">แก้ได้</button>`;
   $('sVerdict').textContent=w;$('sVerdict').className='verdict-big '+c;fitCrt($('sVerdict'));
-  if(R.loan>0)$('sLine1').innerHTML=net>=0?`ทุกเดือน <b>เหลือ ${fmt(net)} บาท</b><br>หลังจ่ายค่างวด ${fmt(R.pay)} บาท นาน ${p.ly} ปี`:`ทุกเดือน <b>ต้องควักเพิ่ม ${fmt(-net)} บาท</b><br>ช่วงผ่อน ${p.ly} ปี ค่างวด ${fmt(R.pay)} บาท`;
+  if(R.loan>0)$('sLine1').innerHTML=net>=0?`ทุกเดือน <b>เหลือ ${fmt(net)} บาท</b><br>หลังจ่ายค่างวด ${fmt(R.pay)} บาท นาน ${p.ly} ปี และค่าดูแล ${fmt(R.omM)} บาท`:`ทุกเดือน <b>ต้องควักเพิ่ม ${fmt(-net)} บาท</b><br>ช่วงผ่อน ${p.ly} ปี ค่างวด ${fmt(R.pay)} + ค่าดูแล ${fmt(R.omM)} บาท`;
   else if(R.outlay<=0)$('sLine1').innerHTML=`ไม่ต้องจ่ายเอง<br><b>เงินสนับสนุนครอบคลุมทั้งหมด</b>`;
   else $('sLine1').innerHTML=`จ่ายเอง ${fmt(Math.max(0,R.outlay))} บาท<br><b>${R.payback!==null?`คืนทุนใน ${fmt(R.payback,1)} ปี`:'คืนทุนไม่ทันใน 20 ปี'}</b>`;
-  $('sLine2').textContent=`${R.loan?'ผ่อนหมดแล้ว':'หลังคืนทุน'} ได้ประโยชน์เดือนละราว ${fmt(R.benefit/12)} บาท · รวม ${p.years} ปี ${R.netAtTerm>=0?'ได้กำไร':'ขาดทุน'} ${fmt(Math.abs(R.netAtTerm))} บาท`;
+  $('sLine2').textContent=`${R.loan?'ผ่อนหมดแล้ว':'หลังคืนทุน'} ได้ประโยชน์เดือนละราว ${fmt(R.benefit/12-R.omM)} บาท (หักค่าดูแลแล้ว) · รวม ${p.years} ปี ${R.netAtTerm>=0?'ได้กำไร':'ขาดทุน'} ${fmt(Math.abs(R.netAtTerm))} บาท`;
   const pvM=R.sim.pvDay*365/12,pct=pvM?Math.min(1,R.sim.self*365/12/pvM):0,lab=pct>=.5?'ดีมาก':pct>=.35?'ปานกลาง':'ต่ำ';
   $('sMeterFill').style.width=(pct*100).toFixed(0)+'%';$('sMeterFill').style.background=pct>=.5?'var(--forest)':pct>=.35?'#e08a00':'var(--bad)';
   $('sMeterTxt').textContent=`ใช้ไฟจากแผงเองได้ ${fmt(pct*100)}% (${lab}) · ส่วนที่เหลือขายได้หน่วยละ ${fmt(p.sell,2)} บาท`;
@@ -1448,6 +1467,7 @@ function renderSimple(){
   if(pct<.5){const R2=compute({...p,day:Math.min(.8,p.day+.15)},false),g=(R2.benefit-R.benefit)/12;if(g>20)act.push(`ย้ายงานที่ใช้ไฟมาทำตอนกลางวัน เช่น ซักผ้า ปั๊มน้ำ หม้อหุงข้าว ชาร์จรถ เปิดแอร์ช่วงบ่าย ได้เพิ่มราว ${fmt(g)} บาท/เดือน`);}
   if(p.price>28500)act.push(`ราคา ${fmt(p.price)} บาทต่อ kW ค่อนข้างสูง ขอใบเสนอราคาเพิ่มอีก 2–3 เจ้า แล้วเทียบในข้อ 3`);
   if(p.kwp>5&&pct<.35)act.push('บ้านนี้ใช้ไฟกลางวันน้อย ติด 5 kW ก็พอ แผงที่เพิ่มส่วนใหญ่ได้แค่ขายไฟ 2.20 บาท');
+  if(R.care)act.unshift(`คิดแบบระวังอยู่: ปีที่ 5 อาจต้องจ่ายค่าอินเวอร์เตอร์ราว ${fmt(p.inv)} บาท ระหว่างที่ยังผ่อนอยู่ ควรเลือกรุ่นที่รับประกัน 10 ปี`);
   if(R.loan&&net<0)act.push('ช่วงผ่อนต้องเติมเงินเอง ลองจ่ายเงินสดบางส่วนเพื่อลดยอดกู้ หรือขอผ่อนนานขึ้น');
   if(p.kwh<200)act.push('บ้านใช้ไฟน้อย ประโยชน์ส่วนใหญ่มาจากการขายไฟ ค่าไฟที่ลดได้จะไม่มาก');
   if(!act.length)act.push('ตัวเลขดีแล้ว ขั้นต่อไปคือเช็คพื้นที่ในข้อ 2 และเลือกช่างในข้อ 3');
@@ -1497,6 +1517,16 @@ function fitShape(W,L,where,P){const f={...FIT[where]};if(S2.sb>=0)f.sb=S2.sb;co
   const oris=S2.ori==='p'?[[pw,pl]]:S2.ori==='l'?[[pl,pw]]:[[pw,pl],[pl,pw]],dim=(a,b)=>{const bh=b*ct;return{a,bh,gx:f.gx,needW:P.cols*(a+f.gx)-f.gx+2*f.sb,needL:P.rows*bh+(P.rows-1)*0.02+2*f.sb};};
   for(const[a,b]of oris){const d=dim(a,b);if(d.needW<=W+1e-9&&d.needL<=L+1e-9)return{ok:true,...d};}
   return{ok:false,...oris.map(([a,b])=>dim(a,b)).sort((x,y)=>x.needW*x.needL-y.needW*y.needL)[0]};}
+// the roof outline and panels drawn on the satellite photo, redrawn as a plain diagram (the photo itself cannot be copied)
+function lyVector(svg,use){const pts=[...LY.polys.flat(),...LY.manual.flatMap(m=>m.q)];if(!pts.length)return false;
+  const xs=pts.map(q=>q.x),ys=pts.map(q=>q.y),x0=Math.min(...xs),y0=Math.min(...ys),w=Math.max(...xs)-x0||1,h=Math.max(...ys)-y0||1,S=Math.min(304/w,240/h),ox=(320-w*S)/2,oy=8,VH=Math.round(h*S+40);
+  const pg=(P,st)=>`<polygon points="${P.map(q=>((q.x-x0)*S+ox).toFixed(1)+','+((q.y-y0)*S+oy).toFixed(1)).join(' ')}" style="${st}"/>`;
+  let g='';LY.polys.forEach(P=>g+=pg(P,'fill:var(--sun-soft);stroke:var(--fr-o);stroke-width:2;stroke-linejoin:round'));
+  let k=0;const st=()=>k++<use?'fill:var(--pv);stroke:#fff;stroke-width:.8':'fill:none;stroke:var(--grid);stroke-width:.8;stroke-dasharray:3 2';
+  LY.faces.forEach((f,fi)=>f.panels.forEach((q,i)=>{if(!LY.removed.has(fi+'-'+i))g+=pg(q,st());}));
+  LY.manual.forEach(m=>g+=pg(m.q,st()));
+  const sc=lyScale();g+=`<text x="160" y="${VH-12}" text-anchor="middle" style="fill:var(--muted);font-size:12px">ภาพดาวเทียม · ใช้ ${Math.min(use,LY.count)}/${LY.count} แผง${sc?` · ราว ${fmt(w*sc,1)} × ${fmt(h*sc,1)} ม.`:''}</text>`;
+  svg.setAttribute('viewBox',`0 0 320 ${VH}`);svg.innerHTML=g;return true;}
 function fitLayout(W,L,where){const f={...FIT[where]};if(S2.sb>=0)f.sb=S2.sb;const pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),ct=Math.cos(f.tilt*Math.PI/180);let best={count:0};
   const oris=S2.ori==='p'?[[pw,pl]]:S2.ori==='l'?[[pl,pw]]:[[pw,pl],[pl,pw]];
   // tilted mounts (ground, floating) group panels into tables 1–3 panels deep; the shade gap f.gy is only needed between tables
@@ -1518,8 +1548,9 @@ function renderFit(){
   const need=P?P.n:panelsFor(S1.size,pW),min5=panelsFor(5,pW),F=fitLayout(W,L,wh),dims=W>0&&L>0,lyN=dims?0:(S2.lyN||0),n=dims?(twoSide&&!(P&&P.sides===1)?2*F.count:F.count):lyN,SF=P&&dims?fitShape(W,L,wh,P):null,needSide=(P&&P.sides===2)||(twoSide&&!P)?Math.ceil(need/2):need,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
   $('q_mat').hidden=!roofy;$('q_dir').hidden=!roofy;
   $('s_dimHint').textContent=twoSide?`กรอบหลังคาทั้งหมด: ยาวตามแนวชายคา × กว้างรวมสองฝั่ง · แอปแบ่งครึ่ง${LT>0&&W>0?` เป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม.`:''}`:roofy?'กรอบหลังคาที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
-  $('s2Need').textContent=P?`ติด ${fmt(S1.size,1)} kW ตามแบบ ${P.label} (${need} แผง × ${fmt(pW)} W) · แตะแบบเดิมซ้ำเพื่อกลับไปใช้ขนาดจากข้อ 1`:`ติด ${fmt(S1.size,1)} kW (จากข้อ 1) ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
-  $('s_sizeHint').textContent=P?`ตอนนี้ใช้ ${fmt(S1.size,1)} kW ตามแบบวางแผง "${P.label}" ที่เลือกในข้อ 2 · กดขนาดด้านบนเพื่อเปลี่ยน`:`ข่าวบอกติดได้ไม่เกิน 10 kW · ขั้นต่ำที่แนะนำ 5 kW (แผง ${fmt(pW)} W ${min5} แผง) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!P);
+  $('s2Need').textContent=P?`ติด ${fmt(S1.size,1)} kW ตามแบบ ${P.label} (${need} แผง × ${fmt(pW)} W) · แตะแบบเดิมซ้ำเพื่อกลับไปใช้ขนาดจากข้อ 1`:`ติด ${fmt(S1.size,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
+  $('s2CountTxt').textContent=`${need} แผง · ${fmt(need*pW/1000,2)} kW`;
+  $('s_sizeHint').textContent=S1.custom&&!P?`ตอนนี้ใช้ ${fmt(S1.size,2)} kW (${need} แผง) ที่ปรับจำนวนในข้อ 2 · กดขนาดด้านบนเพื่อเปลี่ยน`:P?`ตอนนี้ใช้ ${fmt(S1.size,1)} kW ตามแบบวางแผง "${P.label}" ที่เลือกในข้อ 2 · กดขนาดด้านบนเพื่อเปลี่ยน`:`ข่าวบอกติดได้ไม่เกิน 10 kW · ขั้นต่ำที่แนะนำ 5 kW (แผง ${fmt(pW)} W ${min5} แผง) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!P||!!S1.custom);
   glowTab('t3',dims||lyN>0);$('s2Next').hidden=!(dims||lyN>0);
   [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
   $('s2Sb').placeholder=FIT[wh].sb;$('s2Params').hidden=!dims;S2.curA=F.a;
@@ -1532,7 +1563,7 @@ function renderFit(){
   else if(n<need&&(P||n<min5)){v='พื้นที่ไม่พอ';c='v-bad';line=`วางได้ ${n} แผง ต้องใช้ ${need} แผง${P&&P.sides===2?' (สองฝั่ง)':''}<br>ใช้พื้นที่ราว ${aNeed(need)} ตร.ม.`;}
   else{const cond=wh!=='roof'||S2.mat==='tile'||$('s_old').checked||S2.shade==='some'||(roofy&&S2.dir==='n');
     if(n<need){v=`พอแค่ ${fmt(n*pW/1000,1)} kW`;c='v-mid';line=`ติด ${fmt(S1.size,1)} kW ไม่พอ<br>วางได้สูงสุด ${n} แผง (${fmt(n*pW/1000,1)} kW)`;}
-    else{v=cond?'พอ ต้องเช็คก่อน':'พื้นที่พอ';c=cond?'v-mid':'v-good';line=SF?`วางแบบ <b>${P.label}</b> ได้ (${need} แผง ${fmt(need*pW/1000,1)} kW)<br>${twoSide?`แบ่งหลังคาเป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุดฝั่งละ ${F.count} แผง`:`พื้นที่ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุด ${F.count} แผง`}`:`วางได้ <b>${n} แผง</b>${twoSide?' (สองฝั่งรวมกัน)':''} (${fmt(n*pW/1000,1)} kW)<br>ใช้จริง ${need} แผง`;}}
+    else{v=cond?'พอ ต้องเช็คก่อน':'พื้นที่พอ';c=cond?'v-mid':'v-good';line=SF?`วางแบบ <b>${P.label}</b> ได้ (${need} แผง ${fmt(need*pW/1000,1)} kW)<br>${twoSide?`แบ่งหลังคาเป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุดฝั่งละ ${F.count} แผง`:`พื้นที่ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุด ${F.count} แผง`}`:`วางได้ <b>${n} แผง</b>${twoSide&&dims?' (สองฝั่งรวมกัน)':!dims?' จากภาพดาวเทียม':''} (${fmt(n*pW/1000,1)} kW)<br>ใช้จริง ${need} แผง`;}}
   if(wh==='roof'){if(S2.mat==='metal')notes.push('เมทัลชีทติดง่ายที่สุด ใช้ขายึดแบบหนีบลอน ไม่ต้องเจาะหลังคา');if(S2.mat==='tile')notes.push('กระเบื้องแตกง่าย ต้องใช้ขายึดแบบตะขอและช่างที่ชำนาญ ถ้าทำไม่ดีหลังคาจะรั่ว');if(S2.mat==='concrete')notes.push('ดาดฟ้าคอนกรีตใช้โครงตั้งเอียง ไม่ต้องเจาะ ต้องเว้นระยะไม่ให้แถวบังกันเอง');}
   if(wh==='garage')notes.push('หลังคาโรงรถส่วนมากโครงเบา ต้องให้ช่างหรือวิศวกรเช็คว่ารับน้ำหนักเพิ่มราว 15 กก./ตร.ม. ได้');
   if(wh==='ground')notes.push('ต้องทำฐานและโครงเหล็ก ล้อมรั้วกันคนและสัตว์ ยกให้พ้นระดับน้ำท่วม และเดินสายถึงมิเตอร์ ค่าติดตั้งมักสูงกว่าบนหลังคา');
@@ -1547,7 +1578,7 @@ function renderFit(){
   if(!notes.length)notes.push('ให้ช่างมาดูหน้างานยืนยันขนาดและโครงสร้างอีกครั้งก่อนเซ็นสัญญา');
   $('s2Verdict').textContent=v;$('s2Verdict').className='verdict-big '+c;fitCrt($('s2Verdict'));$('s2Line').innerHTML=line;
   $('s2Notes').innerHTML=notes.map(t=>`<li>${t}</li>`).join('');
-  const svg=$('s2Svg');svg.style.display='';if(!dims){svg.innerHTML='';svg.style.display='none';return;}
+  const svg=$('s2Svg');svg.style.display='';if(!dims){if(lyN&&lyVector(svg,need))return;svg.innerHTML='';svg.style.display='none';return;}
   // the whole roof outline is drawn at the size the user entered; a ridged roof shows both halves unfolded with the ridge across the middle.
   // panels that do not fit are drawn in red outside the outline
   const f0={...FIT[wh]};if(S2.sb>=0)f0.sb=S2.sb;
@@ -1587,7 +1618,7 @@ $('qbody').addEventListener('input',()=>renderQuotes());$('qbody').addEventListe
 function renderQuotes(){
   const p=read();let best=0,bs=-Infinity;
   const out=[1,2,3].map(n=>{const g=k=>$(`q${n}_${k}`),total=parseFloat(g('total').value),kw=parseFloat(g('kw').value)||5;if(!(total>0))return null;
-    const R=compute({...p,kwp:kw,price:Math.max(0,(total-p.fee)/kw)},false),[w,c]=verdictOf(R),net=R.benefit/12-R.pay,fl=[];
+    const R=compute({...p,kwp:kw,price:Math.max(0,(total-p.fee)/kw)},false),[w,c]=verdictOf(R),net=R.benefit/12-R.pay-R.omM,fl=[];
     if(!g('avl').checked)fl.push('ยังไม่ยืนยันว่าอยู่ใน AVL');if(!(parseFloat(g('invW').value)>=5))fl.push('ประกันอินเวอร์เตอร์ไม่ถึง 5 ปี');if(!(parseFloat(g('workW').value)>=1))fl.push('ไม่ระบุประกันงานติดตั้ง');if(kw>10)fl.push('เกิน 10 kW ตามข่าว');
     const sc=(R.loan?net:R.benefit/12-R.outlay/120)-fl.length*500;if(sc>bs){bs=sc;best=n;}
     return{n,ppk:total/kw,w,c,net,R,fl};});
@@ -1623,7 +1654,7 @@ function saveState(){if(noSave)return;try{
   const tab=(document.querySelector('#tabs [aria-selected=true]')||{}).dataset?.t||'t1';
   localStorage.setItem(STKEY,JSON.stringify({ts:Date.now(),tab,y:scrollY,sat:$('t2Sat').open,maps:awaitingMaps,
     v:Object.fromEntries(['s_bill','s_total','s_w','s_l','coords','s2Sb'].map(id=>[id,$(id).value])),old:$('s_old').checked,
-    S1:{pres:S1.pres,loan:S1.loan,size:S1.size,grant:S1.grant,baseSize:S1.baseSize},S2:{where:S2.where,mat:S2.mat,dir:S2.dir,shade:S2.shade,ori:S2.ori,sb:S2.sb,roof:S2.roof,lay:S2.lay}}));}catch(e){}}
+    S1:{pres:S1.pres,loan:S1.loan,size:S1.size,grant:S1.grant,baseSize:S1.baseSize,care:S1.care,custom:S1.custom},S2:{where:S2.where,mat:S2.mat,dir:S2.dir,shade:S2.shade,ori:S2.ori,sb:S2.sb,roof:S2.roof,lay:S2.lay}}));}catch(e){}}
 let stT=0;const saveSoon=()=>{clearTimeout(stT);stT=setTimeout(saveState,300);};
 ['input','change','click'].forEach(ev=>document.addEventListener(ev,saveSoon,true));
 window.addEventListener('pagehide',saveState);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveState();});
