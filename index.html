@@ -1534,14 +1534,15 @@ function renderFit(){
   $('s2Verdict').textContent=v;$('s2Verdict').className='verdict-big '+c;fitCrt($('s2Verdict'));$('s2Line').innerHTML=line;
   $('s2Notes').innerHTML=notes.map(t=>`<li>${t}</li>`).join('');
   const svg=$('s2Svg');svg.style.display='';if(!dims){svg.innerHTML='';svg.style.display='none';return;}
-  const S=Math.min(300/W,170/L),ox=(320-W*S)/2,oy=8+(170-L*S)/2;let g=`<rect x="${ox}" y="${oy}" width="${W*S}" height="${L*S}" rx="3" style="fill:var(--sun-soft);stroke:var(--fr-o);stroke-width:2"/>`;
+  // size the drawing to the area's own shape so a long, shallow roof side fills the frame
+  const S=Math.min(304/W,240/L),ox=(320-W*S)/2,oy=8,VH=Math.round(L*S+40);svg.setAttribute('viewBox',`0 0 320 ${VH}`);let g=`<rect x="${ox}" y="${oy}" width="${W*S}" height="${L*S}" rx="3" style="fill:var(--sun-soft);stroke:var(--fr-o);stroke-width:2"/>`;
   if(SF&&SF.ok){const sx=ox+(W-(P.cols*(SF.a+SF.gx)-SF.gx))/2*S,th=P.rows*SF.bh+(P.rows-1)*0.02,sy=oy+(L-th)/2*S;
     for(let r=0;r<P.rows;r++)for(let k=0;k<P.cols;k++)g+=`<rect x="${(sx+k*(SF.a+SF.gx)*S).toFixed(1)}" y="${(sy+r*(SF.bh+0.02)*S).toFixed(1)}" width="${(SF.a*S).toFixed(1)}" height="${(SF.bh*S).toFixed(1)}" style="fill:var(--pv);stroke:#fff;stroke-width:1"/>`;}
   else if(n){const f=FIT[wh],tw=F.cols*F.px-f.gx,th=F.th,rowY=r=>Math.floor(r/F.k)*F.ty+(r%F.k)*(F.bh+0.02),sx=ox+(W-tw)/2*S,sy=oy+(L-th)/2*S,ord=[];
     for(let r=0;r<F.rows;r++)for(let k=0;k<F.cols;k++)ord.push([r,k]);
     ord.sort((A,B)=>Math.abs(A[0]-(F.rows-1)/2)-Math.abs(B[0]-(F.rows-1)/2)||Math.abs(A[1]-(F.cols-1)/2)-Math.abs(B[1]-(F.cols-1)/2));
     ord.forEach(([r,k],i)=>{const on=i<needSide;g+=`<rect x="${(sx+k*F.px*S).toFixed(1)}" y="${(sy+rowY(r)*S).toFixed(1)}" width="${(F.a*S).toFixed(1)}" height="${(F.bh*S).toFixed(1)}" style="fill:${on?'var(--pv)':'none'};stroke:${on?'#fff':'var(--grid)'};stroke-width:1${on?'':';stroke-dasharray:3 2'}"/>`;});}
-  g+=`<text x="160" y="205" text-anchor="middle" style="fill:var(--muted);font-size:12px;font-family:var(--f-num)">${twoSide?'ฝั่งเดียว ':''}${fmt(W,1)} × ${fmt(L,1)} ม. · ${SF&&SF.ok?(P.sides===2?`ภาพนี้ฝั่งเดียว ${P.cols} แผง (อีกฝั่งเท่ากัน)`:`แบบ ${P.label}`):`สีน้ำเงิน = แผงที่ใช้ ${Math.min(needSide,F.count)} แผง${P&&P.sides===2?' ต่อฝั่ง':''}`}</text>`;
+  g+=`<text x="160" y="${VH-10}" text-anchor="middle" style="fill:var(--muted);font-size:12px;font-family:var(--f-num)">${twoSide?'ฝั่งเดียว ':''}${fmt(W,1)} × ${fmt(L,1)} ม. · ${SF&&SF.ok?(P.sides===2?`ภาพนี้ฝั่งเดียว ${P.cols} แผง (อีกฝั่งเท่ากัน)`:`แบบ ${P.label}`):`สีน้ำเงิน = แผงที่ใช้ ${Math.min(needSide,F.count)} แผง${P&&P.sides===2?' ต่อฝั่ง':''}`}</text>`;
   svg.innerHTML=g;
 }
 // ---- question 3: who to install with — compare up to three quotes ----
