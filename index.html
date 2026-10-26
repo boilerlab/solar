@@ -1074,14 +1074,14 @@ function corners(c,a,w,h){const ux=Math.cos(a),uy=Math.sin(a),vx=-uy,vy=ux,hw=w/
 // ---- group mode: the planned number of panels sits on the photo as one block the user drags onto the roof ----
 LY.grp=null;
 function planShape(){const pW=parseFloat($('panelW').value)||620,P=typeof S2==='object'&&S2.lay?presetOf(S2.lay):null;
-  if(P)return{rows:P.rows,cols:P.cols,sides:P.sides,counts:Array(P.rows).fill(P.cols)};
+  if(P)return{rows:P.rows,cols:P.cols,sides:P.sides,counts:P.counts,countsB:P.countsB};
   const n=typeof S1==='object'?panelsFor(S1.size,pW):8,rows=n<=6?1:n<=12?2:3,base=Math.floor(n/rows),ex=n%rows;
   return{rows,cols:Math.ceil(n/rows),sides:1,counts:[...Array(rows)].map((_,i)=>base+(i<ex?1:0))};}
 function buildGroup(){const d=pDims();if(!d||!LY.img)return;LY.manual=LY.manual.filter(q=>!q.grp);
   if(!LY.grp)LY.grp={c:LY.pin?{...LY.pin}:{x:cv.width/2,y:cv.height/2}};
   const sh=planShape(),a=LY.pAng*Math.PI/180,ux=Math.cos(a),uy=Math.sin(a),vx=-uy,vy=ux,gapSide=1.2/(lyScale()||1);
   const blockH=sh.rows*d.gh,totalH=sh.sides===2?2*blockH+gapSide:blockH;
-  for(let s2=0;s2<sh.sides;s2++)sh.counts.forEach((cnt,r)=>{for(let k=0;k<cnt;k++){
+  for(let s2=0;s2<sh.sides;s2++)(s2?sh.countsB:sh.counts).forEach((cnt,r)=>{for(let k=0;k<cnt;k++){
     const lx=(k-(cnt-1)/2)*d.gw,ly=totalH/2-d.gh/2-r*d.gh-(s2?blockH+gapSide:0);
     const c={x:LY.grp.c.x+ux*lx+vx*ly,y:LY.grp.c.y+uy*lx+vy*ly};
     LY.manual.push({c,ang:a,w:d.w,h:d.h,gw:d.gw,gh:d.gh,q:corners(c,a,d.w,d.h),ok:true,grp:true});}});
@@ -1455,17 +1455,16 @@ function chipGroup(id,obj,key,cb){const g=$(id);const sync=()=>g.querySelectorAl
 // picture pickers: a roof shape redraws the arrangements; an arrangement sets the system size from its panel count
 $('roofPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;S2.roof=b.dataset.v;renderFit();});
 // remember the menu-1 size while an arrangement is chosen, and go back to it when the arrangement is cleared
-$('layPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;if(!S2.lay&&!S1.custom)S1.baseSize=S1.size;S1.custom=false;S2.lay=S2.lay===b.dataset.v?null:b.dataset.v;if(!S2.lay)S1.size=S1.baseSize||5;simpleSync();});
+$('layPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;S2.lay=S2.lay===b.dataset.v?null:b.dataset.v;simpleSync();});
 $('s_size').addEventListener('click',()=>{S2.lay=null;S1.custom=false;},true);
 $('s_care').addEventListener('change',()=>{S1.care=$('s_care').checked;simpleSync();});
 // +/- one panel: the count becomes the system size (capped at the scheme's 10 kW)
 $('s2Count').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const pW=parseFloat($('panelW').value)||620,P=S2.lay?presetOf(S2.lay):null;
-  let cnt=P?P.n:panelsFor(S1.size,pW);cnt=Math.min(panelsFor(10,pW),Math.max(1,cnt+(+b.dataset.d)));
-  if(!S2.lay&&!S1.custom)S1.baseSize=S1.size;S2.lay=null;S1.custom=true;S1.size=+(cnt*pW/1000).toFixed(2);simpleSync();});
+  let cnt=panelsFor(S1.size,pW);cnt=Math.min(panelsFor(10,pW),Math.max(1,cnt+(+b.dataset.d)));
+  if(!S1.custom)S1.baseSize=S1.size;S1.custom=true;S1.size=+(cnt*pW/1000).toFixed(2);simpleSync();});
 function simpleSync(){
   setTimeout(()=>{$('lyTarget').value=S1.size;if(LY.img&&LY.mode==='group'){buildGroup();lyResult();}else if(LY.img&&LY.faces.length)lyCompute();},0);
   window.CAREFUL=!!S1.care;$('s_care').checked=!!S1.care;
-  if(S2.lay&&presetOf(S2.lay)){S1.size=+(presetOf(S2.lay).n*(parseFloat($('panelW').value)||620)/1000).toFixed(2);}
   $('s_size').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===S1.size)));
   const b=parseFloat($('s_bill').value)||0;$('billBaht').value=b;$('kwh').value=kwhFromBill(b);
   $('day').value=S1.pres;$('useLoan').checked=!!S1.loan;$('useSub').checked=S1.grant!==0;$('kwp').value=S1.size;
@@ -1520,7 +1519,11 @@ const FIT={roof:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},garage:{sb:.3,gx:.02,gy:.
 function panelsFor(kw,w){return Math.max(1,Math.floor(kw*1000/w+0.05));}
 function roofTypes(){return [{id:'shed',label:'เพิงหมาแหงน',two:0},{id:'gable',label:'จั่ว',two:1},{id:'hip',label:'ปั้นหยา',two:1},{id:'butterfly',label:'ผีเสื้อ',two:1},{id:'flat',label:'ดาดฟ้า / แบน',two:0}];}
 // names say the shape: "เรียง N" = one row of N, "เรียง N สองฝั่ง" = a row of N on each side of the ridge, "R แถว × N" = R rows of N on one side
-function layPresets(){return [['r5','เรียง 5',1,5,1],['r6','เรียง 6',1,6,1],['s6','เรียง 3 สองฝั่ง',1,3,2],['s8','เรียง 4 สองฝั่ง',1,4,2],['s10','เรียง 5 สองฝั่ง',1,5,2],['s12','เรียง 6 สองฝั่ง',1,6,2],['p6','2 แถว × 3',2,3,1],['p8','2 แถว × 4',2,4,1],['p10','2 แถว × 5',2,5,1],['p12','2 แถว × 6',2,6,1],['t15','3 แถว × 5',3,5,1]].map(([id,label,rows,cols,sides])=>({id,label,rows,cols,sides,n:rows*cols*sides}));}
+// arrangements only: the panel count comes from the system size (menu 1 or +/- panel), split evenly between rows
+function layPresets(){const pW=parseFloat($('panelW').value)||620,n=panelsFor(S1.size,pW);
+  const split=(m,rows)=>{const b=Math.floor(m/rows),e=m%rows;return[...Array(rows)].map((_,i)=>b+(i<e?1:0)).filter(x=>x>0);};
+  const mk=(id,label,rows,sides)=>{const a=sides===2?Math.ceil(n/2):n,counts=split(a,rows),countsB=sides===2?split(n-a,rows):[];return{id,label,rows:counts.length,sides,counts,countsB,cols:Math.max(...counts,...countsB),n};};
+  return [mk('r1','เรียงแถวเดียว',1,1),mk('r2','2 แถว',2,1),mk('r3','3 แถว',3,1),mk('s2','สองฝั่ง',1,2)];}
 function presetOf(id){return layPresets().find(p=>p.id===id)||null;}
 function roofOf(){const r=S2.where==='roof'||S2.where==='garage'?(S2.roof||'shed'):'ground';return r;}
 // elevation drawing of a house with each roof shape
@@ -1537,20 +1540,20 @@ function laySVG(roof,P){const ln='stroke:#28495a;stroke-width:1.6;fill:none';let
   else if(roof==='butterfly')g+='<path d="M8 35h84" style="'+ln+';stroke-dasharray:3 2"/>';
   else if(roof==='hip'){g+='<path d="M30 35h40M8 6l22 29M92 6l-22 29M8 64l22-29M92 64l-22-29" style="'+ln+'"/>';A={x:24,y:38,w:52,h:22};B={x:24,y:10,w:52,h:22};}
   else{A={x:12,y:10,w:76,h:50};B=null;if(roof==='flat')g+='<rect x="11" y="9" width="78" height="52" style="'+ln+';stroke-width:1"/>';if(roof==='shed')g+='<path d="M50 12v8M47 17l3 3 3-3" style="'+ln+'"/>';}
-  const grid=(r,rows,cols)=>{const c=Math.min((r.w-2)/cols,(r.h-2)/(rows*1.55)),pw=c*.9,ph=c*1.55*.9,x0=r.x+(r.w-cols*c)/2,y0=r.y+(r.h-rows*c*1.55)/2;let s='';
-    for(let i=0;i<rows;i++)for(let j=0;j<cols;j++)s+=`<rect x="${(x0+j*c+c*.05).toFixed(1)}" y="${(y0+i*c*1.55+c*.08).toFixed(1)}" width="${pw.toFixed(1)}" height="${ph.toFixed(1)}" style="fill:#1f4fa3;stroke:#fff;stroke-width:.6"/>`;return s;};
-  if(P){g+=grid(A,P.rows,P.cols);if(P.sides===2&&B)g+=grid(B,P.rows,P.cols);}
+  const grid=(r,counts)=>{const rows=counts.length,cols=Math.max(1,...counts),c=Math.min((r.w-2)/cols,(r.h-2)/(rows*1.55)),pw=c*.9,ph=c*1.55*.9,y0=r.y+(r.h-rows*c*1.55)/2;let s='';
+    for(let i=0;i<rows;i++){const x0=r.x+(r.w-counts[rows-1-i]*c)/2;for(let j=0;j<counts[rows-1-i];j++)s+=`<rect x="${(x0+j*c+c*.05).toFixed(1)}" y="${(y0+i*c*1.55+c*.08).toFixed(1)}" width="${pw.toFixed(1)}" height="${ph.toFixed(1)}" style="fill:#1f4fa3;stroke:#fff;stroke-width:.6"/>`;}return s;};
+  if(P){g+=grid(A,P.counts);if(P.sides===2&&B)g+=grid(B,P.countsB);}
   return `<svg viewBox="0 0 100 70" aria-hidden="true">${g}</svg>`;}
 let pickKey='';
 function renderPick(){const roofy=S2.where==='roof'||S2.where==='garage',roof=roofOf(),two=roofy&&roofTypes().find(r=>r.id===roof).two,pW=parseFloat($('panelW').value)||620;
   $('roofRow').hidden=!roofy;
-  if(S2.lay&&(!presetOf(S2.lay)||(presetOf(S2.lay).sides===2&&!two))){S2.lay=null;S1.size=S1.baseSize||5;setTimeout(simpleSync,0);}
-  const key=roof+'|'+two;
+  if(S2.lay&&(!presetOf(S2.lay)||(presetOf(S2.lay).sides===2&&!two))){S2.lay=null;}
+  const key=roof+'|'+two+'|'+panelsFor(S1.size,pW);
   if(!$('roofPick').childElementCount)$('roofPick').innerHTML=roofTypes().map(r=>`<button type="button" class="opt" data-v="${r.id}">${roofSVG(r.id)}<span>${r.label}</span></button>`).join('');
   if(key!==pickKey){pickKey=key;const sl=$('layPick').scrollLeft;$('layPick').innerHTML=layPresets().filter(p=>p.sides===1||two).map(p=>`<button type="button" class="opt" data-v="${p.id}">${laySVG(roof,p)}<span>${p.label}</span><small></small></button>`).join('');$('layPick').scrollLeft=sl;}
   const m5=panelsFor(5,pW);$('layMin').textContent=`ขั้นต่ำที่แนะนำ 5 kW = แผง ${fmt(pW)} W อย่างน้อย ${m5} แผง (${fmt(m5*pW/1000,2)} kW) · ติดน้อยกว่านี้ค่าอินเวอร์เตอร์ ค่าตรวจเชื่อมต่อ และค่าแรงเกือบเท่าเดิม แต่ได้ไฟน้อยลง คุ้มน้อยกว่า`;
   $('roofPick').querySelectorAll('.opt').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===(S2.roof||'shed'))));
-  $('layPick').querySelectorAll('.opt').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.v===S2.lay));const pr=presetOf(b.dataset.v),low=pr.n<panelsFor(5,pW),sm=b.querySelector('small');sm.textContent=`${pr.n} แผง · ${fmt(pr.n*pW/1000,1)} kW${low?' · ต่ำกว่า 5':''}`;sm.classList.toggle('low',low);});}
+  $('layPick').querySelectorAll('.opt').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.v===S2.lay));const pr=presetOf(b.dataset.v),sm=b.querySelector('small');sm.textContent=pr.sides===2?`${pr.counts.join('+')} | ${pr.countsB.join('+')}`:pr.counts.join(' + ');});}
 // does the chosen arrangement (rows × cols on one side) physically fit W × L? returns the orientation that fits
 function fitShape(W,L,where,P){const f={...FIT[where]};if(S2.sb>=0)f.sb=S2.sb;const pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),ct=Math.cos(f.tilt*Math.PI/180);
   const oris=S2.ori==='p'?[[pw,pl]]:S2.ori==='l'?[[pl,pw]]:[[pw,pl],[pl,pw]],dim=(a,b)=>{const bh=b*ct;return{a,bh,gx:f.gx,needW:P.cols*(a+f.gx)-f.gx+2*f.sb,needL:P.rows*bh+(P.rows-1)*0.02+2*f.sb};};
@@ -1589,9 +1592,9 @@ function renderFit(){
   const need=P?P.n:panelsFor(S1.size,pW),min5=panelsFor(5,pW),F=fitLayout(W,L,wh),dims=W>0&&L>0,lyN=dims?0:(S2.lyN||0),n=dims?(twoSide&&!(P&&P.sides===1)?2*F.count:F.count):lyN,SF=P&&dims?fitShape(W,L,wh,P):null,needSide=(P&&P.sides===2)||(twoSide&&!P)?Math.ceil(need/2):need,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
   $('q_mat').hidden=!roofy;$('q_dir').hidden=!roofy;
   $('s_dimHint').textContent=twoSide?`กรอบหลังคาทั้งหมด: ยาวตามแนวชายคา × กว้างรวมสองฝั่ง · แอปแบ่งครึ่ง${LT>0&&W>0?` เป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม.`:''}`:roofy?'กรอบหลังคาที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
-  $('s2Need').textContent=P?`ติด ${fmt(S1.size,1)} kW ตามแบบ ${P.label} (${need} แผง × ${fmt(pW)} W) · แตะแบบเดิมซ้ำเพื่อกลับไปใช้ขนาดจากข้อ 1`:`ติด ${fmt(S1.size,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
+  $('s2Need').textContent=P?`ติด ${fmt(S1.size,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} = ${need} แผง (${fmt(pW)} W) · วางแบบ ${P.label} ${P.sides===2?P.counts.join('+')+' | '+P.countsB.join('+'):P.counts.join(' + ')}`:`ติด ${fmt(S1.size,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
   $('s2CountTxt').textContent=`${need} แผง · ${fmt(need*pW/1000,2)} kW`;
-  $('s_sizeHint').textContent=S1.custom&&!P?`ตอนนี้ใช้ ${fmt(S1.size,2)} kW (${need} แผง) ที่ปรับจำนวนในข้อ 2 · กดขนาดด้านบนเพื่อเปลี่ยน`:P?`ตอนนี้ใช้ ${fmt(S1.size,1)} kW ตามแบบวางแผง "${P.label}" ที่เลือกในข้อ 2 · กดขนาดด้านบนเพื่อเปลี่ยน`:`ข่าวบอกติดได้ไม่เกิน 10 kW · ขั้นต่ำที่แนะนำ 5 kW (แผง ${fmt(pW)} W ${min5} แผง) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!P||!!S1.custom);
+  $('s_sizeHint').textContent=S1.custom?`ตอนนี้ใช้ ${fmt(S1.size,2)} kW (${need} แผง) ที่ปรับจำนวนในข้อ 2 · กดขนาดด้านบนเพื่อเปลี่ยน`:`ข่าวบอกติดได้ไม่เกิน 10 kW · ขั้นต่ำที่แนะนำ 5 kW (แผง ${fmt(pW)} W ${min5} แผง) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!S1.custom);
   document.querySelector('#t2 .sizeq').classList.toggle('needfill',!dims&&!lyN);
   glowTab('t3',dims||lyN>0);$('s2Next').hidden=!(dims||lyN>0);
   [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
@@ -1645,9 +1648,9 @@ function renderFit(){
   let g=R(0,TOP,W,FH,'fill:var(--sun-soft);stroke:var(--fr-o);stroke-width:2');
   if(twoSide)g+=`<path d="M${ox} ${(oy+(TOP+L)*S).toFixed(1)}h${(W*S).toFixed(1)}" style="stroke:var(--forest);stroke-width:1.6;stroke-dasharray:6 4"/>`;
   const sides=[['A',1]];if(twoSide&&both)sides.push(['B',1]);
-  if(SF&&SF.ok){const w=P.cols*(SF.a+SF.gx)-SF.gx,h=P.rows*SF.bh+(P.rows-1)*0.02,x0=(W-w)/2,y0=(L-h)/2;
-    for(const[sd]of(P.sides===2?sides:[['A']]))for(let r=0;r<P.rows;r++)for(let k=0;k<P.cols;k++){const y=y0+r*(SF.bh+0.02);g+=R(x0+k*(SF.a+SF.gx),sd==='A'?yA(y):yB(y,SF.bh),SF.a,SF.bh,BLUE);}}
-  else if(bad){for(const[sd]of(P.sides===2&&twoSide?sides:[['A']]))for(let r=0;r<P.rows;r++)for(let k=0;k<P.cols;k++){const x=f0.sb+k*(sh.a+sh.gx),y=f0.sb+r*(sh.bh+0.02),inside=x+sh.a<=W-f0.sb+1e-6&&y+sh.bh<=L-f0.sb+1e-6;g+=R(x,sd==='A'?yA(y):yB(y,sh.bh),sh.a,sh.bh,inside?BLUE:RED);}
+  if(SF&&SF.ok){const h=P.rows*SF.bh+(P.rows-1)*0.02,y0=(L-h)/2;
+    for(const[sd]of(P.sides===2?sides:[['A']])){const cs=sd==='A'?P.counts:P.countsB;cs.forEach((cnt,ri)=>{const r=P.rows-1-ri,x0=(W-(cnt*(SF.a+SF.gx)-SF.gx))/2,y=y0+r*(SF.bh+0.02);for(let k=0;k<cnt;k++)g+=R(x0+k*(SF.a+SF.gx),sd==='A'?yA(y):yB(y,SF.bh),SF.a,SF.bh,BLUE);});}}
+  else if(bad){for(const[sd]of(P.sides===2&&twoSide?sides:[['A']]))(sd==='A'?P.counts:P.countsB).forEach((cnt,ri)=>{const r=P.rows-1-ri;for(let k=0;k<cnt;k++){const x=f0.sb+k*(sh.a+sh.gx),y=f0.sb+r*(sh.bh+0.02),inside=x+sh.a<=W-f0.sb+1e-6&&y+sh.bh<=L-f0.sb+1e-6;g+=R(x,sd==='A'?yA(y):yB(y,sh.bh),sh.a,sh.bh,inside?BLUE:RED);}});
     g+=R(0,TOP,W,FH,'fill:none;stroke:var(--forest);stroke-width:2');}
   else if(n){const f=FIT[wh],tw=F.cols*F.px-f.gx,x0=(W-tw)/2,y0=(L-F.th)/2,rowY=r=>Math.floor(r/F.k)*F.ty+(r%F.k)*(F.bh+0.02),ord=[];
     rowSeq.forEach(([sd,r])=>{for(let k=0;k<perRow;k++){const y=y0+rowY(r);g+=R(x0+k*F.px,sd==='A'?yA(y):yB(y,F.bh),F.a,F.bh,onSet.has(sd+r+'-'+k)?BLUE:OFF);}});}
