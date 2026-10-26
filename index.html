@@ -1593,8 +1593,13 @@ $('s2Sb').addEventListener('input',()=>{const v=parseFloat($('s2Sb').value);S2.s
 function renderFit(){
   // W × LT is the whole roof outline; a ridged roof (gable, hip, butterfly) is split into two sides of W × LT/2
   const W=parseFloat($('s_w').value)||0,LT=parseFloat($('s_l').value)||0,wh=S2.where,twoSide=(wh==='roof'||wh==='garage')&&!!(roofTypes().find(r=>r.id===(S2.roof||'shed'))||{}).two,L=twoSide?LT/2:LT,pW=parseFloat($('panelW').value)||600,roofy=wh==='roof'||wh==='garage';
-  renderPick();const P=S2.lay?presetOf(S2.lay):null;
-  const need=P?P.n:panelsFor(S1.size,pW),min5=panelsFor(5,pW),F=fitLayout(W,L,wh),dims=W>0&&L>0,lyN=dims?0:(S2.lyN||0),n=dims?(twoSide&&!(P&&P.sides===1)?2*F.count:F.count):lyN,SF=P&&dims?fitShape(W,L,wh,P):null,needSide=(P&&P.sides===2)||(twoSide&&!P)?Math.ceil(need/2):need,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
+  renderPick();let P=S2.lay?presetOf(S2.lay):null;
+  let need=P?P.n:panelsFor(S1.size,pW),min5=panelsFor(5,pW),F=fitLayout(W,L,wh),dims=W>0&&L>0,lyN=dims?0:(S2.lyN||0),n=dims?(twoSide&&!(P&&P.sides===1)?2*F.count:F.count):lyN,SF=P&&dims?fitShape(W,L,wh,P):null,needSide=(P&&P.sides===2)||(twoSide&&!P)?Math.ceil(need/2):need,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
+  // ridged roof: when the chosen rows do not fit on one side, move every other row (or half of a single row) to the opposite side
+  let moved=false;
+  if(SF&&!SF.ok&&twoSide&&P.sides===1){const c=P.counts,a=c.length===1?[Math.ceil(c[0]/2)]:c.filter((_,i)=>i%2===0),b=c.length===1?[Math.floor(c[0]/2)]:c.filter((_,i)=>i%2===1),
+    P2={...P,sides:2,counts:a,countsB:b,rows:Math.max(a.length,b.length),cols:Math.max(...a,...b)},SF2=fitShape(W,L,wh,P2);
+    if(SF2.ok){P=P2;SF=SF2;moved=true;n=2*F.count;needSide=Math.max(a.reduce((x,y)=>x+y,0),b.reduce((x,y)=>x+y,0));}}
   $('q_mat').hidden=!roofy;$('q_dir').hidden=!roofy;
   $('s_dimHint').textContent=twoSide?`กรอบหลังคาทั้งหมด: ยาวตามแนวชายคา × กว้างรวมสองฝั่ง · แอปแบ่งครึ่ง${LT>0&&W>0?` เป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม.`:''}`:roofy?'กรอบหลังคาที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
   $('s2Need').textContent=P?`ติด ${fmt(S1.size,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} = ${need} แผง (${fmt(pW)} W) · วางแบบ ${P.label} ${P.sides===2?P.counts.join('+')+' | '+P.countsB.join('+'):P.counts.join(' + ')}`:`ติด ${fmt(S1.size,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
@@ -1613,12 +1618,13 @@ function renderFit(){
   else if(n<need&&(P||n<min5)){v='พื้นที่ไม่พอ';c='v-bad';line=`วางได้ ${n} แผง ต้องใช้ ${need} แผง${P&&P.sides===2?' (สองฝั่ง)':''}<br>ใช้พื้นที่ราว ${aNeed(need)} ตร.ม.`;}
   else{const cond=wh!=='roof'||S2.mat==='tile'||$('s_old').checked||S2.shade==='some'||(roofy&&S2.dir==='n');
     if(n<need){v=`พอแค่ ${fmt(n*pW/1000,1)} kW`;c='v-mid';line=`ติด ${fmt(S1.size,1)} kW ไม่พอ<br>วางได้สูงสุด ${n} แผง (${fmt(n*pW/1000,1)} kW)`;}
-    else{v=cond?'พอ ต้องเช็คก่อน':'พื้นที่พอ';c=cond?'v-mid':'v-good';line=SF?`วางแบบ <b>${P.label}</b> ได้ (${need} แผง ${fmt(need*pW/1000,1)} kW)<br>${twoSide?`แบ่งหลังคาเป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุดฝั่งละ ${F.count} แผง`:`พื้นที่ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุด ${F.count} แผง`}`:!dims&&LY.mode==='group'?`วาง <b>${n} แผง</b> (${fmt(n*pW/1000,2)} kW) บนภาพดาวเทียมแล้ว<br>ลากให้อยู่บนหลังคา ถ้าล้นหลังคา = พื้นที่ไม่พอ`:`วางได้ <b>${n} แผง</b>${twoSide&&dims?' (สองฝั่งรวมกัน)':!dims?' จากภาพดาวเทียม':''} (${fmt(n*pW/1000,1)} kW)<br>ใช้จริง ${need} แผง`;}}
+    else{v=cond?'พอ ต้องเช็คก่อน':'พื้นที่พอ';c=cond?'v-mid':'v-good';line=SF?`วางแบบ <b>${P.label}${moved?' (แบ่งสองฝั่ง)':''}</b> ได้ (${need} แผง ${fmt(need*pW/1000,1)} kW)<br>${twoSide?`แบ่งหลังคาเป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุดฝั่งละ ${F.count} แผง`:`พื้นที่ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุด ${F.count} แผง`}`:!dims&&LY.mode==='group'?`วาง <b>${n} แผง</b> (${fmt(n*pW/1000,2)} kW) บนภาพดาวเทียมแล้ว<br>ลากให้อยู่บนหลังคา ถ้าล้นหลังคา = พื้นที่ไม่พอ`:`วางได้ <b>${n} แผง</b>${twoSide&&dims?' (สองฝั่งรวมกัน)':!dims?' จากภาพดาวเทียม':''} (${fmt(n*pW/1000,1)} kW)<br>ใช้จริง ${need} แผง`;}}
   if(wh==='roof'){if(S2.mat==='metal')notes.push('เมทัลชีทติดง่ายที่สุด ใช้ขายึดแบบหนีบลอน ไม่ต้องเจาะหลังคา');if(S2.mat==='tile')notes.push('กระเบื้องแตกง่าย ต้องใช้ขายึดแบบตะขอและช่างที่ชำนาญ ถ้าทำไม่ดีหลังคาจะรั่ว');if(S2.mat==='concrete')notes.push('ดาดฟ้าคอนกรีตใช้โครงตั้งเอียง ไม่ต้องเจาะ ต้องเว้นระยะไม่ให้แถวบังกันเอง');}
   if(wh==='garage')notes.push('หลังคาโรงรถส่วนมากโครงเบา ต้องให้ช่างหรือวิศวกรเช็คว่ารับน้ำหนักเพิ่มราว 15 กก./ตร.ม. ได้');
   if(wh==='ground')notes.push('ต้องทำฐานและโครงเหล็ก ล้อมรั้วกันคนและสัตว์ ยกให้พ้นระดับน้ำท่วม และเดินสายถึงมิเตอร์ ค่าติดตั้งมักสูงกว่าบนหลังคา');
   if(wh==='float')notes.push('ใช้ทุ่นลอยน้ำเฉพาะ บ่อต้องมีน้ำตลอดปี ค่าใช้จ่ายสูงกว่า ข่าวบอกว่าโครงการรองรับแต่ยังรอรายละเอียด');
-  if(P&&P.sides===2)notes.unshift(`แบบสองฝั่ง: แอปแบ่งกรอบหลังคาครึ่งหนึ่งต่อฝั่ง ฝั่งละ ${needSide} แผง · ${S2.dir==='ew'?'ตะวันออกกับตะวันตกผลิตไฟใกล้เคียงกัน ได้ไฟทั้งเช้าและบ่าย':'ฝั่งที่หันทิศเหนือผลิตไฟได้น้อยลงราว 15–20% ถ้าพื้นที่ฝั่งใต้พอ ใช้แบบ 2 แถวดีกว่า'}`);
+  if(moved)notes.unshift(`ฝั่งเดียววางแบบ ${P.label} ไม่พอ แอปย้ายแผงไปอีกฝั่งของสันหลังคาให้: ฝั่งหนึ่ง ${P.counts.join(' + ')} อีกฝั่ง ${P.countsB.join(' + ')} แผง`);
+  else if(P&&P.sides===2)notes.unshift(`แบบสองฝั่ง: แอปแบ่งกรอบหลังคาครึ่งหนึ่งต่อฝั่ง ฝั่งละ ${needSide} แผง · ${S2.dir==='ew'?'ตะวันออกกับตะวันตกผลิตไฟใกล้เคียงกัน ได้ไฟทั้งเช้าและบ่าย':'ฝั่งที่หันทิศเหนือผลิตไฟได้น้อยลงราว 15–20% ถ้าพื้นที่ฝั่งใต้พอ ใช้แบบ 2 แถวดีกว่า'}`);
   if(!roofy&&n)notes.push(`วางแผงเอียง ${FIT[wh].tilt}° เป็นโต๊ะละ ${F.k} แผงซ้อน เว้นระยะ ${fmt(FIT[wh].gy,1)} ม. ระหว่างแถวกันเงาบังกัน และเว้นขอบ ${fmt(S2.sb>=0?S2.sb:FIT[wh].sb,1)} ม. ไว้เดินดูแล จึงใช้พื้นที่มากกว่าบนหลังคา`);
   if(roofy&&S2.dir==='n')notes.push('ด้านทิศเหนือผลิตไฟได้น้อยลงราว 15–20% ถ้ามีด้านอื่นให้เลือกด้านใต้ ตะวันออก หรือตะวันตก');
   if(roofy&&S2.dir==='ew')notes.push('ทิศตะวันออกหรือตะวันตกผลิตไฟน้อยกว่าทิศใต้ราว 5–10% ยังใช้ได้ดี ทิศตะวันตกช่วยช่วงบ่ายที่เปิดแอร์');
