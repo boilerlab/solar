@@ -645,7 +645,8 @@ a.btn{text-decoration:none;display:inline-block}
           <div class="lytools">
             <div class="seg3" id="lyMode">
               <button type="button" data-m="scale" aria-pressed="true">1 วัดสเกล</button>
-              <button type="button" data-m="roof" aria-pressed="false">2 วาดหลังคา</button>
+              <button type="button" data-m="group" aria-pressed="false">2 ลากแผงไปวาง</button>
+              <button type="button" data-m="roof" aria-pressed="false">หรือ วาดหลังคา</button>
               <button type="button" data-m="place" aria-pressed="false">2 วางแผงเอง</button>
               <button type="button" data-m="edit" aria-pressed="false">3 ลบ/คืนแผง</button>
             </div>
@@ -929,9 +930,10 @@ function useRoofImage(im,sat){
   $('roofPanel').classList.remove('collapsed');roofTgl();
   $('drop').hidden=true;$('layoutWrap').hidden=false;$('roofClear').hidden=false;$('satNav').hidden=!sat;
   if(sat){// scale is known from the zoom level: draw a 10 m scale bar and skip step 1
-    const mpp=satMpp(sat.lat,sat.z)/s,y=44; // top-left, clear of the Google logo and imagery credit at the bottomLY.sl=[{x:24,y},{x:24+10/mpp,y}];$('lyMeters').value=10;
+    const mpp=satMpp(sat.lat,sat.z)/s,y=44; // top-left, clear of the Google logo and imagery credit at the bottom
+    LY.sl=[{x:24,y},{x:24+10/mpp,y}];$('lyMeters').value=10;
     if(sat.house){const pc=merc(sat.lat,sat.lng,sat.z),ph=merc(sat.house.lat,sat.house.lng,sat.z);LY.pin={x:cv.width/2+(ph.x-pc.x)*2*s,y:cv.height/2+(ph.y-pc.y)*2*s};}
-    lyCompute();setMode('roof');}
+    lyCompute();setMode('group');}
   else{setMode('scale');lyResult();}
 }
 
@@ -942,14 +944,15 @@ const DIRS=[[0,'ทิศเหนือ',7],[45,'ทิศตะวันออ
 const dirOf=b=>DIRS[Math.round(((b%360)+360)%360/45)%8];
 const HINTS={
   scale:'ขั้นที่ 1: คลิก 2 จุดบนสิ่งที่รู้ความยาวจริง เช่น แนวชายคาที่วัดจาก Google Maps (คลิกขวา > วัดระยะทาง) หรือแถบสเกลมุมล่างขวาของภาพ แล้วใส่ความยาวจริงในช่องด้านล่าง',
-  roof:'ขั้นที่ 2: คลิกมุมหลังคาทีละจุด เริ่มจาก 2 จุดตามแนวชายคา (ขอบล่างของด้านที่จะติดแผง) จบด้วยคลิกจุดแรกซ้ำหรือกด "ปิดกรอบ" ติดหลายด้านให้วาดทีละกรอบ',
+  group:'ขั้นที่ 2: แผงตามจำนวนที่เลือกไว้วางอยู่บนภาพแล้ว ลากกลุ่มแผงไปวางบนหลังคา หรือคลิกตรงหลังคาเพื่อย้ายไปที่นั่น ใช้ปุ่มหมุนให้แนวแผงขนานกับชายคา เพิ่ม/ลดแผงที่ปุ่ม + แผง / − แผง ที่จอด้านบน',
+  roof:'วาดหลังคา: คลิกมุมหลังคาทีละจุด เริ่มจาก 2 จุดตามแนวชายคา (ขอบล่างของด้านที่จะติดแผง) จบด้วยคลิกจุดแรกซ้ำหรือกด "ปิดกรอบ" ติดหลายด้านให้วาดทีละกรอบ',
   place:'วางแผงเอง: แผงจะติดปลายเมาส์ เลื่อนไปคลิกวางทีละแผง แผงใหม่จะเกาะชิดแผงข้างเคียงเอง กด R หรือปุ่มหมุน 90° เพื่อสลับแนวตั้ง/แนวนอน ถ้าวาดกรอบหลังคาไว้ แผงจะหมุนตามแนวชายคาเอง คลิกแผงที่วางแล้วเพื่อลบ แผงสีแดงคือตำแหน่งที่ทับแผงเดิม วางไม่ได้',
   edit:'ขั้นที่ 3: คลิกแผงสีน้ำเงินเพื่อเอาออก เช่น ตรงปล่องระบายอากาศ จานดาวเทียม หรือจุดที่มีเงา คลิกกรอบเส้นประ (ที่ว่างบนหลังคา) เพื่อเพิ่มแผงตรงนั้น'};
 function lyNum(id,d){const v=parseFloat($(id).value);return isFinite(v)?v:d;}
 function lyScale(){if(LY.sl.length<2)return null;const m=lyNum('lyMeters',0);const px=Math.hypot(LY.sl[1].x-LY.sl[0].x,LY.sl[1].y-LY.sl[0].y);return m>0&&px>0?m/px:null;}
 function toImg(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*cv.width/r.width,y:(e.clientY-r.top)*cv.height/r.height};}
 function dispK(){const r=cv.getBoundingClientRect();return r.width?cv.width/r.width:1;}
-function setMode(m){LY.mode=m;$('placeTools').hidden=m!=='place';document.querySelectorAll('#lyMode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));$('lyHint').textContent=matchMedia('(pointer:coarse)').matches?HINTS[m].replace(/คลิก/g,'แตะ'):HINTS[m];cv.style.cursor=m==='edit'?'pointer':'crosshair';draw();}
+function setMode(m){if(LY.mode==='group'&&m!=='group'){LY.manual=LY.manual.filter(q=>!q.grp);}LY.mode=m;$('placeTools').hidden=m!=='place'&&m!=='group';if(m==='group'){buildGroup();lyResult();}else if(LY.img)lyCompute();document.querySelectorAll('#lyMode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));$('lyHint').textContent=matchMedia('(pointer:coarse)').matches?HINTS[m].replace(/คลิก/g,'แตะ'):HINTS[m];cv.style.cursor=m==='edit'?'pointer':'crosshair';draw();}
 function inPoly(p,P){let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const a=P[i],b=P[j];if((a.y>p.y)!==(b.y>p.y)&&p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x)c=!c;}return c;}
 function segDist(p,a,b){const dx=b.x-a.x,dy=b.y-a.y,l=dx*dx+dy*dy;let t=l?((p.x-a.x)*dx+(p.y-a.y)*dy)/l:0;t=Math.max(0,Math.min(1,t));return Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy);}
 function segX(a,b,c,d){const o=(p,q,r)=>Math.sign((q.x-p.x)*(r.y-p.y)-(q.y-p.y)*(r.x-p.x));return o(a,b,c)*o(a,b,d)<0&&o(c,d,a)*o(c,d,b)<0;}
@@ -1006,7 +1009,7 @@ function lyResult(){
   if(!sc){LY.count=0;$('lyCount').textContent='–';$('lyKwp').textContent='–';$('lyMeta').textContent=LY.sl.length<2?'ยังไม่ได้ตั้งสเกล เริ่มที่ขั้นที่ 1':'ใส่ความยาวจริงของเส้นวัดในช่องด้านบน';$('lyApply').disabled=true;return;}
   let n=0;const rows=[];
   LY.faces.forEach((f,fi)=>{const k=faceCount(fi);n+=k;rows.push(`หลังคาด้าน ${fi+1}: ${k} แผง · หัน${dirOf(f.bearing)[1]} · พื้นที่ ${fmt(f.area,1)} ตร.ม.`);});
-  if(LY.manual.length){n+=LY.manual.length;rows.push(`วางเองทีละแผง: ${LY.manual.length} แผง`);}
+  if(LY.manual.length){n+=LY.manual.length;rows.push(LY.mode==='group'?`กลุ่มแผงตามที่เลือก: ${LY.manual.length} แผง · ลากไปวางบนหลังคา`:`วางเองทีละแผง: ${LY.manual.length} แผง`);}
   LY.count=n;$('lyCount').textContent=fmt(n);$('lyKwp').textContent=fmt(n*W/1000,2);
   $('lyMeta').innerHTML=(LY.faces.length||LY.manual.length)?capLine(W)+rows.join('<br>')+`<br>สเกล 1 ม. = ${fmt(1/sc,1)} พิกเซล · แผง ${fmt(W)} W`:'ยังไม่ได้วาดกรอบหลังคา ไปที่ขั้นที่ 2';
   $('lyApply').disabled=!n;
@@ -1042,7 +1045,7 @@ function closePoly(){if(LY.cur.length<3)return;LY.polys.push(LY.cur);LY.cur=[];L
 cv.addEventListener('pointerdown',e=>{
   if(!LY.img)return;e.preventDefault();const p=toImg(e),k=dispK();
   if(LY.mode==='scale'){if(LY.sl.length>=2)LY.sl=[];LY.sl.push(p);
-    if(LY.sl.length===2){lyCompute();if(lyNum('lyMeters',0)>0){if(!LY.polys.length)setMode('roof');}else $('lyMeters').focus();}else draw();return;}
+    if(LY.sl.length===2){lyCompute();if(lyNum('lyMeters',0)>0){if(!LY.polys.length)setMode('group');}else $('lyMeters').focus();}else draw();return;}
   if(LY.mode==='roof'){if(LY.cur.length>=3&&Math.hypot(p.x-LY.cur[0].x,p.y-LY.cur[0].y)<14*k){closePoly();return;}LY.cur.push(p);lyCompute();return;}
   if(LY.mode==='place'||LY.mode==='edit'){const mi=LY.manual.findIndex(m=>inPoly(p,m.q));if(mi>=0){LY.manual.splice(mi,1);lyResult();draw();return;}}
   if(LY.mode==='place'){const g=ghostAt(p);if(!g){$('lyHint').textContent='ต้องวัดสเกลก่อน (ขั้นที่ 1) แอปจึงรู้ขนาดแผงบนภาพ';return;}if(g.ok){LY.manual.push(g);lyResult();draw();}return;}
@@ -1061,6 +1064,28 @@ function pDims(){const sc=lyScale();if(!sc)return null;const cp=Math.cos(Math.mi
   return{w:du/sc,h:dv*cp/sc,gw:(du+g)/sc,gh:(dv+g)*cp/sc};}
 function corners(c,a,w,h){const ux=Math.cos(a),uy=Math.sin(a),vx=-uy,vy=ux,hw=w/2,hh=h/2;
   return[{x:c.x-ux*hw-vx*hh,y:c.y-uy*hw-vy*hh},{x:c.x+ux*hw-vx*hh,y:c.y+uy*hw-vy*hh},{x:c.x+ux*hw+vx*hh,y:c.y+uy*hw+vy*hh},{x:c.x-ux*hw+vx*hh,y:c.y-uy*hw+vy*hh}];}
+// ---- group mode: the planned number of panels sits on the photo as one block the user drags onto the roof ----
+LY.grp=null;
+function planShape(){const pW=parseFloat($('panelW').value)||620,P=typeof S2==='object'&&S2.lay?presetOf(S2.lay):null;
+  if(P)return{rows:P.rows,cols:P.cols,sides:P.sides,counts:Array(P.rows).fill(P.cols)};
+  const n=typeof S1==='object'?panelsFor(S1.size,pW):8,rows=n<=6?1:n<=12?2:3,base=Math.floor(n/rows),ex=n%rows;
+  return{rows,cols:Math.ceil(n/rows),sides:1,counts:[...Array(rows)].map((_,i)=>base+(i<ex?1:0))};}
+function buildGroup(){const d=pDims();if(!d||!LY.img)return;LY.manual=LY.manual.filter(q=>!q.grp);
+  if(!LY.grp)LY.grp={c:LY.pin?{...LY.pin}:{x:cv.width/2,y:cv.height/2}};
+  const sh=planShape(),a=LY.pAng*Math.PI/180,ux=Math.cos(a),uy=Math.sin(a),vx=-uy,vy=ux,gapSide=1.2/(lyScale()||1);
+  const blockH=sh.rows*d.gh,totalH=sh.sides===2?2*blockH+gapSide:blockH;
+  for(let s2=0;s2<sh.sides;s2++)sh.counts.forEach((cnt,r)=>{for(let k=0;k<cnt;k++){
+    const lx=(k-(cnt-1)/2)*d.gw,ly=totalH/2-d.gh/2-r*d.gh-(s2?blockH+gapSide:0);
+    const c={x:LY.grp.c.x+ux*lx+vx*ly,y:LY.grp.c.y+uy*lx+vy*ly};
+    LY.manual.push({c,ang:a,w:d.w,h:d.h,gw:d.gw,gh:d.gh,q:corners(c,a,d.w,d.h),ok:true,grp:true});}});
+  draw();}
+let grpDrag=null;
+cv.addEventListener('pointerdown',e=>{if(LY.mode!=='group'||!LY.img||!LY.grp)return;const p=toImg(e);
+  if(!LY.manual.some(m=>m.grp&&inPoly(p,m.q))){LY.grp.c=p;buildGroup();lyResult();}
+  grpDrag={dx:p.x-LY.grp.c.x,dy:p.y-LY.grp.c.y};try{cv.setPointerCapture(e.pointerId);}catch(_){}});
+cv.addEventListener('pointermove',e=>{if(!grpDrag)return;const p=toImg(e);LY.grp.c={x:p.x-grpDrag.dx,y:p.y-grpDrag.dy};buildGroup();});
+['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t,()=>{if(grpDrag){grpDrag=null;lyResult();}}));
+['lyRot','lyAngM','lyAngP'].forEach(id=>$(id).addEventListener('click',()=>{if(LY.mode==='group'){buildGroup();lyResult();}}));
 function ghostAt(p){
   const d=pDims();if(!d)return null;let ang=LY.pAng*Math.PI/180,face=-1;
   for(let i=LY.polys.length-1;i>=0;i--){const P=LY.polys[i];if(inPoly(p,P)){ang=Math.atan2(P[1].y-P[0].y,P[1].x-P[0].x)+LY.pAng*Math.PI/180;face=i;break;}}
@@ -1431,7 +1456,7 @@ $('s2Count').addEventListener('click',e=>{const b=e.target.closest('button');if(
   let cnt=P?P.n:panelsFor(S1.size,pW);cnt=Math.min(panelsFor(10,pW),Math.max(1,cnt+(+b.dataset.d)));
   if(!S2.lay&&!S1.custom)S1.baseSize=S1.size;S2.lay=null;S1.custom=true;S1.size=+(cnt*pW/1000).toFixed(2);simpleSync();});
 function simpleSync(){
-  setTimeout(()=>{$('lyTarget').value=S1.size;if(LY.img&&LY.faces.length)lyCompute();},0);
+  setTimeout(()=>{$('lyTarget').value=S1.size;if(LY.img&&LY.mode==='group'){buildGroup();lyResult();}else if(LY.img&&LY.faces.length)lyCompute();},0);
   window.CAREFUL=!!S1.care;$('s_care').checked=!!S1.care;
   if(S2.lay&&presetOf(S2.lay)){S1.size=+(presetOf(S2.lay).n*(parseFloat($('panelW').value)||620)/1000).toFixed(2);}
   $('s_size').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===S1.size)));
@@ -1571,7 +1596,7 @@ function renderFit(){
   else if(n<need&&(P||n<min5)){v='พื้นที่ไม่พอ';c='v-bad';line=`วางได้ ${n} แผง ต้องใช้ ${need} แผง${P&&P.sides===2?' (สองฝั่ง)':''}<br>ใช้พื้นที่ราว ${aNeed(need)} ตร.ม.`;}
   else{const cond=wh!=='roof'||S2.mat==='tile'||$('s_old').checked||S2.shade==='some'||(roofy&&S2.dir==='n');
     if(n<need){v=`พอแค่ ${fmt(n*pW/1000,1)} kW`;c='v-mid';line=`ติด ${fmt(S1.size,1)} kW ไม่พอ<br>วางได้สูงสุด ${n} แผง (${fmt(n*pW/1000,1)} kW)`;}
-    else{v=cond?'พอ ต้องเช็คก่อน':'พื้นที่พอ';c=cond?'v-mid':'v-good';line=SF?`วางแบบ <b>${P.label}</b> ได้ (${need} แผง ${fmt(need*pW/1000,1)} kW)<br>${twoSide?`แบ่งหลังคาเป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุดฝั่งละ ${F.count} แผง`:`พื้นที่ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุด ${F.count} แผง`}`:`วางได้ <b>${n} แผง</b>${twoSide&&dims?' (สองฝั่งรวมกัน)':!dims?' จากภาพดาวเทียม':''} (${fmt(n*pW/1000,1)} kW)<br>ใช้จริง ${need} แผง`;}}
+    else{v=cond?'พอ ต้องเช็คก่อน':'พื้นที่พอ';c=cond?'v-mid':'v-good';line=SF?`วางแบบ <b>${P.label}</b> ได้ (${need} แผง ${fmt(need*pW/1000,1)} kW)<br>${twoSide?`แบ่งหลังคาเป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุดฝั่งละ ${F.count} แผง`:`พื้นที่ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุด ${F.count} แผง`}`:!dims&&LY.mode==='group'?`วาง <b>${n} แผง</b> (${fmt(n*pW/1000,2)} kW) บนภาพดาวเทียมแล้ว<br>ลากให้อยู่บนหลังคา ถ้าล้นหลังคา = พื้นที่ไม่พอ`:`วางได้ <b>${n} แผง</b>${twoSide&&dims?' (สองฝั่งรวมกัน)':!dims?' จากภาพดาวเทียม':''} (${fmt(n*pW/1000,1)} kW)<br>ใช้จริง ${need} แผง`;}}
   if(wh==='roof'){if(S2.mat==='metal')notes.push('เมทัลชีทติดง่ายที่สุด ใช้ขายึดแบบหนีบลอน ไม่ต้องเจาะหลังคา');if(S2.mat==='tile')notes.push('กระเบื้องแตกง่าย ต้องใช้ขายึดแบบตะขอและช่างที่ชำนาญ ถ้าทำไม่ดีหลังคาจะรั่ว');if(S2.mat==='concrete')notes.push('ดาดฟ้าคอนกรีตใช้โครงตั้งเอียง ไม่ต้องเจาะ ต้องเว้นระยะไม่ให้แถวบังกันเอง');}
   if(wh==='garage')notes.push('หลังคาโรงรถส่วนมากโครงเบา ต้องให้ช่างหรือวิศวกรเช็คว่ารับน้ำหนักเพิ่มราว 15 กก./ตร.ม. ได้');
   if(wh==='ground')notes.push('ต้องทำฐานและโครงเหล็ก ล้อมรั้วกันคนและสัตว์ ยกให้พ้นระดับน้ำท่วม และเดินสายถึงมิเตอร์ ค่าติดตั้งมักสูงกว่าบนหลังคา');
