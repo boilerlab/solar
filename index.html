@@ -193,6 +193,7 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .pcount{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;max-width:420px}
 .pcount .btn{font-size:15px;padding:6px 14px;background:var(--surface)}
 .pcount span{font-family:var(--f-display);font-size:17px;font-weight:700;color:var(--forest);min-width:150px;text-align:center}
+.satsteps-t{margin:10px 0 0;font-family:var(--f-display);font-weight:600;color:var(--forest)}
 .laymin{margin:2px 0 0;font-size:12.5px;color:#2f3f48}
 .swipe .opt[aria-pressed=true]{border-color:#f28c18;box-shadow:0 0 0 3px rgba(242,140,24,.3)}
 .fitp{width:100%;max-width:420px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;text-align:left}
@@ -452,7 +453,7 @@ a.btn{text-decoration:none;display:inline-block}
     </div>
     <details class="panel satbox" id="t2Sat">
       <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/></svg><span>ดูหลังคาจริงจากดาวเทียม</span><small>ไม่บังคับ</small></summary>
-      <ol class="satsteps"><li><b>อยู่ที่บ้าน:</b> กด <b>ตำแหน่งปัจจุบัน</b></li><li><b>ไม่ได้อยู่บ้าน:</b> กด <b>เปิด Google Maps</b> แตะค้างที่หลังคาบ้าน คัดลอกตัวเลขพิกัด กลับมากด <b>วางพิกัด</b></li><li>แอปดึงภาพดาวเทียมซูมใกล้สุดให้เอง แตะมุมหลังคาในภาพจนครบรอบ แอปวางแผงและนับให้ แล้วกด <b>ใช้ผลนี้ในการคำนวณ</b></li></ol>
+      <ol class="satsteps"><li><b>อยู่ที่บ้าน:</b> กด <b>ตำแหน่งปัจจุบัน</b></li><li><b>ไม่ได้อยู่บ้าน:</b> กด <b>เปิด Google Maps</b> แตะค้างที่หลังคาบ้าน คัดลอกตัวเลขพิกัด กลับมากด <b>วางพิกัด</b></li><li>แอปดึงภาพดาวเทียมซูมใกล้สุดให้เอง แตะมุมหลังคาในภาพจนครบรอบ แอปวางแผงตามจำนวนที่ใช้จริงลงบนภาพ และส่งผลขึ้นจอด้านบนให้เอง กด <b>+ แผง / − แผง</b> ที่จอ ภาพจะเปลี่ยนตาม</li></ol>
       <div class="satbody" id="t2SatBody"></div>
     </details>
   </section>
@@ -681,7 +682,7 @@ a.btn{text-decoration:none;display:inline-block}
           <div class="lyresult">
             <div><div class="n"><span id="lyCount">–</span> <small>แผง</small></div><div class="note">= <b id="lyKwp">–</b> kWp</div></div>
             <div class="note" id="lyMeta" style="flex:1;min-width:180px"></div>
-            <div style="display:grid;gap:4px;justify-items:end"><button class="btn solid" type="button" id="lyApply" disabled>ใช้ผลนี้ในการคำนวณ</button><span class="note" id="lyApplied"></span></div>
+            <div style="display:grid;gap:4px;justify-items:end"><button class="btn solid" type="button" id="lyApply" disabled>ดูผลที่จอด้านบน ↑</button><span class="note" id="lyApplied"></span></div>
           </div>
         </div>
         <div class="roofbtns">
@@ -1109,7 +1110,7 @@ function applyLy(scroll){
   if(bi>=0&&lyNum('lyPitch',15)>0){const d=dirOf(LY.faces[bi].bearing);$('dir').selectedIndex=d[2];applyYield();msg+=` · ตั้งทิศหน้าแผงเป็น${d[1]}`;}
   render();
   // feed the panel count into tab 2's screen in place of a typed width × length
-  S2.lyN=LY.count;$('s_w').value='';$('s_l').value='';renderFit();
+  S2.lyN=LY.faces.reduce((a,f)=>a+f.panels.length,0)+LY.manual.length;$('s_w').value='';$('s_l').value='';renderFit();
   $('lyApplied').textContent=msg+' · ผลขึ้นที่จอด้านบนแล้ว';
   if(scroll&&!$('t2').hidden)setTimeout(()=>document.querySelector('#t2 .answer').scrollIntoView({behavior:'smooth',block:'start'}),400);
 }
@@ -1425,6 +1426,7 @@ $('s2Count').addEventListener('click',e=>{const b=e.target.closest('button');if(
   let cnt=P?P.n:panelsFor(S1.size,pW);cnt=Math.min(panelsFor(10,pW),Math.max(1,cnt+(+b.dataset.d)));
   if(!S2.lay&&!S1.custom)S1.baseSize=S1.size;S2.lay=null;S1.custom=true;S1.size=+(cnt*pW/1000).toFixed(2);simpleSync();});
 function simpleSync(){
+  setTimeout(()=>{$('lyTarget').value=S1.size;if(LY.img&&LY.faces.length)lyCompute();},0);
   window.CAREFUL=!!S1.care;$('s_care').checked=!!S1.care;
   if(S2.lay&&presetOf(S2.lay)){S1.size=+(presetOf(S2.lay).n*(parseFloat($('panelW').value)||620)/1000).toFixed(2);}
   $('s_size').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===S1.size)));
@@ -1522,10 +1524,10 @@ function lyVector(svg,use){const pts=[...LY.polys.flat(),...LY.manual.flatMap(m=
   const xs=pts.map(q=>q.x),ys=pts.map(q=>q.y),x0=Math.min(...xs),y0=Math.min(...ys),w=Math.max(...xs)-x0||1,h=Math.max(...ys)-y0||1,S=Math.min(304/w,240/h),ox=(320-w*S)/2,oy=8,VH=Math.round(h*S+40);
   const pg=(P,st)=>`<polygon points="${P.map(q=>((q.x-x0)*S+ox).toFixed(1)+','+((q.y-y0)*S+oy).toFixed(1)).join(' ')}" style="${st}"/>`;
   let g='';LY.polys.forEach(P=>g+=pg(P,'fill:var(--sun-soft);stroke:var(--fr-o);stroke-width:2;stroke-linejoin:round'));
-  let k=0;const st=()=>k++<use?'fill:var(--pv);stroke:#fff;stroke-width:.8':'fill:none;stroke:var(--grid);stroke-width:.8;stroke-dasharray:3 2';
-  LY.faces.forEach((f,fi)=>f.panels.forEach((q,i)=>{if(!LY.removed.has(fi+'-'+i))g+=pg(q,st());}));
-  LY.manual.forEach(m=>g+=pg(m.q,st()));
-  const sc=lyScale();g+=`<text x="160" y="${VH-12}" text-anchor="middle" style="fill:var(--muted);font-size:12px">ภาพดาวเทียม · ใช้ ${Math.min(use,LY.count)}/${LY.count} แผง${sc?` · ราว ${fmt(w*sc,1)} × ${fmt(h*sc,1)} ม.`:''}</text>`;
+  const ON='fill:var(--pv);stroke:#fff;stroke-width:.8',OFFS='fill:none;stroke:var(--grid);stroke-width:.8;stroke-dasharray:3 2';
+  LY.faces.forEach((f,fi)=>f.panels.forEach((q,i)=>{g+=pg(q,LY.removed.has(fi+'-'+i)?OFFS:ON);}));
+  LY.manual.forEach(m=>g+=pg(m.q,ON));
+  const sc=lyScale();g+=`<text x="160" y="${VH-12}" text-anchor="middle" style="fill:var(--muted);font-size:12px">ภาพดาวเทียม · ใช้ ${LY.count}/${S2.lyN||LY.count} แผง${sc?` · ราว ${fmt(w*sc,1)} × ${fmt(h*sc,1)} ม.`:''}</text>`;
   svg.setAttribute('viewBox',`0 0 320 ${VH}`);svg.innerHTML=g;return true;}
 function fitLayout(W,L,where){const f={...FIT[where]};if(S2.sb>=0)f.sb=S2.sb;const pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),ct=Math.cos(f.tilt*Math.PI/180);let best={count:0};
   const oris=S2.ori==='p'?[[pw,pl]]:S2.ori==='l'?[[pl,pw]]:[[pw,pl],[pl,pw]];
@@ -1633,7 +1635,9 @@ function renderQuotes(){
  // tab 2: the size question sits right under the screen, so the screen stays visible above the phone keyboard
  $('s2Pick').insertAdjacentElement('afterend',document.querySelector('#t2 .sizeq'));
  // the satellite image sits right under the fetch button; its tools follow below
- {const lw=$('layoutWrap');lw.prepend($('lyHint'));lw.prepend(lw.querySelector('.canvaswrap'));}
+ {const lw=$('layoutWrap');lw.prepend($('lyHint'));lw.prepend(lw.querySelector('.lyresult'));lw.prepend(lw.querySelector('.canvaswrap'));
+  // how-to steps sit under the image, where the user is working
+  const st=document.querySelector('#t2Sat .satsteps');lw.after(st);st.insertAdjacentHTML('beforebegin','<p class="satsteps-t">วิธีใช้</p>');}
  // phones have no Ctrl+V or drag-and-drop: the roof-image box opens the photo picker instead
  if(matchMedia('(pointer:coarse)').matches)$('dropText').innerHTML='<span class="big">แตะตรงนี้เพื่อเลือกภาพหลังคา</span><br>1) ใน Google Maps เปิดภาพดาวเทียม ซูมให้เห็นหลังคาเต็มจอ แล้วแคปหน้าจอ<br>2) กลับมาแตะตรงนี้ เลือกภาพจากอัลบั้ม / แกลเลอรี<br>ใช้ภาพโดรนหรือภาพที่ลูกค้าส่งมาก็ได้';
  // location and the roof-layout tool live in tab 2's satellite section (moved here so the elements keep their handlers)
