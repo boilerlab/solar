@@ -187,6 +187,8 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .swipe .opt{flex:0 0 104px;scroll-snap-align:start;display:grid;justify-items:center;gap:2px;padding:6px 4px 6px;border-radius:12px;border:2px solid transparent;background:var(--surface);color:var(--ink);font:inherit;font-size:13px;font-weight:600;line-height:1.25;cursor:pointer;text-align:center}
 .swipe .opt svg{width:84px;height:59px;display:block}
 .swipe .opt small{font-family:var(--f-body);font-size:11.5px;font-weight:500;color:var(--muted);white-space:nowrap}
+.swipe .opt small.low{color:#b45c00}
+.laymin{margin:2px 0 0;font-size:12.5px;color:#2f3f48}
 .swipe .opt[aria-pressed=true]{border-color:#f28c18;box-shadow:0 0 0 3px rgba(242,140,24,.3)}
 .fitp{width:100%;max-width:420px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;text-align:left}
 .fitp .rotrow{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
@@ -425,7 +427,7 @@ a.btn{text-decoration:none;display:inline-block}
       <div class="crt"><div class="verdict-big v-idle" id="s2Verdict">--/--</div></div>
       <div class="pick" id="s2Pick">
         <div class="pickrow" id="roofRow"><h4>หลังคาแบบไหน <small>ปัดดูเพิ่ม →</small></h4><div class="swipe" id="roofPick"></div></div>
-        <div class="pickrow"><h4>วางแผงแบบไหน <small>แตะซ้ำเพื่อยกเลิก</small></h4><div class="swipe" id="layPick"></div></div>
+        <div class="pickrow"><h4>วางแผงแบบไหน <small>แตะซ้ำเพื่อยกเลิก</small></h4><div class="swipe" id="layPick"></div><p class="note laymin" id="layMin"></p></div>
       </div>
       <p class="note">หมายถึงพื้นที่พอ ยังไม่ใช่สิทธิ์เข้าโครงการ</p>
       <p class="line" id="s2Line"></p>
@@ -1293,7 +1295,7 @@ function render(){
     `<tr class="total"><td>ค่าไฟรวม/เดือน</td><td class="num">${fmt(b0.total)}</td><td class="num pos">${fmt(b1.total)}</td></tr>`+
     `<tr class="total"><td>+ รายได้ขายไฟ/เดือน</td><td class="num"></td><td class="num pos">${fmt(R.incY1/12)}</td></tr>`;
 
-  const panels=Math.ceil(p.kwp*1000/p.panelW);
+  const panels=panelsFor(p.kwp,p.panelW);
   const invLo=Math.min(Math.max(p.kwp*0.9,1.5),p.kwp);
   const sys=[['จำนวนแผง',`${panels} แผง × ${fmt(p.panelW)} W`],['ขนาดจริง',`${fmt(panels*p.panelW/1000,2)} kWp`],['พื้นที่หลังคาโดยประมาณ',`${fmt(panels*2.8,0)} ตร.ม.`],
     ['อินเวอร์เตอร์',`${fmt(invLo,1)}–${fmt(p.kwp,1)} kW ${hy?'Hybrid':'On-grid'}`]];
@@ -1449,6 +1451,8 @@ function renderSimple(){
 // ---- question 2: will it fit? ----
 const FIT={roof:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},garage:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},ground:{sb:.5,gx:.02,gy:1.2,tilt:15,area:1.9},float:{sb:1,gx:.4,gy:.6,tilt:12,area:2.1}};
 // ---- tab 2 picture pickers: roof shape and panel arrangement ----
+// panels for a size: round to the nearest whole panel without going over the size (5 kW with 620 W = 8 panels, 4.96 kW)
+function panelsFor(kw,w){return Math.max(1,Math.floor(kw*1000/w+0.05));}
 function roofTypes(){return [{id:'shed',label:'เพิงหมาแหงน',two:0},{id:'gable',label:'จั่ว',two:1},{id:'hip',label:'ปั้นหยา',two:1},{id:'butterfly',label:'ผีเสื้อ',two:1},{id:'flat',label:'ดาดฟ้า / แบน',two:0}];}
 // names say the shape: "เรียง N" = one row of N, "เรียง N สองฝั่ง" = a row of N on each side of the ridge, "R แถว × N" = R rows of N on one side
 function layPresets(){return [['r5','เรียง 5',1,5,1],['r6','เรียง 6',1,6,1],['s6','เรียง 3 สองฝั่ง',1,3,2],['s8','เรียง 4 สองฝั่ง',1,4,2],['s10','เรียง 5 สองฝั่ง',1,5,2],['s12','เรียง 6 สองฝั่ง',1,6,2],['p6','2 แถว × 3',2,3,1],['p8','2 แถว × 4',2,4,1],['p10','2 แถว × 5',2,5,1],['p12','2 แถว × 6',2,6,1],['t15','3 แถว × 5',3,5,1]].map(([id,label,rows,cols,sides])=>({id,label,rows,cols,sides,n:rows*cols*sides}));}
@@ -1479,8 +1483,9 @@ function renderPick(){const roofy=S2.where==='roof'||S2.where==='garage',roof=ro
   const key=roof+'|'+two;
   if(!$('roofPick').childElementCount)$('roofPick').innerHTML=roofTypes().map(r=>`<button type="button" class="opt" data-v="${r.id}">${roofSVG(r.id)}<span>${r.label}</span></button>`).join('');
   if(key!==pickKey){pickKey=key;const sl=$('layPick').scrollLeft;$('layPick').innerHTML=layPresets().filter(p=>p.sides===1||two).map(p=>`<button type="button" class="opt" data-v="${p.id}">${laySVG(roof,p)}<span>${p.label}</span><small></small></button>`).join('');$('layPick').scrollLeft=sl;}
+  const m5=panelsFor(5,pW);$('layMin').textContent=`ขั้นต่ำที่แนะนำ 5 kW = แผง ${fmt(pW)} W อย่างน้อย ${m5} แผง (${fmt(m5*pW/1000,2)} kW) · ติดน้อยกว่านี้ค่าอินเวอร์เตอร์ ค่าตรวจเชื่อมต่อ และค่าแรงเกือบเท่าเดิม แต่ได้ไฟน้อยลง คุ้มน้อยกว่า`;
   $('roofPick').querySelectorAll('.opt').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===(S2.roof||'gable'))));
-  $('layPick').querySelectorAll('.opt').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.v===S2.lay));const pr=presetOf(b.dataset.v);b.querySelector('small').textContent=`${pr.n} แผง · ${fmt(pr.n*pW/1000,1)} kW`;});}
+  $('layPick').querySelectorAll('.opt').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.v===S2.lay));const pr=presetOf(b.dataset.v),low=pr.n<panelsFor(5,pW),sm=b.querySelector('small');sm.textContent=`${pr.n} แผง · ${fmt(pr.n*pW/1000,1)} kW${low?' · ต่ำกว่า 5':''}`;sm.classList.toggle('low',low);});}
 // does the chosen arrangement (rows × cols on one side) physically fit W × L? returns the orientation that fits
 function fitShape(W,L,where,P){const f={...FIT[where]};if(S2.sb>=0)f.sb=S2.sb;const pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),ct=Math.cos(f.tilt*Math.PI/180);
   const oris=S2.ori==='p'?[[pw,pl]]:S2.ori==='l'?[[pl,pw]]:[[pw,pl],[pl,pw]],dim=(a,b)=>{const bh=b*ct;return{a,bh,gx:f.gx,needW:P.cols*(a+f.gx)-f.gx+2*f.sb,needL:P.rows*bh+(P.rows-1)*0.02+2*f.sb};};
@@ -1504,11 +1509,11 @@ function renderFit(){
   // W × LT is the whole roof outline; a ridged roof (gable, hip, butterfly) is split into two sides of W × LT/2
   const W=parseFloat($('s_w').value)||0,LT=parseFloat($('s_l').value)||0,wh=S2.where,twoSide=(wh==='roof'||wh==='garage')&&!!(roofTypes().find(r=>r.id===(S2.roof||'gable'))||{}).two,L=twoSide?LT/2:LT,pW=parseFloat($('panelW').value)||600,roofy=wh==='roof'||wh==='garage';
   renderPick();const P=S2.lay?presetOf(S2.lay):null;
-  const need=P?P.n:Math.ceil(S1.size*1000/pW),min5=Math.ceil(5000/pW),F=fitLayout(W,L,wh),dims=W>0&&L>0,lyN=dims?0:(S2.lyN||0),n=dims?(twoSide&&!(P&&P.sides===1)?2*F.count:F.count):lyN,SF=P&&dims?fitShape(W,L,wh,P):null,needSide=(P&&P.sides===2)||(twoSide&&!P)?Math.ceil(need/2):need,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
+  const need=P?P.n:panelsFor(S1.size,pW),min5=panelsFor(5,pW),F=fitLayout(W,L,wh),dims=W>0&&L>0,lyN=dims?0:(S2.lyN||0),n=dims?(twoSide&&!(P&&P.sides===1)?2*F.count:F.count):lyN,SF=P&&dims?fitShape(W,L,wh,P):null,needSide=(P&&P.sides===2)||(twoSide&&!P)?Math.ceil(need/2):need,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
   $('q_mat').hidden=!roofy;$('q_dir').hidden=!roofy;
   $('s_dimHint').textContent=twoSide?`กรอบหลังคาทั้งหมด: ยาวตามแนวชายคา × กว้างรวมสองฝั่ง · แอปแบ่งครึ่ง${LT>0&&W>0?` เป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม.`:''}`:roofy?'กรอบหลังคาที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
   $('s2Need').textContent=P?`ติด ${fmt(S1.size,1)} kW ตามแบบ ${P.label} (${need} แผง × ${fmt(pW)} W) · แตะแบบเดิมซ้ำเพื่อกลับไปใช้ขนาดจากข้อ 1`:`ติด ${fmt(S1.size,1)} kW (จากข้อ 1) ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
-  $('s_sizeHint').textContent=P?`ตอนนี้ใช้ ${fmt(S1.size,1)} kW ตามแบบวางแผง "${P.label}" ที่เลือกในข้อ 2 · กดขนาดด้านบนเพื่อเปลี่ยน`:'ข่าวบอกติดได้ไม่เกิน 10 kW บ้านส่วนใหญ่ 5 kW ก็พอ';$('s_sizeHint').classList.toggle('on',!!P);
+  $('s_sizeHint').textContent=P?`ตอนนี้ใช้ ${fmt(S1.size,1)} kW ตามแบบวางแผง "${P.label}" ที่เลือกในข้อ 2 · กดขนาดด้านบนเพื่อเปลี่ยน`:`ข่าวบอกติดได้ไม่เกิน 10 kW · ขั้นต่ำที่แนะนำ 5 kW (แผง ${fmt(pW)} W ${min5} แผง) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!P);
   glowTab('t3',dims||lyN>0);$('s2Next').hidden=!(dims||lyN>0);
   [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
   $('s2Sb').placeholder=FIT[wh].sb;$('s2Params').hidden=!dims;S2.curA=F.a;
@@ -1590,6 +1595,8 @@ function renderQuotes(){
 {const I={bill:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',wallet:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/>',panel:'<path d="M4 18l2-12h12l2 12z"/><path d="M5 12h14M9.5 6l-1 12M14.5 6l1 12"/>',pin:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',ruler:'<rect x="2" y="8" width="20" height="8" rx="1"/><path d="M6 8v3M10 8v4M14 8v3M18 8v4"/>',roof:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',tree:'<path d="M12 3c3 0 5 2.5 5 5 1.5.5 2.5 2 2.5 3.5 0 2-1.8 3.5-4 3.5H8.5c-2.2 0-4-1.5-4-3.5 0-1.5 1-3 2.5-3.5 0-2.5 2-5 5-5z"/><path d="M12 15v6"/>'};
  // tab 2: the size question sits right under the screen, so the screen stays visible above the phone keyboard
  $('s2Pick').insertAdjacentElement('afterend',document.querySelector('#t2 .sizeq'));
+ // phones have no Ctrl+V or drag-and-drop: the roof-image box opens the photo picker instead
+ if(matchMedia('(pointer:coarse)').matches)$('dropText').innerHTML='<span class="big">แตะตรงนี้เพื่อเลือกภาพหลังคา</span><br>1) ใน Google Maps เปิดภาพดาวเทียม ซูมให้เห็นหลังคาเต็มจอ แล้วแคปหน้าจอ<br>2) กลับมาแตะตรงนี้ เลือกภาพจากอัลบั้ม / แกลเลอรี<br>ใช้ภาพโดรนหรือภาพที่ลูกค้าส่งมาก็ได้';
  // location and the roof-layout tool live in tab 2's satellite section (moved here so the elements keep their handlers)
  $('t2SatBody').append($('coords').closest('.field'),$('roofPanel'));$('roofPanel').classList.remove('collapsed');
  I.coin='<circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M14.8 9.2c-.4-.9-1.5-1.4-2.8-1.4-1.6 0-2.8.8-2.8 1.9s1.2 1.6 2.8 1.9 2.8.9 2.8 2-1.2 1.9-2.8 1.9c-1.4 0-2.5-.6-2.9-1.5"/>';
