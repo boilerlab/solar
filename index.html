@@ -49,6 +49,8 @@
 .iab.on{display:block}.iab b{color:#ffd9a8}.iab .row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .iab a,.iab button{font:inherit;font-weight:600;border:0;border-radius:999px;padding:8px 14px;cursor:pointer;text-decoration:none}
 .iab .go{background:#f28c18;color:#fff}.iab .cp{background:#fff;color:#28495a}.iab .x{background:transparent;color:#cfe0e8;margin-left:auto;padding:8px 6px}
+.why{margin:10px auto 4px;max-width:380px;text-align:center;font-size:15px;line-height:1.5;color:var(--bad);font-weight:600}.why button{font:inherit;font-weight:700;color:#fff;background:#f28c18;border:0;border-radius:999px;padding:4px 12px;margin-left:4px;cursor:pointer}
+.q.flash{outline:3px solid #f28c18;outline-offset:6px;border-radius:12px;transition:outline-color .3s}
 :root{color-scheme:light}
 *{box-sizing:border-box}
 body{background-color:var(--bg);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .45 0 0 0 0 .5 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
@@ -440,13 +442,14 @@ a.btn{text-decoration:none;display:inline-block}
         <div class="chips" id="s_mat"><button data-v="metal">เมทัลชีท</button><button data-v="tile">กระเบื้อง (ลอนคู่ / ซีแพค)</button><button data-v="concrete">ดาดฟ้าคอนกรีต</button><button data-v="poly">โพลีคาร์บอเนต / ไวนิล</button></div></div>
       <div class="q" id="q_dir"><h4>หลังคาด้านนี้หันไปทางไหน</h4>
         <div class="chips" id="s_dir"><button data-v="s">ใต้</button><button data-v="ew">ตะวันออก / ตะวันตก</button><button data-v="n">เหนือ</button><button data-v="flat">แบนราบ</button></div></div>
-      <div class="q"><h4>มีเงาบังไหม (ต้นไม้ ตึก)</h4>
+      <div class="q" id="q_shade"><h4>มีเงาบังไหม (ต้นไม้ ตึก)</h4>
         <div class="chips" id="s_shade"><button data-v="none">ไม่มี</button><button data-v="some">บางช่วง</button><button data-v="heavy">เยอะ / ทั้งวัน</button></div></div>
       <label class="check"><input type="checkbox" id="s_old"> หลังคาอายุเกิน 15 ปี หรือเคยรั่ว</label>
     </div>
     <div class="panel answer">
       <span class="note" id="s2Need"></span>
       <div class="crt"><div class="verdict-big v-idle" id="s2Verdict">--/--</div></div>
+      <p class="why" id="s2Why" hidden></p>
       <div class="pick" id="s2Pick">
         <div class="pickrow" id="roofRow"><h4>หลังคาแบบไหน <small>ปัดดูเพิ่ม →</small></h4><div class="swipe" id="roofPick"></div></div>
         <div class="pickrow"><h4>วางแผงแบบไหน <small>แตะซ้ำเพื่อยกเลิก</small></h4><div class="swipe" id="layPick"></div><p class="note laymin" id="layMin"></p></div>
@@ -1592,6 +1595,7 @@ $('s2Rot').addEventListener('click',()=>{const pw=lyNum('lyPW',1.13);S2.ori=S2.o
 $('s2Wt').addEventListener('input',()=>{$('panelW').value=$('s2Wt').value;$('panelW').dispatchEvent(new Event('input',{bubbles:true}));});
 $('s2Sb').addEventListener('input',()=>{const v=parseFloat($('s2Sb').value);S2.sb=isFinite(v)?v:undefined;renderFit();});
 ['s_w','s_l','s_old'].forEach(id=>$(id).addEventListener('input',()=>{if(id!=='s_old')S2.lyN=0;renderFit();}));
+$('s2Why').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const q=$(b.dataset.q);q.scrollIntoView({behavior:'smooth',block:'center'});q.classList.add('flash');setTimeout(()=>q.classList.remove('flash'),1600);});
 function renderFit(){
   // W × LT is the whole roof outline; a ridged roof (gable, hip, butterfly) is split into two sides of W × LT/2
   const W=parseFloat($('s_w').value)||0,LT=parseFloat($('s_l').value)||0,wh=S2.where,twoSide=(wh==='roof'||wh==='garage')&&!!(roofTypes().find(r=>r.id===(S2.roof||'shed'))||{}).two,L=twoSide?LT/2:LT,pW=parseFloat($('panelW').value)||600,roofy=wh==='roof'||wh==='garage';
@@ -1614,6 +1618,8 @@ function renderFit(){
   [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
   $('s2Sb').placeholder=FIT[wh].sb;$('s2Params').hidden=!dims;S2.curA=F.a;
   $('s2RotTxt').textContent=F.count?(F.a===lyNum('lyPW',1.13)?'แผงแนวตั้ง':'แผงแนวนอน')+(S2.ori?'':' · อัตโนมัติ (วางได้มากสุด)'):'';
+  {const why=roofy&&S2.mat==='poly'?['หลังคาเป็นโพลีคาร์บอเนต / ไวนิล','q_mat']:S2.shade==='heavy'?['เลือกว่ามีเงาบังเยอะ / ทั้งวัน','q_shade']:null,w=$('s2Why');w.hidden=!why||(!dims&&!lyN);
+    if(why)w.innerHTML=`เพราะ${why[0]} <button type="button" data-q="${why[1]}">แก้ตรงนี้</button>`;}
   if(!dims&&!lyN){const e=$('s2Verdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('s2Line').innerHTML='ใส่<b>ขนาดพื้นที่</b>เพื่อดูผล';$('s2Notes').innerHTML='';$('s2Svg').innerHTML='';$('s2Svg').style.display='none';return;}
   let v,c,line;const notes=[];
   if(roofy&&S2.mat==='poly'){v='ไม่แนะนำ';c='v-bad';line='หลังคาโพลีคาร์บอเนตหรือไวนิลรับน้ำหนักแผงไม่ได้ ต้องทำโครงใหม่';}
@@ -1694,7 +1700,7 @@ function renderQuotes(){
 // icons in front of each question (drawn inline: artifact pages cannot load outside images)
 {const I={bill:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',wallet:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/>',panel:'<path d="M4 18l2-12h12l2 12z"/><path d="M5 12h14M9.5 6l-1 12M14.5 6l1 12"/>',pin:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',ruler:'<rect x="2" y="8" width="20" height="8" rx="1"/><path d="M6 8v3M10 8v4M14 8v3M18 8v4"/>',roof:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',tree:'<path d="M12 3c3 0 5 2.5 5 5 1.5.5 2.5 2 2.5 3.5 0 2-1.8 3.5-4 3.5H8.5c-2.2 0-4-1.5-4-3.5 0-1.5 1-3 2.5-3.5 0-2.5 2-5 5-5z"/><path d="M12 15v6"/>'};
  // tab 2: the size question sits right under the screen, so the screen stays visible above the phone keyboard
- document.querySelector('#t2 .answer .crt').insertAdjacentElement('afterend',document.querySelector('#t2 .sizeq'));
+ document.querySelector('#t2 .answer .crt').insertAdjacentElement('afterend',document.querySelector('#t2 .sizeq'));document.querySelector('#t2 .answer .crt').insertAdjacentElement('afterend',$('s2Why'));
  // the satellite image sits right under the fetch button; its tools follow below
  {const lw=$('layoutWrap');lw.prepend($('lyHint'));lw.prepend(lw.querySelector('.lyresult'));lw.prepend(lw.querySelector('.canvaswrap'));
   // rotate and the other drawing tools sit right under the photo
