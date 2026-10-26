@@ -1534,27 +1534,36 @@ function renderFit(){
   $('s2Verdict').textContent=v;$('s2Verdict').className='verdict-big '+c;fitCrt($('s2Verdict'));$('s2Line').innerHTML=line;
   $('s2Notes').innerHTML=notes.map(t=>`<li>${t}</li>`).join('');
   const svg=$('s2Svg');svg.style.display='';if(!dims){svg.innerHTML='';svg.style.display='none';return;}
-  // the roof frame is drawn at the size the user entered; panels that do not fit are drawn in red outside it
+  // the whole roof outline is drawn at the size the user entered; a ridged roof shows both halves unfolded with the ridge across the middle.
+  // panels that do not fit are drawn in red outside the outline
   const f0={...FIT[wh]};if(S2.sb>=0)f0.sb=S2.sb;
-  const bad=!!(SF&&!SF.ok),miss=!SF&&n<need?Math.max(0,needSide-F.count):0;
-  let EW=W,EL=L,sh=null,mp=null;
-  if(bad){sh={a:SF.a,bh:SF.bh,gx:SF.gx,w:P.cols*(SF.a+SF.gx)-SF.gx,h:P.rows*SF.bh+(P.rows-1)*0.02};EW=Math.max(W,f0.sb+sh.w);EL=Math.max(L,f0.sb+sh.h);}
-  if(miss){const a=F.a||lyNum('lyPW',1.13),bh=F.bh||lyNum('lyPL',2.38)*Math.cos(f0.tilt*Math.PI/180),per=Math.max(1,Math.floor((W+0.02)/(a+0.02)));mp={a,bh,per};EL=L+0.4+Math.ceil(miss/per)*(bh+0.02);}
-  // size the drawing to the area's own shape so a long, shallow roof side fills the frame
+  const bad=!!(SF&&!SF.ok),both=!!(P&&P.sides===2)||(twoSide&&!P),FH=twoSide?2*L:L;
+  const onA=Math.min(needSide,F.count),onB=twoSide&&!P?Math.min(Math.max(0,need-onA),F.count):(P&&P.sides===2?Math.min(needSide,F.count):0);
+  const miss=!SF&&n<need?Math.max(0,need-onA-onB):0;
+  let sh=null,mp=null,TOP=0,EW=W,EL;
+  if(bad){sh={a:SF.a,bh:SF.bh,gx:SF.gx,w:P.cols*(SF.a+SF.gx)-SF.gx,h:P.rows*SF.bh+(P.rows-1)*0.02};EW=Math.max(W,f0.sb+sh.w);if(twoSide&&P.sides===2)TOP=Math.max(0,f0.sb+sh.h-L);}
+  const aTop=twoSide?L:0,below=bad?Math.max(0,aTop+f0.sb+sh.h-FH):0;
+  if(miss){const a=F.a||lyNum('lyPW',1.13),bh=F.bh||lyNum('lyPL',2.38)*Math.cos(f0.tilt*Math.PI/180),per=Math.max(1,Math.floor((W+0.02)/(a+0.02)));mp={a,bh,per};}
+  EL=TOP+FH+below+(mp?0.4+Math.ceil(miss/mp.per)*(mp.bh+0.02):0);
+  // size the drawing to the area's own shape so a long, shallow roof fills the frame
   const S=Math.min(304/EW,240/EL),ox=(320-EW*S)/2,oy=8,VH=Math.round(EL*S+56);svg.setAttribute('viewBox',`0 0 320 ${VH}`);
-  const R=(x,y,w,h,st)=>`<rect x="${(ox+x*S).toFixed(1)}" y="${(oy+y*S).toFixed(1)}" width="${(w*S).toFixed(1)}" height="${(h*S).toFixed(1)}" style="${st}"/>`,BLUE='fill:var(--pv);stroke:#fff;stroke-width:1',RED='fill:rgba(200,68,63,.28);stroke:var(--bad);stroke-width:1.4;stroke-dasharray:4 2';
-  let g=`<rect x="${ox}" y="${oy}" width="${W*S}" height="${L*S}" rx="3" style="fill:var(--sun-soft);stroke:var(--fr-o);stroke-width:2"/>`;
-  if(SF&&SF.ok){const sx=ox+(W-(P.cols*(SF.a+SF.gx)-SF.gx))/2*S,th=P.rows*SF.bh+(P.rows-1)*0.02,sy=oy+(L-th)/2*S;
-    for(let r=0;r<P.rows;r++)for(let k=0;k<P.cols;k++)g+=`<rect x="${(sx+k*(SF.a+SF.gx)*S).toFixed(1)}" y="${(sy+r*(SF.bh+0.02)*S).toFixed(1)}" width="${(SF.a*S).toFixed(1)}" height="${(SF.bh*S).toFixed(1)}" style="fill:var(--pv);stroke:#fff;stroke-width:1"/>`;}
-  else if(bad){for(let r=0;r<P.rows;r++)for(let k=0;k<P.cols;k++){const x=f0.sb+k*(sh.a+sh.gx),y=f0.sb+r*(sh.bh+0.02),inside=x+sh.a<=W-f0.sb+1e-6&&y+sh.bh<=L-f0.sb+1e-6;g+=R(x,y,sh.a,sh.bh,inside?BLUE:RED);}
-    g+=`<rect x="${ox}" y="${oy}" width="${W*S}" height="${L*S}" rx="3" style="fill:none;stroke:var(--forest);stroke-width:2"/>`;}
-  else if(n){const f=FIT[wh],tw=F.cols*F.px-f.gx,th=F.th,rowY=r=>Math.floor(r/F.k)*F.ty+(r%F.k)*(F.bh+0.02),sx=ox+(W-tw)/2*S,sy=oy+(L-th)/2*S,ord=[];
+  const R=(x,y,w,h,st)=>`<rect x="${(ox+x*S).toFixed(1)}" y="${(oy+y*S).toFixed(1)}" width="${(w*S).toFixed(1)}" height="${(h*S).toFixed(1)}" style="${st}"/>`,BLUE='fill:var(--pv);stroke:#fff;stroke-width:1',RED='fill:rgba(200,68,63,.28);stroke:var(--bad);stroke-width:1.4;stroke-dasharray:4 2',OFF='fill:none;stroke:var(--grid);stroke-width:1;stroke-dasharray:3 2';
+  // y position of a panel row inside side A (below the ridge) or side B (above it, mirrored so overflow grows outward)
+  const yA=y=>TOP+aTop+y,yB=(y,h)=>TOP+L-y-h;
+  let g=R(0,TOP,W,FH,'fill:var(--sun-soft);stroke:var(--fr-o);stroke-width:2');
+  if(twoSide)g+=`<path d="M${ox} ${(oy+(TOP+L)*S).toFixed(1)}h${(W*S).toFixed(1)}" style="stroke:var(--forest);stroke-width:1.6;stroke-dasharray:6 4"/>`;
+  const sides=[['A',1]];if(twoSide&&both)sides.push(['B',1]);
+  if(SF&&SF.ok){const w=P.cols*(SF.a+SF.gx)-SF.gx,h=P.rows*SF.bh+(P.rows-1)*0.02,x0=(W-w)/2,y0=(L-h)/2;
+    for(const[sd]of(P.sides===2?sides:[['A']]))for(let r=0;r<P.rows;r++)for(let k=0;k<P.cols;k++){const y=y0+r*(SF.bh+0.02);g+=R(x0+k*(SF.a+SF.gx),sd==='A'?yA(y):yB(y,SF.bh),SF.a,SF.bh,BLUE);}}
+  else if(bad){for(const[sd]of(P.sides===2&&twoSide?sides:[['A']]))for(let r=0;r<P.rows;r++)for(let k=0;k<P.cols;k++){const x=f0.sb+k*(sh.a+sh.gx),y=f0.sb+r*(sh.bh+0.02),inside=x+sh.a<=W-f0.sb+1e-6&&y+sh.bh<=L-f0.sb+1e-6;g+=R(x,sd==='A'?yA(y):yB(y,sh.bh),sh.a,sh.bh,inside?BLUE:RED);}
+    g+=R(0,TOP,W,FH,'fill:none;stroke:var(--forest);stroke-width:2');}
+  else if(n){const f=FIT[wh],tw=F.cols*F.px-f.gx,x0=(W-tw)/2,y0=(L-F.th)/2,rowY=r=>Math.floor(r/F.k)*F.ty+(r%F.k)*(F.bh+0.02),ord=[];
     for(let r=0;r<F.rows;r++)for(let k=0;k<F.cols;k++)ord.push([r,k]);
     ord.sort((A,B)=>Math.abs(A[0]-(F.rows-1)/2)-Math.abs(B[0]-(F.rows-1)/2)||Math.abs(A[1]-(F.cols-1)/2)-Math.abs(B[1]-(F.cols-1)/2));
-    ord.forEach(([r,k],i)=>{const on=i<needSide;g+=`<rect x="${(sx+k*F.px*S).toFixed(1)}" y="${(sy+rowY(r)*S).toFixed(1)}" width="${(F.a*S).toFixed(1)}" height="${(F.bh*S).toFixed(1)}" style="fill:${on?'var(--pv)':'none'};stroke:${on?'#fff':'var(--grid)'};stroke-width:1${on?'':';stroke-dasharray:3 2'}"/>`;});}
-  if(mp)for(let i=0;i<miss;i++)g+=R((i%mp.per)*(mp.a+0.02),L+0.4+Math.floor(i/mp.per)*(mp.bh+0.02),mp.a,mp.bh,RED);
-  const cap=bad?`แบบ ${P.label} ล้นกรอบ · สีแดง = ส่วนที่วางไม่ลง`:miss?`วางได้ ${F.count} แผง · สีแดง = ขาดอีก ${miss} แผง`:SF&&SF.ok?(P.sides===2?`ภาพนี้ฝั่งเดียว ${P.cols} แผง (อีกฝั่งเท่ากัน)`:`แบบ ${P.label}`):`สีน้ำเงิน = แผงที่ใช้ ${Math.min(needSide,F.count)} แผง${P&&P.sides===2?' ต่อฝั่ง':''}`;
-  g+=`<text x="160" y="${VH-28}" text-anchor="middle" style="fill:var(--muted);font-size:12px;font-family:var(--f-num)">${twoSide?'ฝั่งเดียว ':'กรอบ '}${fmt(W,1)} × ${fmt(L,1)} ม.</text><text x="160" y="${VH-10}" text-anchor="middle" style="fill:${bad||miss?'var(--bad)':'var(--muted)'};font-size:12px;font-weight:600">${cap}</text>`;
+    for(const[sd,on]of[['A',onA],...(twoSide?[['B',onB]]:[])])ord.forEach(([r,k],i)=>{const y=y0+rowY(r);g+=R(x0+k*F.px,sd==='A'?yA(y):yB(y,F.bh),F.a,F.bh,i<on?BLUE:OFF);});}
+  if(mp)for(let i=0;i<miss;i++)g+=R((i%mp.per)*(mp.a+0.02),TOP+FH+0.4+Math.floor(i/mp.per)*(mp.bh+0.02),mp.a,mp.bh,RED);
+  const cap=bad?`แบบ ${P.label} ล้นกรอบ · สีแดง = ส่วนที่วางไม่ลง`:miss?`วางได้ ${onA+onB} แผง · สีแดง = ขาดอีก ${miss} แผง`:`สีน้ำเงิน = แผงที่ใช้ ${SF&&SF.ok?need:onA+onB} แผง${P?` · ${P.label}`:''}`;
+  g+=`<text x="160" y="${VH-28}" text-anchor="middle" style="fill:var(--muted);font-size:12px">กรอบ ${fmt(W,1)} × ${fmt(FH,1)} ม.${twoSide?` · เส้นประ = สันหลังคา (ฝั่งละ ${fmt(W,1)} × ${fmt(L,1)})`:''}</text><text x="160" y="${VH-10}" text-anchor="middle" style="fill:${bad||miss?'var(--bad)':'var(--muted)'};font-size:12px;font-weight:600">${cap}</text>`;
   svg.innerHTML=g;
 }
 // ---- question 3: who to install with — compare up to three quotes ----
