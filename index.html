@@ -188,6 +188,7 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .swipe .opt svg{width:84px;height:59px;display:block}
 .swipe .opt small{font-family:var(--f-body);font-size:11.5px;font-weight:500;color:var(--muted);white-space:nowrap}
 .swipe .opt small.low{color:#b45c00}
+#t1 .answer>.crt{margin-top:22px}
 .carebtn{display:flex;gap:8px;align-items:flex-start;max-width:420px;text-align:left;font-size:13px;line-height:1.45;background:var(--surface);border:1.5px dashed #b45c00;border-radius:10px;padding:8px 12px;cursor:pointer}
 .carebtn input{margin-top:3px;accent-color:#b45c00}
 .pcount{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;max-width:420px}
@@ -395,10 +396,10 @@ a.btn{text-decoration:none;display:inline-block}
     </div>
     <div class="panel answer">
       <span class="stamp" aria-label="ข้อมูล ณ 25 ต.ค. 69">ข้อมูล<br>ณ 25 ต.ค.<br>69</span>
+      <div class="crt"><div class="verdict-big v-idle" id="sVerdict">--/--</div></div>
       <div class="q billq"><h4>ค่าไฟเดือนละประมาณกี่บาท</h4>
         <div class="inrow big-in"><input type="number" id="s_bill" value="" placeholder="เช่น 1800" min="0" step="100" inputmode="numeric"><span class="unit">บาท/เดือน</span></div>
         <div class="chips" id="s_billChips"><button type="button" data-v="800">800</button><button type="button" data-v="1500">1,500</button><button type="button" data-v="2000">2,000</button><button type="button" data-v="2500">2,500</button><button type="button" data-v="4000">4,000</button></div></div>
-      <div class="crt"><div class="verdict-big v-idle" id="sVerdict">--/--</div></div>
       <span class="note" id="sSys"></span>
       <p class="note" id="sPrice" hidden></p>
       <label class="carebtn" id="careBox" hidden><input type="checkbox" id="s_care"> <span><b>คิดแบบระวัง</b> · ขายไฟได้ 80% · ผลิตไฟน้อยลง 10% · อินเวอร์เตอร์เสียปีที่ 5</span></label>
@@ -1586,9 +1587,12 @@ function renderFit(){
   const f0={...FIT[wh]};if(S2.sb>=0)f0.sb=S2.sb;
   const bad=!!(SF&&!SF.ok),both=!!(P&&P.sides===2)||(twoSide&&!P),FH=twoSide?2*L:L;
   // fill order without a chosen arrangement: one row at a time from the eave, centre-out; on a ridged roof the next row goes to the opposite side
-  const colsOrd=[...Array(F.cols||0).keys()].sort((a,b)=>Math.abs(a-(F.cols-1)/2)-Math.abs(b-(F.cols-1)/2)),fillOrd=[];
-  for(let ri=0;ri<(F.rows||0);ri++)for(const sd of(twoSide?['A','B']:['A']))for(const k of colsOrd)fillOrd.push([sd,F.rows-1-ri,k]);
-  const used=Math.min(need,fillOrd.length),miss=!SF&&n<need?Math.max(0,need-used):0;
+  // without a chosen arrangement: use as few rows as needed, rows taken from the eave (alternating sides on a ridged roof),
+  // and share the panels evenly between those rows so the layout stays symmetric (8 on 6-wide rows = 4 + 4)
+  const perRow=F.cols||0,rowSeq=[];for(let ri=0;ri<(F.rows||0);ri++)for(const sd of(twoSide?['A','B']:['A']))rowSeq.push([sd,F.rows-1-ri]);
+  const used=Math.min(need,perRow*rowSeq.length),miss=!SF&&n<need?Math.max(0,need-used):0,onSet=new Set();
+  {const ru=perRow?Math.ceil(used/perRow):0,base=ru?Math.floor(used/ru):0,extra=ru?used%ru:0;
+   rowSeq.slice(0,ru).forEach(([sd,r],i)=>{const cnt=base+(i<extra?1:0),c0=Math.floor((perRow-cnt)/2);for(let c=c0;c<c0+cnt;c++)onSet.add(sd+r+'-'+c);});}
   let sh=null,mp=null,TOP=0,EW=W,EL;
   if(bad){sh={a:SF.a,bh:SF.bh,gx:SF.gx,w:P.cols*(SF.a+SF.gx)-SF.gx,h:P.rows*SF.bh+(P.rows-1)*0.02};EW=Math.max(W,f0.sb+sh.w);if(twoSide&&P.sides===2)TOP=Math.max(0,f0.sb+sh.h-L);}
   const aTop=twoSide?L:0,below=bad?Math.max(0,aTop+f0.sb+sh.h-FH):0;
@@ -1607,7 +1611,7 @@ function renderFit(){
   else if(bad){for(const[sd]of(P.sides===2&&twoSide?sides:[['A']]))for(let r=0;r<P.rows;r++)for(let k=0;k<P.cols;k++){const x=f0.sb+k*(sh.a+sh.gx),y=f0.sb+r*(sh.bh+0.02),inside=x+sh.a<=W-f0.sb+1e-6&&y+sh.bh<=L-f0.sb+1e-6;g+=R(x,sd==='A'?yA(y):yB(y,sh.bh),sh.a,sh.bh,inside?BLUE:RED);}
     g+=R(0,TOP,W,FH,'fill:none;stroke:var(--forest);stroke-width:2');}
   else if(n){const f=FIT[wh],tw=F.cols*F.px-f.gx,x0=(W-tw)/2,y0=(L-F.th)/2,rowY=r=>Math.floor(r/F.k)*F.ty+(r%F.k)*(F.bh+0.02),ord=[];
-    fillOrd.forEach(([sd,r,k],i)=>{const y=y0+rowY(r);g+=R(x0+k*F.px,sd==='A'?yA(y):yB(y,F.bh),F.a,F.bh,i<need?BLUE:OFF);});}
+    rowSeq.forEach(([sd,r])=>{for(let k=0;k<perRow;k++){const y=y0+rowY(r);g+=R(x0+k*F.px,sd==='A'?yA(y):yB(y,F.bh),F.a,F.bh,onSet.has(sd+r+'-'+k)?BLUE:OFF);}});}
   if(mp)for(let i=0;i<miss;i++)g+=R((i%mp.per)*(mp.a+0.02),TOP+FH+0.4+Math.floor(i/mp.per)*(mp.bh+0.02),mp.a,mp.bh,RED);
   const cap=bad?`แบบ ${P.label} ล้นกรอบ · สีแดง = ส่วนที่วางไม่ลง`:miss?`วางได้ ${used} แผง · สีแดง = ขาดอีก ${miss} แผง`:`สีน้ำเงิน = แผงที่ใช้ ${SF&&SF.ok?need:used} แผง${P?` · ${P.label}`:''}`;
   g+=`<text x="160" y="${VH-28}" text-anchor="middle" style="fill:var(--muted);font-size:12px">กรอบ ${fmt(W,1)} × ${fmt(FH,1)} ม.${twoSide?` · เส้นประ = สันหลังคา (ฝั่งละ ${fmt(W,1)} × ${fmt(L,1)})`:''}</text><text x="160" y="${VH-10}" text-anchor="middle" style="fill:${bad||miss?'var(--bad)':'var(--muted)'};font-size:12px;font-weight:600">${cap}</text>`;
