@@ -52,7 +52,11 @@ body{background-color:var(--bg);background-image:url("data:image/svg+xml,%3Csvg 
 .wrap{max-width:1180px;margin:0 auto;display:grid;gap:24px}
 header{display:grid;gap:8px;position:relative;background:var(--leaf);border-radius:20px;padding:28px 250px 28px 28px;overflow:hidden}
 header .hero{position:absolute;right:16px;bottom:0;width:230px;height:auto}
-@media (max-width:760px){header{padding:22px 20px}header .hero,header .terms{display:none}}
+@media (max-width:760px){header{padding:12px 16px 14px;gap:2px;border-radius:14px}header .hero,header .terms{display:none}
+  header h1{font-size:22px;line-height:1.25} header .eyebrow{font-size:10.5px;padding-right:96px} header .lede{font-size:13px;line-height:1.45}}
+.resetbtn{position:absolute;top:12px;right:14px;z-index:2;font:inherit;font-size:13px;font-weight:600;padding:5px 12px;border-radius:999px;border:1.5px solid var(--forest);background:var(--surface);color:var(--forest);cursor:pointer}
+.resetbtn.wide{position:static;border-style:dashed}
+.resetbtn.armed{background:var(--bad);border-color:var(--bad);color:#fff}
 .eyebrow{font-family:var(--f-num);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--forest)}
 h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.2;margin:0;text-wrap:balance}
 h1{color:var(--forest);font-weight:800} h1 span{color:var(--forest);background:linear-gradient(transparent 58%,var(--yel) 58%);padding:0 4px}
@@ -340,6 +344,7 @@ a.btn{text-decoration:none;display:inline-block}
       <text x="212" y="136" text-anchor="middle" style="font:800 22px Kanit,sans-serif;fill:var(--forest)">฿</text>
       <path d="M176 104l10-6M176 122h-8M180 88l6-8" style="stroke:var(--sun);stroke-width:3;stroke-linecap:round"/>
     </svg>
+    <button type="button" class="resetbtn" data-reset>↺ เริ่มใหม่</button>
     <div class="eyebrow">Solar ภาคประชาชน · Net Billing · ปี 2569</div>
     <h1>ติด<span>โซลาร์ภาคประชาชน</span> คุ้มไหม?</h1>
     <p class="lede">ตอบ 3 คำถามก่อนตัดสินใจ: คุ้มไหม พื้นที่พอไหม และจะติดกับใคร</p>
@@ -358,6 +363,7 @@ a.btn{text-decoration:none;display:inline-block}
     <button type="button" data-t="t2" aria-selected="false"><span class="tn">2</span>พื้นที่พอไหม?</button>
     <button type="button" data-t="t3" aria-selected="false"><span class="tn">3</span>ติดกับใคร?</button>
     <button type="button" data-t="adv" aria-selected="false"><span class="tn">4</span>ตัวเลขละเอียด / สำหรับช่าง</button>
+    <button type="button" class="resetbtn wide" data-reset>↺ เริ่มใหม่ ล้างทุกคำตอบ</button>
   </nav>
 
   <section class="tab simple pre" id="t1">
@@ -1352,7 +1358,7 @@ $('copyBtn').addEventListener('click',()=>{const t=$('summary').textContent;
   const fallback=()=>{const r=document.createRange();r.selectNodeContents($('summary'));const s=getSelection();s.removeAllRanges();s.addRange(r);};
   try{navigator.clipboard.writeText(t).then(done,fallback);}catch(e){fallback();}});
 // ===== Simple mode: three plain-language questions on top of the detailed calculator =====
-function showTab(t){document.querySelectorAll('.tab').forEach(s=>{s.hidden=s.id!==t;});document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===t)));if(t==='adv'||t==='t2')requestAnimationFrame(()=>draw());
+function showTab(t){document.querySelectorAll('.tab').forEach(s=>{s.hidden=s.id!==t;});document.querySelectorAll('#tabs button[data-t]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===t)));if(t==='adv'||t==='t2')requestAnimationFrame(()=>draw());
   (window._seen=window._seen||{})[t]=1;const gb=document.querySelector(`#tabs [data-t=${t}]`);if(gb)gb.classList.remove('glow');placeNav(t);}
 // the menu follows the output frame of the open tab; tabs without one get it on top
 function placeNav(t){$('guide').before($('tabs'));}
@@ -1369,7 +1375,7 @@ function setGuide(i){guide=i;GUIDE.forEach((id,k)=>$(id).classList.toggle('blink
 GUIDE.forEach((id,k)=>$(id).addEventListener('click',()=>{if(guide===k)setGuide(k+1<GUIDE.length?k+1:-1);}));
 $('coords').addEventListener('paste',()=>{if(guide>=0)setGuide(-1);});
 $('coords').addEventListener('input',()=>{if(guide>=0&&parseCoords($('coords').value))setGuide(-1);});
-document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>{showTab(b.dataset.t);const s=$(b.dataset.t),target=s.querySelector('.answer')||s;requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'}));}));
+document.querySelectorAll('#tabs button[data-t]').forEach(b=>b.addEventListener('click',()=>{showTab(b.dataset.t);const s=$(b.dataset.t),target=s.querySelector('.answer')||s;requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'}));}));
 // Google Maps buttons with no house coordinates yet: find the phone's position first, then open Maps there
 function mapsAt(la,lo){return `https://www.google.com/maps/@?api=1&map_action=map&basemap=satellite&center=${la.toFixed(6)},${lo.toFixed(6)}&zoom=19`;}
 ['lnkPick','lnkMaps'].forEach(id=>$(id).addEventListener('click',e=>{
@@ -1557,7 +1563,13 @@ function renderQuotes(){
 placeNav('t1');
 // remember answers on this phone, so coming back from Google Maps (which often reloads the page) lands where the user left
 const STKEY='solarState1';
-function saveState(){try{
+// start over: first tap arms the button, second tap within 3 s wipes saved answers and reloads at menu 1
+let noSave=false;
+document.querySelectorAll('[data-reset]').forEach(b=>{const label=b.textContent;let t=0;b.addEventListener('click',()=>{
+  if(!b.classList.contains('armed')){b.classList.add('armed');b.textContent='แตะอีกครั้งเพื่อล้าง';clearTimeout(t);t=setTimeout(()=>{b.classList.remove('armed');b.textContent=label;},3000);return;}
+  noSave=true;try{localStorage.removeItem(STKEY);}catch(e){}
+  location.replace(location.pathname);});});
+function saveState(){if(noSave)return;try{
   const tab=(document.querySelector('#tabs [aria-selected=true]')||{}).dataset?.t||'t1';
   localStorage.setItem(STKEY,JSON.stringify({ts:Date.now(),tab,y:scrollY,sat:$('t2Sat').open,maps:awaitingMaps,
     v:Object.fromEntries(['s_bill','s_total','s_w','s_l','coords','s2Sb'].map(id=>[id,$(id).value])),old:$('s_old').checked,
