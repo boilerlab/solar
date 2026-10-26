@@ -1499,11 +1499,12 @@ $('s2Wt').addEventListener('input',()=>{$('panelW').value=$('s2Wt').value;$('pan
 $('s2Sb').addEventListener('input',()=>{const v=parseFloat($('s2Sb').value);S2.sb=isFinite(v)?v:undefined;renderFit();});
 ['s_w','s_l','s_old'].forEach(id=>$(id).addEventListener('input',()=>{if(id!=='s_old')S2.lyN=0;renderFit();}));
 function renderFit(){
-  const W=parseFloat($('s_w').value)||0,L=parseFloat($('s_l').value)||0,wh=S2.where,pW=parseFloat($('panelW').value)||600,roofy=wh==='roof'||wh==='garage';
+  // W × LT is the whole roof outline; a ridged roof (gable, hip, butterfly) is split into two sides of W × LT/2
+  const W=parseFloat($('s_w').value)||0,LT=parseFloat($('s_l').value)||0,wh=S2.where,twoSide=(wh==='roof'||wh==='garage')&&!!(roofTypes().find(r=>r.id===(S2.roof||'gable'))||{}).two,L=twoSide?LT/2:LT,pW=parseFloat($('panelW').value)||600,roofy=wh==='roof'||wh==='garage';
   renderPick();const P=S2.lay?presetOf(S2.lay):null;
-  const need=P?P.n:Math.ceil(S1.size*1000/pW),min5=Math.ceil(5000/pW),F=fitLayout(W,L,wh),dims=W>0&&L>0,lyN=dims?0:(S2.lyN||0),n=dims?(P&&P.sides===2?2*F.count:F.count):lyN,SF=P&&dims?fitShape(W,L,wh,P):null,needSide=P&&P.sides===2?Math.ceil(need/2):need,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
+  const need=P?P.n:Math.ceil(S1.size*1000/pW),min5=Math.ceil(5000/pW),F=fitLayout(W,L,wh),dims=W>0&&L>0,lyN=dims?0:(S2.lyN||0),n=dims?(twoSide&&!(P&&P.sides===1)?2*F.count:F.count):lyN,SF=P&&dims?fitShape(W,L,wh,P):null,needSide=(P&&P.sides===2)||(twoSide&&!P)?Math.ceil(need/2):need,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
   $('q_mat').hidden=!roofy;$('q_dir').hidden=!roofy;
-  $('s_dimHint').textContent=roofy?'วัดหลังคาด้านที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
+  $('s_dimHint').textContent=twoSide?`กรอบหลังคาทั้งหมด: ยาวตามแนวชายคา × กว้างรวมสองฝั่ง · แอปแบ่งครึ่ง${LT>0&&W>0?` เป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม.`:''}`:roofy?'กรอบหลังคาที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
   $('s2Need').textContent=`ติด ${fmt(S1.size,1)} kW ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
   glowTab('t3',dims||lyN>0);$('s2Next').hidden=!(dims||lyN>0);
   [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
@@ -1513,16 +1514,16 @@ function renderFit(){
   let v,c,line;const notes=[];
   if(roofy&&S2.mat==='poly'){v='ไม่แนะนำ';c='v-bad';line='หลังคาโพลีคาร์บอเนตหรือไวนิลรับน้ำหนักแผงไม่ได้ ต้องทำโครงใหม่';}
   else if(S2.shade==='heavy'){v='ไม่แนะนำ';c='v-bad';line='เงาบังทั้งวัน แผงจะผลิตไฟได้น้อยมาก ถ้าตัดแต่งต้นไม้ได้ค่อยพิจารณา';}
-  else if(SF&&!SF.ok){v='พื้นที่ไม่พอ';c='v-bad';line=`แบบ <b>${P.label}</b> ต้องใช้หลังคา${P.sides===2?'ฝั่งละ':''}อย่างน้อย<br>${fmt(SF.needW,1)} × ${fmt(SF.needL,1)} ม. (รวมระยะเว้นขอบ)`;}
+  else if(SF&&!SF.ok){v='พื้นที่ไม่พอ';c='v-bad';line=twoSide?`แบบ <b>${P.label}</b> ต้องใช้หลังคาฝั่งละอย่างน้อย ${fmt(SF.needW,1)} × ${fmt(SF.needL,1)} ม.<br>กรอบทั้งหมดอย่างน้อย ${fmt(SF.needW,1)} × ${fmt(SF.needL*2,1)} ม. (รวมระยะเว้นขอบ)`:`แบบ <b>${P.label}</b> ต้องใช้พื้นที่อย่างน้อย<br>${fmt(SF.needW,1)} × ${fmt(SF.needL,1)} ม. (รวมระยะเว้นขอบ)`;}
   else if(n<need&&(P||n<min5)){v='พื้นที่ไม่พอ';c='v-bad';line=`วางได้ ${n} แผง ต้องใช้ ${need} แผง${P&&P.sides===2?' (สองฝั่ง)':''}<br>ใช้พื้นที่ราว ${aNeed(need)} ตร.ม.`;}
   else{const cond=wh!=='roof'||S2.mat==='tile'||$('s_old').checked||S2.shade==='some'||(roofy&&S2.dir==='n');
-    if(n<need){v='พอแค่ 5 kW';c='v-mid';line=`ติด ${fmt(S1.size,1)} kW ไม่พอ<br>วางได้สูงสุด ${n} แผง (${fmt(n*pW/1000,1)} kW)`;}
-    else{v=cond?'พอ ต้องเช็คก่อน':'พื้นที่พอ';c=cond?'v-mid':'v-good';line=SF?`วางแบบ <b>${P.label}</b> ได้ (${need} แผง ${fmt(need*pW/1000,1)} kW)<br>หลังคา${P.sides===2?'ฝั่งละ':''} ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุด ${F.count} แผง${P.sides===2?'ต่อฝั่ง':''}`:`วางได้ <b>${n} แผง</b> (${fmt(n*pW/1000,1)} kW)<br>ใช้จริง ${need} แผง`;}}
+    if(n<need){v=`พอแค่ ${fmt(n*pW/1000,1)} kW`;c='v-mid';line=`ติด ${fmt(S1.size,1)} kW ไม่พอ<br>วางได้สูงสุด ${n} แผง (${fmt(n*pW/1000,1)} kW)`;}
+    else{v=cond?'พอ ต้องเช็คก่อน':'พื้นที่พอ';c=cond?'v-mid':'v-good';line=SF?`วางแบบ <b>${P.label}</b> ได้ (${need} แผง ${fmt(need*pW/1000,1)} kW)<br>${twoSide?`แบ่งหลังคาเป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุดฝั่งละ ${F.count} แผง`:`พื้นที่ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุด ${F.count} แผง`}`:`วางได้ <b>${n} แผง</b>${twoSide?' (สองฝั่งรวมกัน)':''} (${fmt(n*pW/1000,1)} kW)<br>ใช้จริง ${need} แผง`;}}
   if(wh==='roof'){if(S2.mat==='metal')notes.push('เมทัลชีทติดง่ายที่สุด ใช้ขายึดแบบหนีบลอน ไม่ต้องเจาะหลังคา');if(S2.mat==='tile')notes.push('กระเบื้องแตกง่าย ต้องใช้ขายึดแบบตะขอและช่างที่ชำนาญ ถ้าทำไม่ดีหลังคาจะรั่ว');if(S2.mat==='concrete')notes.push('ดาดฟ้าคอนกรีตใช้โครงตั้งเอียง ไม่ต้องเจาะ ต้องเว้นระยะไม่ให้แถวบังกันเอง');}
   if(wh==='garage')notes.push('หลังคาโรงรถส่วนมากโครงเบา ต้องให้ช่างหรือวิศวกรเช็คว่ารับน้ำหนักเพิ่มราว 15 กก./ตร.ม. ได้');
   if(wh==='ground')notes.push('ต้องทำฐานและโครงเหล็ก ล้อมรั้วกันคนและสัตว์ ยกให้พ้นระดับน้ำท่วม และเดินสายถึงมิเตอร์ ค่าติดตั้งมักสูงกว่าบนหลังคา');
   if(wh==='float')notes.push('ใช้ทุ่นลอยน้ำเฉพาะ บ่อต้องมีน้ำตลอดปี ค่าใช้จ่ายสูงกว่า ข่าวบอกว่าโครงการรองรับแต่ยังรอรายละเอียด');
-  if(P&&P.sides===2)notes.unshift(`แบบสองฝั่ง: ช่องขนาดพื้นที่คือหลังคาฝั่งเดียว แอปคิดว่าอีกฝั่งขนาดเท่ากัน ฝั่งละ ${needSide} แผง · ${S2.dir==='ew'?'ตะวันออกกับตะวันตกผลิตไฟใกล้เคียงกัน ได้ไฟทั้งเช้าและบ่าย':'ฝั่งที่หันทิศเหนือผลิตไฟได้น้อยลงราว 15–20% ถ้าพื้นที่ฝั่งใต้พอ ใช้แบบ 2 แถวดีกว่า'}`);
+  if(P&&P.sides===2)notes.unshift(`แบบสองฝั่ง: แอปแบ่งกรอบหลังคาครึ่งหนึ่งต่อฝั่ง ฝั่งละ ${needSide} แผง · ${S2.dir==='ew'?'ตะวันออกกับตะวันตกผลิตไฟใกล้เคียงกัน ได้ไฟทั้งเช้าและบ่าย':'ฝั่งที่หันทิศเหนือผลิตไฟได้น้อยลงราว 15–20% ถ้าพื้นที่ฝั่งใต้พอ ใช้แบบ 2 แถวดีกว่า'}`);
   if(!roofy&&n)notes.push(`วางแผงเอียง ${FIT[wh].tilt}° เป็นโต๊ะละ ${F.k} แผงซ้อน เว้นระยะ ${fmt(FIT[wh].gy,1)} ม. ระหว่างแถวกันเงาบังกัน และเว้นขอบ ${fmt(S2.sb>=0?S2.sb:FIT[wh].sb,1)} ม. ไว้เดินดูแล จึงใช้พื้นที่มากกว่าบนหลังคา`);
   if(roofy&&S2.dir==='n')notes.push('ด้านทิศเหนือผลิตไฟได้น้อยลงราว 15–20% ถ้ามีด้านอื่นให้เลือกด้านใต้ ตะวันออก หรือตะวันตก');
   if(roofy&&S2.dir==='ew')notes.push('ทิศตะวันออกหรือตะวันตกผลิตไฟน้อยกว่าทิศใต้ราว 5–10% ยังใช้ได้ดี ทิศตะวันตกช่วยช่วงบ่ายที่เปิดแอร์');
@@ -1540,7 +1541,7 @@ function renderFit(){
     for(let r=0;r<F.rows;r++)for(let k=0;k<F.cols;k++)ord.push([r,k]);
     ord.sort((A,B)=>Math.abs(A[0]-(F.rows-1)/2)-Math.abs(B[0]-(F.rows-1)/2)||Math.abs(A[1]-(F.cols-1)/2)-Math.abs(B[1]-(F.cols-1)/2));
     ord.forEach(([r,k],i)=>{const on=i<needSide;g+=`<rect x="${(sx+k*F.px*S).toFixed(1)}" y="${(sy+rowY(r)*S).toFixed(1)}" width="${(F.a*S).toFixed(1)}" height="${(F.bh*S).toFixed(1)}" style="fill:${on?'var(--pv)':'none'};stroke:${on?'#fff':'var(--grid)'};stroke-width:1${on?'':';stroke-dasharray:3 2'}"/>`;});}
-  g+=`<text x="160" y="205" text-anchor="middle" style="fill:var(--muted);font-size:12px;font-family:var(--f-num)">${fmt(W,1)} × ${fmt(L,1)} ม. · ${SF&&SF.ok?(P.sides===2?`ภาพนี้ฝั่งเดียว ${P.cols} แผง (อีกฝั่งเท่ากัน)`:`แบบ ${P.label}`):`สีน้ำเงิน = แผงที่ใช้ ${Math.min(needSide,F.count)} แผง${P&&P.sides===2?' ต่อฝั่ง':''}`}</text>`;
+  g+=`<text x="160" y="205" text-anchor="middle" style="fill:var(--muted);font-size:12px;font-family:var(--f-num)">${twoSide?'ฝั่งเดียว ':''}${fmt(W,1)} × ${fmt(L,1)} ม. · ${SF&&SF.ok?(P.sides===2?`ภาพนี้ฝั่งเดียว ${P.cols} แผง (อีกฝั่งเท่ากัน)`:`แบบ ${P.label}`):`สีน้ำเงิน = แผงที่ใช้ ${Math.min(needSide,F.count)} แผง${P&&P.sides===2?' ต่อฝั่ง':''}`}</text>`;
   svg.innerHTML=g;
 }
 // ---- question 3: who to install with — compare up to three quotes ----
