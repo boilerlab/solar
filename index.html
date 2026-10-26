@@ -654,6 +654,15 @@ a.btn{text-decoration:none;display:inline-block}
           <span id="dropText"><span class="big">วางภาพหลังคาที่นี่</span><br>แคปหน้าจอภาพดาวเทียมแล้วกด Ctrl+V ลากไฟล์ภาพมาวาง หรือคลิกเพื่อเลือกไฟล์ ใช้ภาพโดรนหรือภาพถ่ายที่ลูกค้าส่งมาก็ได้</span>
         </label>
         <div class="layout" id="layoutWrap" hidden>
+          <p class="lyhint" id="lyHint"></p>
+          <div class="canvaswrap"><canvas id="lyCanvas" aria-label="ภาพหลังคาสำหรับวางผังแผง"></canvas></div>
+          <div class="lytools" id="placeTools" hidden>
+            <button class="btn sm solid" type="button" id="lyRot">หมุน 90° (R)</button>
+            <button class="btn sm" type="button" id="lyAngM">− 5°</button>
+            <span class="note" id="lyAngTxt">เอียง 0°</span>
+            <button class="btn sm" type="button" id="lyAngP">+ 5°</button>
+            <label class="note"><input type="checkbox" id="lySnap" checked> เกาะแผงข้างเคียง</label>
+          </div>
           <div class="lytools">
             <div class="seg3" id="lyMode">
               <button type="button" data-m="scale" aria-pressed="true">1 วัดสเกล</button>
@@ -677,15 +686,6 @@ a.btn{text-decoration:none;display:inline-block}
             <button class="btn sm" type="button" id="zIn">ซูมเข้า</button>
             <button class="btn sm" type="button" id="zOut">ซูมออก</button>
           </div>
-          <div class="lytools" id="placeTools" hidden>
-            <button class="btn sm solid" type="button" id="lyRot">หมุน 90° (R)</button>
-            <button class="btn sm" type="button" id="lyAngM">− 5°</button>
-            <span class="note" id="lyAngTxt">เอียง 0°</span>
-            <button class="btn sm" type="button" id="lyAngP">+ 5°</button>
-            <label class="note"><input type="checkbox" id="lySnap" checked> เกาะแผงข้างเคียง</label>
-          </div>
-          <p class="lyhint" id="lyHint"></p>
-          <div class="canvaswrap"><canvas id="lyCanvas" aria-label="ภาพหลังคาสำหรับวางผังแผง"></canvas></div>
           <div class="lyparams">
             <div class="field"><label for="lyMeters">ความยาวจริงของเส้นวัด</label><div class="inrow"><input type="number" id="lyMeters" placeholder="เช่น 10" min="0" step="0.1"><span class="unit">ม.</span></div></div>
             <div class="field"><label for="lyPL">แผงยาว</label><div class="inrow"><input type="number" id="lyPL" value="2.38" step="0.01"><span class="unit">ม.</span></div></div>
@@ -1073,13 +1073,15 @@ $('lyReplace').addEventListener('click',()=>$('roofFile').click());
 // ---- manual placement: ghost panel follows the cursor, snaps to neighbours, aligns to the eave of the roof under it ----
 function pDims(){const sc=lyScale();if(!sc)return null;const cp=Math.cos(Math.min(60,Math.max(0,lyNum('lyPitch',15)))*Math.PI/180)||1;
   const port=($('lyOrient').value==='p')!==(LY.pRot===90),pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),du=port?pw:pl,dv=port?pl:pw,g=0.02;
-  return{w:du/sc,h:dv*cp/sc,gw:(du+g)/sc,gh:(dv+g)*cp/sc};}
+  const k=1.05;// drawn 5% larger than the measured size (user request: panels looked too small on the photo)
+  return{w:k*du/sc,h:k*dv*cp/sc,gw:k*(du+g)/sc,gh:k*(dv+g)*cp/sc};}
 function corners(c,a,w,h){const ux=Math.cos(a),uy=Math.sin(a),vx=-uy,vy=ux,hw=w/2,hh=h/2;
   return[{x:c.x-ux*hw-vx*hh,y:c.y-uy*hw-vy*hh},{x:c.x+ux*hw-vx*hh,y:c.y+uy*hw-vy*hh},{x:c.x+ux*hw+vx*hh,y:c.y+uy*hw+vy*hh},{x:c.x-ux*hw+vx*hh,y:c.y-uy*hw+vy*hh}];}
 // ---- group mode: the planned number of panels sits on the photo as one block the user drags onto the roof ----
 LY.grp=null;
 function planShape(){const pW=parseFloat($('panelW').value)||620,P=typeof S2==='object'&&S2.lay?presetOf(S2.lay):null;
-  if(P)return{rows:P.rows,cols:P.cols,sides:P.sides,counts:P.counts,countsB:P.countsB};
+  const E=typeof window.EFFP==='object'&&window.EFFP&&P&&window.EFFP.id===P.id?window.EFFP:P;
+  if(E)return{rows:E.rows,cols:E.cols,sides:E.sides,counts:E.counts,countsB:E.countsB};
   const n=typeof S1==='object'?panelsFor(S1.size,pW):8,rows=n<=6?1:n<=12?2:3,base=Math.floor(n/rows),ex=n%rows;
   return{rows,cols:Math.ceil(n/rows),sides:1,counts:[...Array(rows)].map((_,i)=>base+(i<ex?1:0))};}
 function buildGroup(){const d=pDims();if(!d||!LY.img)return;LY.manual=LY.manual.filter(q=>!q.grp);
@@ -1600,6 +1602,8 @@ function renderFit(){
   if(SF&&!SF.ok&&twoSide&&P.sides===1){const c=P.counts,a=c.length===1?[Math.ceil(c[0]/2)]:c.filter((_,i)=>i%2===0),b=c.length===1?[Math.floor(c[0]/2)]:c.filter((_,i)=>i%2===1),
     P2={...P,sides:2,counts:a,countsB:b,rows:Math.max(a.length,b.length),cols:Math.max(...a,...b)},SF2=fitShape(W,L,wh,P2);
     if(SF2.ok){P=P2;SF=SF2;moved=true;n=2*F.count;needSide=Math.max(a.reduce((x,y)=>x+y,0),b.reduce((x,y)=>x+y,0));}}
+  // the satellite step clears width × length; keep the two-side split worked out while they were filled in
+  {const keep=!dims&&P&&twoSide&&window.EFFP&&window.EFFP.id===P.id&&window.EFFP.n===P.n;if(!keep)window.EFFP=P;const E=window.EFFP,k=E?JSON.stringify([E.id,E.counts,E.countsB]):'';if(k!==window.EFFK){window.EFFK=k;if(typeof LY==='object'&&LY.mode==='group'&&LY.grp)setTimeout(()=>{buildGroup();lyResult();},0);}}
   $('q_mat').hidden=!roofy;$('q_dir').hidden=!roofy;
   $('s_dimHint').textContent=twoSide?`กรอบหลังคาทั้งหมด: ยาวตามแนวชายคา × กว้างรวมสองฝั่ง · แอปแบ่งครึ่ง${LT>0&&W>0?` เป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม.`:''}`:roofy?'กรอบหลังคาที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
   $('s2Need').textContent=P?`ติด ${fmt(S1.size,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} = ${need} แผง (${fmt(pW)} W) · วางแบบ ${P.label} ${P.sides===2?P.counts.join('+')+' | '+P.countsB.join('+'):P.counts.join(' + ')}`:`ติด ${fmt(S1.size,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
@@ -1693,6 +1697,8 @@ function renderQuotes(){
  document.querySelector('#t2 .answer .crt').insertAdjacentElement('afterend',document.querySelector('#t2 .sizeq'));
  // the satellite image sits right under the fetch button; its tools follow below
  {const lw=$('layoutWrap');lw.prepend($('lyHint'));lw.prepend(lw.querySelector('.lyresult'));lw.prepend(lw.querySelector('.canvaswrap'));
+  // rotate and the other drawing tools sit right under the photo
+  lw.querySelector('.canvaswrap').after($('placeTools'),$('lyMode').closest('.lytools'),$('satNav'));
   // how-to steps sit under the image, where the user is working
   const st=document.querySelector('#t2Sat .satsteps');lw.after(st);st.insertAdjacentHTML('beforebegin','<p class="satsteps-t">วิธีใช้</p>');}
  // phones have no Ctrl+V or drag-and-drop: the roof-image box opens the photo picker instead
