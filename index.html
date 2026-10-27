@@ -1752,6 +1752,7 @@ function loadVendors(){if(vendorsTried)return;vendorsTried=true;
 const MEA_PROV=['กรุงเทพมหานคร','นนทบุรี','สมุทรปราการ'];
 $('rfqProv').innerHTML='<option value="">— เลือกจังหวัด —</option>'+provSorted.map(([n])=>`<option>${n}</option>`).join('');
 let rfqEdited=false;
+document.addEventListener('click',e=>{const a=e.target.closest('a[href*="peoplesolar.pea.co.th"],a[href*="peoplesolar.mea.or.th"]');if(a&&!a.closest('#rfqVendors'))track('register-'+(a.href.includes('pea')?'pea':'mea'));});
 function rfqRender(force){
   loadVendors();
   const sel=$('rfqProv');
@@ -1789,17 +1790,23 @@ function rfqRender(force){
 }
 $('rfqText').addEventListener('input',()=>{rfqEdited=true;});
 // email the quote request: one shop, or several selected shops in BCC so they do not see each other
+// click counter: Cloudflare Web Analytics counts SPA navigations, so each action is recorded as a short virtual page /solar/go/<action>
+// (pushState then put the real address back; nothing about the user or the shop is sent)
+function track(action){try{const real=location.pathname+location.search+location.hash,base=location.pathname.replace(/[^/]*$/,'');
+  history.pushState(history.state,'',base+'go/'+action);setTimeout(()=>history.replaceState(history.state,'',real),400);}catch(e){}}
 const rfqMail=(to,bcc)=>{const sub='ขอใบเสนอราคาติดโซลาร์ภาคประชาชน',body=$('rfqText').value;
   location.href=`mailto:${to?encodeURIComponent(to):''}?${bcc?`bcc=${encodeURIComponent(bcc)}&`:''}subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;};
-$('rfqVendors').addEventListener('click',e=>{const a=e.target.closest('[data-mail]');if(a){e.preventDefault();rfqMail(VENDORS[+a.dataset.mail].email);return;}
+$('rfqVendors').addEventListener('click',e=>{const a=e.target.closest('[data-mail]');if(a){e.preventDefault();track('email-'+(VENDORS[+a.dataset.mail].src==='M'?'mea':'pea'));setTimeout(()=>rfqMail(VENDORS[+a.dataset.mail].email),450);return;}
+  const t=e.target.closest('a[href^="tel:"]');if(t){track('call');return;}
+  const w=e.target.closest('#rfqVendors a[target=_blank]');if(w){track('vendor-list');return;}
   if(e.target.id==='rfqMore'){vShow+=8;rfqRender(false);return;}
-  if(e.target.id==='rfqMailSel'){const em=[...document.querySelectorAll('.vpick:checked')].map(c=>VENDORS[+c.value].email).filter(Boolean);if(em.length)rfqMail('',em.join(','));}});
+  if(e.target.id==='rfqMailSel'){const em=[...document.querySelectorAll('.vpick:checked')].map(c=>VENDORS[+c.value].email).filter(Boolean);if(em.length){track('email-multi-'+em.length);setTimeout(()=>rfqMail('',em.join(',')),450);}}});
 $('rfqVendors').addEventListener('change',e=>{if(e.target.classList.contains('vpick')){const b=$('rfqMailSel');if(b)b.disabled=!document.querySelector('.vpick:checked');}});
 ['rfqProv','rfqArea','rfqCoords'].forEach(id=>$(id).addEventListener(id==='rfqArea'?'input':'change',()=>{if(id==='rfqProv')vShow=8;rfqRender(true);}));
-$('rfqCopy').addEventListener('click',()=>{const t=$('rfqText').value,b=$('rfqCopy'),ok=()=>{b.textContent='คัดลอกแล้ว ✓';setTimeout(()=>b.textContent='คัดลอกข้อความ',1800);};
+$('rfqCopy').addEventListener('click',()=>{track('copy');const t=$('rfqText').value,b=$('rfqCopy'),ok=()=>{b.textContent='คัดลอกแล้ว ✓';setTimeout(()=>b.textContent='คัดลอกข้อความ',1800);};
   if(navigator.clipboard)navigator.clipboard.writeText(t).then(ok,()=>{$('rfqText').select();document.execCommand('copy');ok();});else{$('rfqText').select();document.execCommand('copy');ok();}});
-$('rfqLine').addEventListener('click',()=>window.open('https://line.me/R/share?text='+encodeURIComponent($('rfqText').value),'_blank','noopener'));
-if(navigator.share){$('rfqShare').hidden=false;$('rfqShare').addEventListener('click',()=>navigator.share({text:$('rfqText').value}).catch(()=>{}));}
+$('rfqLine').addEventListener('click',()=>{track('line');window.open('https://line.me/R/share?text='+encodeURIComponent($('rfqText').value),'_blank','noopener');});
+if(navigator.share){$('rfqShare').hidden=false;$('rfqShare').addEventListener('click',()=>{track('share');navigator.share({text:$('rfqText').value}).catch(()=>{});});}
 document.querySelectorAll('#tabs [data-t="t3"],[data-next="t3"]').forEach(b=>b.addEventListener('click',()=>rfqRender(false)));
 rfqRender(false);
 // ---- question 3: who to install with — compare up to three quotes ----
