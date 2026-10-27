@@ -1530,10 +1530,12 @@ function panelsFor(kw,w){return Math.max(1,Math.floor(kw*1000/w+0.05));}
 function roofTypes(){return [{id:'shed',label:'เพิงหมาแหงน',two:0},{id:'gable',label:'จั่ว',two:1},{id:'hip',label:'ปั้นหยา',two:1},{id:'butterfly',label:'ผีเสื้อ',two:1},{id:'flat',label:'ดาดฟ้า / แบน',two:0}];}
 // names say the shape: "เรียง N" = one row of N, "เรียง N สองฝั่ง" = a row of N on each side of the ridge, "R แถว × N" = R rows of N on one side
 // arrangements only: the panel count comes from the system size (menu 1 or +/- panel), split evenly between rows
+function splitRows(m,rows){const b=Math.floor(m/rows),e=m%rows;return[...Array(rows)].map((_,i)=>b+(i<e?1:0)).filter(x=>x>0);}
+// two choices per roof; the app adds rows by itself when the area is too short for the row (see autoRows in renderFit)
+// only:'two' = ridged roofs only, only:'one' = single-slope / flat areas only
 function layPresets(){const pW=parseFloat($('panelW').value)||620,n=panelsFor(S1.size,pW);
-  const split=(m,rows)=>{const b=Math.floor(m/rows),e=m%rows;return[...Array(rows)].map((_,i)=>b+(i<e?1:0)).filter(x=>x>0);};
-  const mk=(id,label,rows,sides)=>{const a=sides===2?Math.ceil(n/2):n,counts=split(a,rows),countsB=sides===2?split(n-a,rows):[];return{id,label,rows:counts.length,sides,counts,countsB,cols:Math.max(...counts,...countsB),n};};
-  return [mk('r1','เรียงแถวเดียว',1,1),mk('s2','สองฝั่ง',1,2),mk('r2','2 แถว',2,1),mk('r3','3 แถว',3,1)];}
+  const mk=(id,label,rows,sides,only)=>{const a=sides===2?Math.ceil(n/2):n,counts=splitRows(a,rows),countsB=sides===2?splitRows(n-a,rows):[];return{id,label,rows:counts.length,sides,only,counts,countsB,cols:Math.max(...counts,...countsB),n};};
+  return [mk('r1','เรียงแถวเดียว',1,1),mk('s2','สองฝั่ง',1,2,'two'),mk('r2','2 แถว',2,1,'one')];}
 function presetOf(id){return layPresets().find(p=>p.id===id)||null;}
 function roofOf(){const r=S2.where==='roof'||S2.where==='garage'?(S2.roof||'shed'):'ground';return r;}
 // elevation drawing of a house with each roof shape
@@ -1557,10 +1559,10 @@ function laySVG(roof,P){const ln='stroke:#28495a;stroke-width:1.6;fill:none';let
 let pickKey='';
 function renderPick(){const roofy=S2.where==='roof'||S2.where==='garage',roof=roofOf(),two=roofy&&roofTypes().find(r=>r.id===roof).two,pW=parseFloat($('panelW').value)||620;
   $('roofRow').hidden=!roofy;
-  if(S2.lay&&(!presetOf(S2.lay)||(presetOf(S2.lay).sides===2&&!two))){S2.lay=null;}
+  {const q=S2.lay&&presetOf(S2.lay);if(S2.lay&&(!q||(q.only==='two'&&!two)||(q.only==='one'&&two)))S2.lay=null;}
   const key=roof+'|'+two+'|'+panelsFor(S1.size,pW);
   if(!$('roofPick').childElementCount)$('roofPick').innerHTML=roofTypes().map(r=>`<button type="button" class="opt" data-v="${r.id}">${roofSVG(r.id)}<span>${r.label}</span></button>`).join('');
-  if(key!==pickKey){pickKey=key;const sl=$('layPick').scrollLeft;$('layPick').innerHTML=layPresets().filter(p=>p.sides===1||two).map(p=>`<button type="button" class="opt" data-v="${p.id}">${laySVG(roof,p)}<span>${p.label}</span><small></small></button>`).join('');$('layPick').scrollLeft=sl;}
+  if(key!==pickKey){pickKey=key;const sl=$('layPick').scrollLeft;$('layPick').innerHTML=layPresets().filter(p=>p.only==='two'?two:p.only==='one'?!two:true).map(p=>`<button type="button" class="opt" data-v="${p.id}">${laySVG(roof,p)}<span>${p.label}</span><small></small></button>`).join('');$('layPick').scrollLeft=sl;}
   const m5=panelsFor(5,pW);$('layMin').textContent=`ขั้นต่ำที่แนะนำ 5 kW = แผง ${fmt(pW)} W อย่างน้อย ${m5} แผง (${fmt(m5*pW/1000,2)} kW) · ติดน้อยกว่านี้ค่าอินเวอร์เตอร์ ค่าตรวจเชื่อมต่อ และค่าแรงเกือบเท่าเดิม แต่ได้ไฟน้อยลง คุ้มน้อยกว่า`;
   $('roofPick').querySelectorAll('.opt').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===(S2.roof||'shed'))));
   $('layPick').querySelectorAll('.opt').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.v===S2.lay));const pr=presetOf(b.dataset.v),sm=b.querySelector('small');sm.textContent=pr.sides===2?`${pr.counts.join('+')} | ${pr.countsB.join('+')}`:pr.counts.join(' + ');});}
@@ -1600,12 +1602,18 @@ function renderFit(){
   // W × LT is the whole roof outline; a ridged roof (gable, hip, butterfly) is split into two sides of W × LT/2
   const W=parseFloat($('s_w').value)||0,LT=parseFloat($('s_l').value)||0,wh=S2.where,twoSide=(wh==='roof'||wh==='garage')&&!!(roofTypes().find(r=>r.id===(S2.roof||'shed'))||{}).two,L=twoSide?LT/2:LT,pW=parseFloat($('panelW').value)||600,roofy=wh==='roof'||wh==='garage';
   renderPick();let P=S2.lay?presetOf(S2.lay):null;
+  // the chosen layout is the fewest rows; when the area is too short for that row, add rows one at a time until it fits
+  const autoRows=Q=>{if(!Q||!(W>0&&L>0))return Q;const a=Q.sides===2?Math.ceil(Q.n/2):Q.n;
+    for(let rows=Q.rows;rows<=8;rows++){const c=splitRows(a,rows),cb=Q.sides===2?splitRows(Q.n-a,rows):Q.countsB,R={...Q,rows:Math.max(c.length,cb.length),counts:c,countsB:cb,cols:Math.max(...c,...cb)};if(fitShape(W,L,wh,R).ok)return R;}
+    return Q;};
+  P=autoRows(P);
   let need=P?P.n:panelsFor(S1.size,pW),min5=panelsFor(5,pW),F=fitLayout(W,L,wh),dims=W>0&&L>0,lyN=dims?0:(S2.lyN||0),n=dims?(twoSide&&!(P&&P.sides===1)?2*F.count:F.count):lyN,SF=P&&dims?fitShape(W,L,wh,P):null,needSide=(P&&P.sides===2)||(twoSide&&!P)?Math.ceil(need/2):need,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
   // ridged roof: when the chosen rows do not fit on one side, move every other row (or half of a single row) to the opposite side
   let moved=false;
   if(SF&&!SF.ok&&twoSide&&P.sides===1){const c=P.counts,a=c.length===1?[Math.ceil(c[0]/2)]:c.filter((_,i)=>i%2===0),b=c.length===1?[Math.floor(c[0]/2)]:c.filter((_,i)=>i%2===1),
-    P2={...P,sides:2,counts:a,countsB:b,rows:Math.max(a.length,b.length),cols:Math.max(...a,...b)},SF2=fitShape(W,L,wh,P2);
-    if(SF2.ok){P=P2;SF=SF2;moved=true;n=2*F.count;needSide=Math.max(a.reduce((x,y)=>x+y,0),b.reduce((x,y)=>x+y,0));}}
+    P2={...P,sides:2,counts:a,countsB:b,rows:Math.max(a.length,b.length),cols:Math.max(...a,...b)},SF2=fitShape(W,L,wh,autoRows(P2));
+    if(SF2.ok){P=autoRows(P2);SF=SF2;moved=true;n=2*F.count;needSide=Math.max(a.reduce((x,y)=>x+y,0),b.reduce((x,y)=>x+y,0));}}
+  {const sm=$('layPick').querySelector('.opt[aria-pressed="true"] small');if(sm&&P)sm.textContent=P.sides===2?`${P.counts.join('+')} | ${P.countsB.join('+')}`:P.counts.join(' + ');}
   // the satellite step clears width × length; keep the two-side split worked out while they were filled in
   {const keep=!dims&&P&&twoSide&&window.EFFP&&window.EFFP.id===P.id&&window.EFFP.n===P.n;if(!keep)window.EFFP=P;const E=window.EFFP,k=E?JSON.stringify([E.id,E.counts,E.countsB]):'';if(k!==window.EFFK){window.EFFK=k;if(typeof LY==='object'&&LY.mode==='group'&&LY.grp)setTimeout(()=>{buildGroup();lyResult();},0);}}
   $('q_mat').hidden=!roofy;$('q_dir').hidden=!roofy;
