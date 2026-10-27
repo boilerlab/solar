@@ -51,6 +51,7 @@
 .iab .go{background:#f28c18;color:#fff}.iab .cp{background:#fff;color:#28495a}.iab .x{background:transparent;color:#cfe0e8;margin-left:auto;padding:8px 6px}
 .why{margin:10px auto 4px;max-width:380px;text-align:center;font-size:15px;line-height:1.5;color:var(--bad);font-weight:600}.why button{font:inherit;font-weight:700;color:#fff;background:#f28c18;border:0;border-radius:999px;padding:4px 12px;margin-left:4px;cursor:pointer}
 .q.flash{outline:3px solid #f28c18;outline-offset:6px;border-radius:12px;transition:outline-color .3s}
+.regbox{display:grid;gap:8px;margin:8px 0 4px}.regbox .btn{text-align:center;text-decoration:none}a.chip.reg{text-decoration:none}
 :root{color-scheme:light}
 *{box-sizing:border-box}
 body{background-color:var(--bg);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .45 0 0 0 0 .5 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
@@ -133,8 +134,8 @@ th.sel{color:var(--ink);font-weight:600}
 .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
 @media (max-width:1100px){.two{grid-template-columns:minmax(0,1fr)}}
 .checks{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:14px}
-.checks li{display:grid;grid-template-columns:22px 1fr;gap:6px}
-.checks li::before{content:"✓";color:var(--good);font-weight:700}
+.checks li{position:relative;padding-left:28px}
+.checks li::before{content:"✓";color:var(--good);font-weight:700;position:absolute;left:4px;top:0}
 .checks li.alert::before{content:"!";color:var(--warn)}
 .note{font-size:12.5px;color:var(--muted);margin:0}
 .warnbox{background:var(--sun-soft);border-radius:10px;padding:10px 12px;font-size:13.5px}
@@ -379,8 +380,9 @@ a.btn{text-decoration:none;display:inline-block}
       <button type="button" class="chip" data-guide="g5">ขายได้ไม่เกิน <b>5</b> kW (AC) ต่อมิเตอร์ ⓘ</button>
       <span class="chip">สัญญา <b>20</b> ปี (มติ กพช. 18 ก.ย. 69)</span>
       <span class="chip sun">ค่าตรวจเชื่อมต่อ กฟภ. <b>2,140</b> บาท</span>
-      <span class="chip sun">เงินสนับสนุน <b>50,000</b> บาท + กู้ <b>2.5%</b> 7 ปี (ตามข่าว 24 ต.ค. 69 · รอมติ ครม. 26 ต.ค.)</span>
-      <span class="chip sun">เปิดลงทะเบียน <b>27</b> ต.ค. 69 ผ่าน One Stop Service / แอป (ตามข่าว)</span>
+      <span class="chip sun">เงินสนับสนุน <b>50,000</b> บาท/ราย · ติด <b>5–10</b> kW ต่อมิเตอร์ · กู้ <b>2.5%</b> 7 ปี (ตามข่าว 24 ต.ค. 69)</span>
+      <a class="chip sun reg" href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">ลงทะเบียนแล้ว · <b>PEA</b> ต่างจังหวัด ↗</a>
+      <a class="chip sun reg" href="https://peoplesolar.mea.or.th" target="_blank" rel="noopener">ลงทะเบียน · <b>MEA</b> กทม. นนทบุรี สมุทรปราการ ↗</a>
     </div>
   </header>
 
@@ -401,7 +403,7 @@ a.btn{text-decoration:none;display:inline-block}
         <div class="chips" id="s_loan"><button data-v="1">กู้ธนาคารรัฐ (ดอกเบี้ย 2.5%)</button><button data-v="0">จ่ายเงินสด</button></div></div>
       <div class="q"><h4>เงิน 50,000 บาทจากรัฐเป็นแบบไหน</h4>
         <div class="chips" id="s_grant"><button data-v="1">ให้เปล่า (หักจากราคา)</button><button data-v="0">เป็นเงินกู้ (ไม่มีส่วนลด)</button></div>
-        <span class="hint">ข่าวยังเขียนไม่ตรงกัน รอมติ ครม. 26 ต.ค. ลองกดดูผลทั้งสองแบบ</span></div>
+        <span class="hint">เว็บลงทะเบียน PEA / MEA เขียนว่าเป็นเงินสนับสนุนค่าอุปกรณ์และติดตั้ง สูงสุด 50,000 บาทต่อราย (ให้เปล่า) ส่วนที่เกินจ่ายเองหรือกู้</span></div>
       <div class="q"><h4>ขนาดที่จะติด</h4>
         <div class="chips" id="s_size"><button data-v="5">5 kW</button><button data-v="7.5">7.5 kW</button><button data-v="10">10 kW</button></div>
         <span class="hint" id="s_sizeHint">ข่าวบอกติดได้ไม่เกิน 10 kW บ้านส่วนใหญ่ 5 kW ก็พอ</span></div>
@@ -411,7 +413,7 @@ a.btn{text-decoration:none;display:inline-block}
       </details>
     </div>
     <div class="panel answer">
-      <span class="stamp" aria-label="ข้อมูล ณ 25 ต.ค. 69">ข้อมูล<br>ณ 25 ต.ค.<br>69</span>
+      <span class="stamp" aria-label="ข้อมูล ณ 27 ต.ค. 69">ข้อมูล<br>ณ 27 ต.ค.<br>69</span>
       <div class="crt"><div class="verdict-big v-idle" id="sVerdict">--/--</div></div>
       <div class="q billq"><h4>ค่าไฟเดือนละประมาณกี่บาท</h4>
         <div class="inrow big-in"><input type="number" id="s_bill" value="" placeholder="เช่น 1800" min="0" step="100" inputmode="numeric"><span class="unit">บาท/เดือน</span></div>
@@ -424,12 +426,12 @@ a.btn{text-decoration:none;display:inline-block}
       <p class="note" id="sLine2"></p>
       <div class="meter" id="sMeter"><span class="note" id="sMeterTxt"></span><div class="bar"><div class="fill" id="sMeterFill"></div></div></div>
       <ul class="tips" id="sTips"></ul>
-      <p class="note">ประมาณการจากข่าว ณ 25 ต.ค. 69 (เงินสนับสนุน 50,000 บาท · รับซื้อไฟ 2.20 บาท 20 ปี) รอมติ ครม. 26 ต.ค. · เปิดลงทะเบียน 27 ต.ค. · <button type="button" class="linkbtn" data-guide="g1">คิดอย่างไร</button> · <button type="button" class="linkbtn" data-go="adv">ดูตัวเลขละเอียด</button></p>
+      <p class="note">ประมาณการจากเงื่อนไข ณ 27 ต.ค. 69 (เงินสนับสนุน 50,000 บาท · รับซื้อไฟ 2.20 บาท 20 ปี) · เปิดลงทะเบียนแล้ว · <button type="button" class="linkbtn" data-guide="g1">คิดอย่างไร</button> · <button type="button" class="linkbtn" data-go="adv">ดูตัวเลขละเอียด</button></p>
     </div>
   </section>
 
   <section class="tab simple" id="t2" hidden>
-    <div class="pageh"><h2>เช็คว่าพื้นที่พอวางแผงไหม</h2><p>หลังคา โรงรถ พื้นดิน หรือบ่อน้ำ วางแผงได้กี่แผ่น · หน้านี้ไม่ใช่การเช็คสิทธิ์เข้าโครงการ คุณสมบัติผู้มีสิทธิ์ยังรอประกาศ</p></div>
+    <div class="pageh"><h2>เช็คว่าพื้นที่พอวางแผงไหม</h2><p>หลังคา โรงรถ พื้นดิน หรือบ่อน้ำ วางแผงได้กี่แผ่น · หน้านี้ไม่ใช่การเช็คสิทธิ์เข้าโครงการ ดูคุณสมบัติในข้อ 3</p></div>
     <div class="panel qs">
       <div class="q"><h4>จะติดตรงไหน</h4>
         <div class="chips" id="s_where"><button data-v="roof">หลังคาบ้าน</button><button data-v="garage">หลังคาโรงรถ</button><button data-v="ground">พื้นดินว่าง</button><button data-v="float">บ่อน้ำ (ลอยน้ำ)</button></div></div>
@@ -479,10 +481,24 @@ a.btn{text-decoration:none;display:inline-block}
   <section class="tab" id="t3" hidden style="display:grid;gap:24px">
     <div class="two">
       <div class="panel">
-        <h3>ตอนนี้: รอประกาศเรื่องผู้ติดตั้ง</h3>
-        <p class="note" style="font-size:14px">ข่าวรอบก่อนบอกว่าอาจต้องเลือกผู้ติดตั้งจากรายชื่อที่การไฟฟ้ารับรอง (AVL) ข่าวล่าสุดยังไม่ยืนยัน รอประกาศหลัง ครม. ถ้ามีรายชื่อจะใส่ให้เลือกในหน้านี้ ระหว่างนี้ใช้เช็คลิสต์นี้คัดช่าง</p>
+        <h3>ลงทะเบียนและเลือกผู้ติดตั้ง</h3>
+        <div class="regbox">
+          <a class="btn solid" href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">ลงทะเบียน PEA (ต่างจังหวัด) ↗</a>
+          <a class="btn solid" href="https://peoplesolar.mea.or.th" target="_blank" rel="noopener">ลงทะเบียน MEA (กทม. นนทบุรี สมุทรปราการ) ↗</a>
+          <p class="note">ดูบิลค่าไฟว่าเป็น PEA หรือ MEA · ถาม PEA โทร 1129 · MEA โทร 1130 · ลงทะเบียนแล้วยังไม่ใช่ได้สิทธิ์ ต้องรอตรวจคุณสมบัติก่อน</p>
+        </div>
+        <h4 style="margin:14px 0 6px">เงื่อนไขหลัก (จากเว็บ MEA และข่าว 27 ต.ค. 69)</h4>
         <ul class="checks">
-          <li>อยู่ในรายชื่อที่การไฟฟ้ารับรอง (ถ้ามีประกาศ)</li>
+          <li>คนไทย บุคคลธรรมดา มิเตอร์บ้านอยู่อาศัย (ประเภท 1) <b>ชื่อผู้ลงทะเบียนตรงกับชื่อเจ้าของมิเตอร์</b></li>
+          <li>ติด <b>5–10 kW ต่อมิเตอร์</b> ใช้สิทธิ์ได้ครั้งเดียว ถ้าต่อเติมระบบเดิม ส่วนที่เพิ่มต้องอยู่ในช่วงนี้</li>
+          <li>ใบกำกับภาษีค่าอุปกรณ์และติดตั้ง ลงวันที่ <b>27 ต.ค. 69 เป็นต้นไป</b> ซื้อก่อนหน้านั้นใช้ไม่ได้</li>
+          <li class="alert">ใช้คู่กับสิทธิ์ลดหย่อนภาษีค่าติดโซลาร์ (พ.ร.ฎ. 805) ไม่ได้ ต้องเลือกอย่างใดอย่างหนึ่ง</li>
+          <li>ผู้ถือบัตรสวัสดิการแห่งรัฐ สมัครได้ แต่ต้องสละสิทธิ์ส่วนลดค่าไฟจากบัตร 20 ปี</li>
+          <li>ยื่นขอเชื่อมต่อระบบภายใน <b>31 ส.ค. 70</b> และเชื่อมต่อเสร็จภายใน <b>30 ก.ย. 70</b></li>
+        </ul>
+        <h4 style="margin:14px 0 6px">เลือกผู้ติดตั้ง</h4>
+        <ul class="checks">
+          <li class="alert"><b>ต้องเป็นการไฟฟ้า หรือผู้ติดตั้งที่ขึ้นทะเบียนกับการไฟฟ้าเท่านั้น</b> · MEA: <a href="https://peoplesolar.mea.or.th/vendor" target="_blank" rel="noopener">ดูรายชื่อ Vendor List</a> · PEA: ดูในระบบ <a href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">peoplesolar.pea.co.th</a> หรือโทร 1129</li>
           <li>เป็นบริษัทจดทะเบียน มีที่อยู่และหน้าร้านจริง เช็คได้ที่ <a href="https://datawarehouse.dbd.go.th" target="_blank" rel="noopener">กรมพัฒนาธุรกิจการค้า</a></li>
           <li>มีวิศวกรไฟฟ้าเซ็นรับรองแบบ และติดตั้งตามมาตรฐาน วสท.</li>
           <li>รับประกันงานติดตั้งและหลังคารั่วอย่างน้อย 1–2 ปี บอกเวลาเข้าซ่อมเป็นลายลักษณ์อักษร</li>
@@ -608,7 +624,7 @@ a.btn{text-decoration:none;display:inline-block}
       </div>
 
       <div class="group">
-        <span class="group-t">เงินสนับสนุนและสินเชื่อ (ตามข่าว รอมติ ครม.)</span>
+        <span class="group-t">เงินสนับสนุนและสินเชื่อ (เงินสนับสนุนตามเว็บลงทะเบียน · เงื่อนไขกู้ตามข่าว)</span>
         <label class="check"><input type="checkbox" id="useSub" checked> ใช้สิทธิ์เงินสนับสนุนจากรัฐ</label>
         <div class="inrow"><input type="number" id="sub" value="50000" step="1000"><span class="unit">บาทต่อครัวเรือน</span></div>
         <label class="check"><input type="checkbox" id="useLoan" checked> กู้ส่วนที่เหลือจากธนาคารรัฐ (ออมสิน / ธอส. / ธ.ก.ส.)</label>
@@ -1377,7 +1393,7 @@ function render(){
   if(curtM>1)warn.push(`ไฟส่วนเกินราว ${fmt(curtM)} หน่วย/เดือน ขายไม่ได้เพราะเกินเพดาน ${fmt(p.cap)} kW ลองลดขนาดระบบหรือเพิ่มแบตเตอรี่`);
   if(p.kwp>S.kwpSug*1.6&&!hy)warn.push(`ระบบใหญ่กว่าการใช้ไฟกลางวันของบ้านมาก ไฟส่วนใหญ่จะขายที่ ${fmt(p.sell,2)} บาท ซึ่งต่ำกว่าค่าไฟที่ซื้อ ทำให้คืนทุนช้าลง ลองเทียบกับระบบ Hybrid`);
   if(hy&&p.battKwh>S.battSug*1.5)warn.push(`แบต ${fmt(p.battKwh,1)} kWh ใหญ่เกินไฟส่วนเกินที่แผงผลิตได้ แบตจะชาร์จไม่เต็มเกือบทุกวัน ลดเหลือราว ${fmt(S.battSug,1)} kWh หรือเพิ่มขนาดแผง`);
-  if(p.kwp>10)warn.push(`ตามข่าวล่าสุด โครงการให้ติดได้ไม่เกิน 10 kW ตอนนี้ตั้งไว้ ${fmt(p.kwp,1)} kWp`);
+  if(p.kwp>10)warn.push(`โครงการกำหนด 5–10 kW ต่อมิเตอร์ ตอนนี้ตั้งไว้ ${fmt(p.kwp,1)} kWp เกินเพดาน ไม่ได้เงินสนับสนุน`);if(p.useSub&&p.kwp<4.9)warn.push(`โครงการกำหนดขั้นต่ำ 5 kW ตอนนี้ตั้งไว้ ${fmt(p.kwp,1)} kWp ไม่ได้เงินสนับสนุน`);
   $('warn').hidden=!warn.length;$('warn').innerHTML=warn.join('<br>');
 
   drawDay(R.sim);
@@ -1392,7 +1408,7 @@ function render(){
 • การใช้ไฟ: ${fmt(p.kwh)} หน่วย/เดือน (ค่าไฟประมาณ ${fmt(b0.total)} บาท)
 • ระบบเสนอ: ${hy?'Hybrid':'On-grid'} ${fmt(p.kwp,1)} kWp (${panels} แผง)${hy?` + แบตเตอรี่ ${fmt(p.battKwh,1)} kWh`:''}
 • งบลงทุน: ${fmt(R.capex)} บาท (รวมค่าตรวจเชื่อมต่อ ${fmt(p.fee)} บาท)
-${R.sub?`• หักเงินสนับสนุนจากรัฐ: ${fmt(R.sub)} บาท (ตามข่าว รอประกาศทางการ)
+${R.sub?`• หักเงินสนับสนุนจากรัฐ: ${fmt(R.sub)} บาท (สูงสุด 50,000 บาทต่อราย ตามเว็บลงทะเบียน)
 `:''}${R.loan?`• กู้ธนาคารรัฐ: ${fmt(R.loan)} บาท ดอกเบี้ย ${fmt(p.rate*100,1)}% ผ่อน ${p.ly} ปี = ${fmt(R.pay)} บาท/เดือน
 • ต่อเดือน: ค่าไฟลด ${fmt(R.saveY1/12)} + ขายไฟ ${fmt(R.incY1/12)} − ค่างวด ${fmt(R.pay)} = ${R.saveY1/12+R.incY1/12-R.pay>=0?'เหลือ':'ขาด'} ${fmt(Math.abs(R.saveY1/12+R.incY1/12-R.pay))} บาท
 `:''}• ค่าไฟหลังติด: ประมาณ ${fmt(b1.total)} บาท/เดือน (ลด ${fmt(b0.total-b1.total)} บาท)
@@ -1565,7 +1581,7 @@ function renderPick(){const roofy=S2.where==='roof'||S2.where==='garage',roof=ro
   const key=roof+'|'+two+'|'+panelsFor(S1.size,pW);
   if(!$('roofPick').childElementCount)$('roofPick').innerHTML=roofTypes().map(r=>`<button type="button" class="opt" data-v="${r.id}">${roofSVG(r.id)}<span>${r.label}</span></button>`).join('');
   if(key!==pickKey){pickKey=key;const sl=$('layPick').scrollLeft;$('layPick').innerHTML=layPresets().filter(p=>p.only==='two'?two:p.only==='one'?!two:true).map(p=>`<button type="button" class="opt" data-v="${p.id}">${laySVG(roof,p)}<span>${p.label}</span><small></small></button>`).join('');$('layPick').scrollLeft=sl;}
-  const m5=panelsFor(5,pW);$('layMin').textContent=`ขั้นต่ำที่แนะนำ 5 kW = แผง ${fmt(pW)} W อย่างน้อย ${m5} แผง (${fmt(m5*pW/1000,2)} kW) · ติดน้อยกว่านี้ค่าอินเวอร์เตอร์ ค่าตรวจเชื่อมต่อ และค่าแรงเกือบเท่าเดิม แต่ได้ไฟน้อยลง คุ้มน้อยกว่า`;
+  const m5=panelsFor(5,pW);$('layMin').textContent=`เงื่อนไขโครงการ 5–10 kW ต่อมิเตอร์ · แผง ${fmt(pW)} W ${m5} แผง = ${fmt(m5*pW/1000,2)} kW${m5*pW<5000?` ถ้าการไฟฟ้านับขนาดจากแผงอาจไม่ถึง 5 kW ใช้ ${panelsFor(5,pW)+1} แผง (${fmt((panelsFor(5,pW)+1)*pW/1000,2)} kW) จะถึงแน่นอน ถามช่างหรือการไฟฟ้าก่อน`:''}`;
   $('roofPick').querySelectorAll('.opt').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===(S2.roof||'shed'))));
   $('layPick').querySelectorAll('.opt').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.v===S2.lay));const pr=presetOf(b.dataset.v),sm=b.querySelector('small');sm.textContent=pr.sides===2?`${pr.counts.join('+')} | ${pr.countsB.join('+')}`:pr.counts.join(' + ');});}
 // does the chosen arrangement (rows × cols on one side) physically fit W × L? returns the orientation that fits
@@ -1622,7 +1638,7 @@ function renderFit(){
   $('s_dimHint').textContent=twoSide?`กรอบหลังคาทั้งหมด: ยาวตามแนวชายคา × กว้างรวมสองฝั่ง · แอปแบ่งครึ่ง${LT>0&&W>0?` เป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม.`:''}`:roofy?'กรอบหลังคาที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
   $('s2Need').textContent=P?`ติด ${fmt(S1.size,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} = ${need} แผง (${fmt(pW)} W) · วางแบบ ${P.label} ${P.sides===2?P.counts.join('+')+' | '+P.countsB.join('+'):P.counts.join(' + ')}`:`ติด ${fmt(S1.size,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
   $('s2CountTxt').textContent=`${need} แผง · ${fmt(need*pW/1000,2)} kW`;
-  $('s_sizeHint').textContent=S1.custom?`ตอนนี้ใช้ ${fmt(S1.size,2)} kW (${need} แผง) ที่ปรับจำนวนในข้อ 2 · กดขนาดด้านบนเพื่อเปลี่ยน`:`ข่าวบอกติดได้ไม่เกิน 10 kW · ขั้นต่ำที่แนะนำ 5 kW (แผง ${fmt(pW)} W ${min5} แผง) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!S1.custom);
+  $('s_sizeHint').textContent=S1.custom?`ตอนนี้ใช้ ${fmt(S1.size,2)} kW (${need} แผง) ที่ปรับจำนวนในข้อ 2 · กดขนาดด้านบนเพื่อเปลี่ยน`:`โครงการกำหนด 5–10 kW ต่อมิเตอร์ (แผง ${fmt(pW)} W ${min5} แผง ≈ 5 kW) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!S1.custom);
   document.querySelector('#t2 .sizeq').classList.toggle('needfill',!dims&&!lyN);
   glowTab('t3',dims||lyN>0);$('s2Next').hidden=!(dims||lyN>0);
   [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
@@ -1650,7 +1666,7 @@ function renderFit(){
   if(roofy&&S2.dir==='ew')notes.push('ทิศตะวันออกหรือตะวันตกผลิตไฟน้อยกว่าทิศใต้ราว 5–10% ยังใช้ได้ดี ทิศตะวันตกช่วยช่วงบ่ายที่เปิดแอร์');
   if(S2.shade==='some')notes.push('เงาบางช่วงทำให้ผลิตไฟลดลง ให้ช่างวางแผงหลบเงา');
   if($('s_old').checked)notes.push('แผงอยู่ได้ 25 ปี ควรซ่อมหรือเปลี่ยนหลังคาก่อนติด ถ้ารื้อแผงทีหลังจะเสียค่าใช้จ่ายเพิ่ม');
-  {const kw=need*pW/1000;if(kw>10.05)notes.unshift(`ติด ${fmt(kw,2)} kW เกิน 10 kW ที่ข่าวบอกว่าโครงการรับ ต้องเช็คเงื่อนไขก่อน · ไฟส่วนเกินขายเข้าสายได้ไม่เกิน 5 kW ณ เวลาใดๆ ที่เหลือต้องใช้เองในบ้าน แอปคิดตามนี้แล้ว · ระบบขนาดนี้ใช้อินเวอร์เตอร์ราว ${fmt(Math.ceil(kw/1.3),0)}–${fmt(Math.ceil(kw),0)} kW แบ่งแผงเป็นสตริงตามจำนวน MPPT เช่น 3 MPPT = ${splitRows(need,3).join(' / ')} แผง`);if(panelsFor(S1.size,pW)>=panelsFor(MAX_KWP,pW))notes.unshift(`ถึงจำนวนสูงสุดที่แอปให้ตั้ง ${panelsFor(MAX_KWP,pW)} แผง (${fmt(MAX_KWP,1)} kWp) พอสำหรับอินเวอร์เตอร์ 16 kW 3 MPPT`);}
+  {const kw=need*pW/1000;if(kw<4.9)notes.unshift(`ติด ${fmt(kw,2)} kW ต่ำกว่า 5 kW ไม่เข้าเงื่อนไขรับเงินสนับสนุน (โครงการกำหนด 5–10 kW ต่อมิเตอร์)`);if(kw>10.05)notes.unshift(`ติด ${fmt(kw,2)} kW เกินเพดาน 10 kW ต่อมิเตอร์ของโครงการ ไม่เข้าเงื่อนไขรับเงินสนับสนุน · ไฟส่วนเกินขายเข้าสายได้ไม่เกิน 5 kW ณ เวลาใดๆ ที่เหลือต้องใช้เองในบ้าน แอปคิดตามนี้แล้ว · ระบบขนาดนี้ใช้อินเวอร์เตอร์ราว ${fmt(Math.ceil(kw/1.3),0)}–${fmt(Math.ceil(kw),0)} kW แบ่งแผงเป็นสตริงตามจำนวน MPPT เช่น 3 MPPT = ${splitRows(need,3).join(' / ')} แผง`);if(panelsFor(S1.size,pW)>=panelsFor(MAX_KWP,pW))notes.unshift(`ถึงจำนวนสูงสุดที่แอปให้ตั้ง ${panelsFor(MAX_KWP,pW)} แผง (${fmt(MAX_KWP,1)} kWp) พอสำหรับอินเวอร์เตอร์ 16 kW 3 MPPT`);}
   if(lyN)notes.unshift(`นับจากแผงที่วางบนภาพดาวเทียม ${lyN} แผง ดูภาพผังได้ในส่วนดาวเทียมด้านล่าง`);
   if(!notes.length)notes.push('ให้ช่างมาดูหน้างานยืนยันขนาดและโครงสร้างอีกครั้งก่อนเซ็นสัญญา');
   $('s2Verdict').textContent=v;$('s2Verdict').className='verdict-big '+c;fitCrt($('s2Verdict'));$('s2Line').innerHTML=line;
@@ -1692,14 +1708,14 @@ function renderFit(){
   svg.innerHTML=g;
 }
 // ---- question 3: who to install with — compare up to three quotes ----
-const QF=[['name','ชื่อร้าน / บริษัท','text'],['total','ราคารวม (บาท)','number'],['kw','ขนาด (kW)','number'],['panel','แผง (ยี่ห้อ / วัตต์)','text'],['inv','อินเวอร์เตอร์ (ยี่ห้อ)','text'],['invW','ประกันอินเวอร์เตอร์ (ปี)','number'],['workW','ประกันงานติดตั้ง (ปี)','number'],['avl','อยู่ในรายชื่อการไฟฟ้า (AVL)','checkbox']];
+const QF=[['name','ชื่อร้าน / บริษัท','text'],['total','ราคารวม (บาท)','number'],['kw','ขนาด (kW)','number'],['panel','แผง (ยี่ห้อ / วัตต์)','text'],['inv','อินเวอร์เตอร์ (ยี่ห้อ)','text'],['invW','ประกันอินเวอร์เตอร์ (ปี)','number'],['workW','ประกันงานติดตั้ง (ปี)','number'],['avl','อยู่ในรายชื่อที่ขึ้นทะเบียนกับการไฟฟ้า','checkbox']];
 $('qbody').innerHTML=QF.map(([k,l,t])=>`<tr><td>${l}</td>${[1,2,3].map(n=>`<td>${t==='checkbox'?`<input type="checkbox" id="q${n}_${k}" aria-label="${l} เจ้าที่ ${n}">`:`<input type="${t}" id="q${n}_${k}" aria-label="${l} เจ้าที่ ${n}"${k==='kw'?' value="5" step="0.5"':''}${k==='total'?' step="1000" placeholder="เช่น 140000"':''}>`}</td>`).join('')}</tr>`).join('');
 $('qbody').addEventListener('input',()=>renderQuotes());$('qbody').addEventListener('change',()=>renderQuotes());
 function renderQuotes(){
   const p=read();let best=0,bs=-Infinity;
   const out=[1,2,3].map(n=>{const g=k=>$(`q${n}_${k}`),total=parseFloat(g('total').value),kw=parseFloat(g('kw').value)||5;if(!(total>0))return null;
     const R=compute({...p,kwp:kw,price:Math.max(0,(total-p.fee)/kw)},false),[w,c]=verdictOf(R),net=R.benefit/12-R.pay-R.omM,fl=[];
-    if(!g('avl').checked)fl.push('ยังไม่ยืนยันว่าอยู่ใน AVL');if(!(parseFloat(g('invW').value)>=5))fl.push('ประกันอินเวอร์เตอร์ไม่ถึง 5 ปี');if(!(parseFloat(g('workW').value)>=1))fl.push('ไม่ระบุประกันงานติดตั้ง');if(kw>10)fl.push('เกิน 10 kW ตามข่าว');
+    if(!g('avl').checked)fl.push('ยังไม่ยืนยันว่าขึ้นทะเบียนกับการไฟฟ้า (ไม่ได้ขึ้นทะเบียน = ไม่ได้เงินสนับสนุน)');if(!(parseFloat(g('invW').value)>=5))fl.push('ประกันอินเวอร์เตอร์ไม่ถึง 5 ปี');if(!(parseFloat(g('workW').value)>=1))fl.push('ไม่ระบุประกันงานติดตั้ง');if(kw>10)fl.push('เกิน 10 kW ตามข่าว');
     const sc=(R.loan?net:R.benefit/12-R.outlay/120)-fl.length*500;if(sc>bs){bs=sc;best=n;}
     return{n,ppk:total/kw,w,c,net,R,fl};});
   const cell=f=>[1,2,3].map(n=>`<td>${out[n-1]?f(out[n-1]):'<span class="note">–</span>'}</td>`).join('');
