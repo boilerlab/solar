@@ -1743,11 +1743,16 @@ function renderFit(){
 // ---- question 3: ask nearby installers for a quote (no server: the user sends the text themselves) ----
 // VENDORS: snapshot of registered installers (MEA list peoplesolar.mea.or.th/vendor): {name, prov, addr, phone, email, url}
 // the app cannot read the MEA page live, so this list is copied in and dated (VENDORS_AT)
-const VENDORS=[],VENDORS_AT='';
+let VENDORS=[],VENDORS_AT='',vendorsTried=false,vShow=8;
+// vendors.json sits next to the hosted page: {at, src, v:[[id,name,prov,district,phone,email],...]}
+function loadVendors(){if(vendorsTried)return;vendorsTried=true;
+  fetch('vendors.json').then(r=>r.ok?r.json():null).then(d=>{if(!d||!d.v)return;VENDORS=d.v.map(([id,name,prov,dist,phone,email])=>({id,name,prov,dist,phone,email}));
+    const [y,m,dd]=(d.at||'').split('-');VENDORS_AT=y?`${+dd} ${['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][+m]} ${(+y+543)%100}`:'';rfqRender(false);}).catch(()=>{});}
 const MEA_PROV=['กรุงเทพมหานคร','นนทบุรี','สมุทรปราการ'];
 $('rfqProv').innerHTML='<option value="">— เลือกจังหวัด —</option>'+provSorted.map(([n])=>`<option>${n}</option>`).join('');
 let rfqEdited=false;
 function rfqRender(force){
+  loadVendors();
   const sel=$('rfqProv');
   if(!sel.value){const c=parseCoords($('coords').value);if(c){const n=locate(c.la,c.lo).nearest;if(n)sel.value=PROV[n.i][0];}else if($('s_prov').value!=='')sel.value=PROV[+$('s_prov').value][0];}
   const prov=sel.value,pW=parseFloat($('panelW').value)||620,n=panelsFor(S1.size,pW),kw=n*pW/1000,bill=parseFloat($('s_bill').value)||0;
@@ -1772,9 +1777,10 @@ function rfqRender(force){
   if(force||!rfqEdited)$('rfqText').value=lines.join('\n');
   const mea=MEA_PROV.includes(prov),pi=PROV.findIndex(x=>x[0]===prov);
   // registered installers sorted by distance from the chosen province (same province first, then the nearest ones)
-  const near=pi<0?[]:VENDORS.map((v,i)=>{const q=PROV.find(x=>x[0]===v.prov);return{v,i,d:q?km(PROV[pi][1],PROV[pi][2],q[1],q[2]):9999};}).sort((a,b)=>a.d-b.d).slice(0,8);
+  const near=pi<0?[]:VENDORS.map((v,i)=>{const q=PROV.find(x=>x[0]===v.prov);return{v,i,d:q?km(PROV[pi][1],PROV[pi][2],q[1],q[2]):9999};}).sort((a,b)=>a.d-b.d);
+  const total=near.length;near.splice(vShow);
   const esc=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  const vlist=near.length?`<b>ร้านที่ขึ้นทะเบียน ใกล้ จ.${esc(prov)} ที่สุด</b>${VENDORS_AT?` <span class="note">(รายชื่อ ณ ${esc(VENDORS_AT)})</span>`:''}<ul class="vlist">${near.map(({v,i,d})=>`<li><label><input type="checkbox" class="vpick" value="${i}"${v.email?'':' disabled'}> <b>${esc(v.name)}</b></label><br><span class="note">จ.${esc(v.prov)}${d>1?` · ห่างราว ${fmt(Math.round(d/5)*5)} กม.`:' · จังหวัดเดียวกัน'}${v.addr?` · ${esc(v.addr)}`:''}</span><br>${v.email?`<a class="btn sm" href="#" data-mail="${i}">ส่งอีเมล</a> `:''}${v.phone?`<a class="btn sm" href="tel:${esc(v.phone.replace(/[^0-9+]/g,''))}">โทร ${esc(v.phone)}</a> `:''}${v.url?`<a class="btn sm" href="${esc(v.url)}" target="_blank" rel="noopener">เว็บ</a>`:''}</li>`).join('')}</ul>${near.some(x=>x.v.email)?'<button type="button" class="btn solid" id="rfqMailSel" disabled>ส่งอีเมลถึงร้านที่เลือก</button> <span class="note">ร้านจะไม่เห็นอีเมลของกันและกัน (ส่งแบบ BCC)</span>':''}`:'';
+  const vlist=near.length?`<b>ร้านที่ขึ้นทะเบียน ใกล้ จ.${esc(prov)} ที่สุด</b>${VENDORS_AT?` <span class="note">(รายชื่อ ณ ${esc(VENDORS_AT)})</span>`:''}<ul class="vlist">${near.map(({v,i,d})=>`<li><label><input type="checkbox" class="vpick" value="${i}"${v.email?'':' disabled'}> <b>${esc(v.name)}</b></label><br><span class="note">จ.${esc(v.prov)}${d>1?` · ห่างราว ${fmt(Math.round(d/5)*5)} กม.`:' · จังหวัดเดียวกัน'}${v.dist?` · ${esc(v.dist)}`:''}</span><br>${v.email?`<a class="btn sm" href="#" data-mail="${i}">ส่งอีเมล</a> `:''}${v.phone?v.phone.split(',').map(t=>t.trim()).filter(Boolean).slice(0,2).map(t=>`<a class="btn sm" href="tel:${esc(t.replace(/[^0-9+]/g,''))}">โทร ${esc(t)}</a> `).join(''):''}${v.url?`<a class="btn sm" href="${esc(v.url)}" target="_blank" rel="noopener">เว็บ</a>`:''}</li>`).join('')}</ul>${total>near.length?`<button type="button" class="btn sm" id="rfqMore">แสดงเพิ่ม (${fmt(total-near.length)} ร้าน)</button><br><br>`:''}${near.some(x=>x.v.email)?'<button type="button" class="btn solid" id="rfqMailSel" disabled>ส่งอีเมลถึงร้านที่เลือก</button> <span class="note">ร้านจะไม่เห็นอีเมลของกันและกัน (ส่งแบบ BCC)</span>':''}`:'';
   $('rfqVendors').innerHTML=!prov?'<span class="note">เลือกจังหวัดเพื่อดูร้านที่ขึ้นทะเบียนใกล้บ้าน</span>':vlist+
     `<p class="note">${mea?`จ.${prov} อยู่ในพื้นที่ MEA`:`จ.${prov} อยู่ในพื้นที่ PEA`} · ดูรายชื่อทางการและอัปเดตล่าสุดได้ที่ <a href="https://peoplesolar.mea.or.th/vendor" target="_blank" rel="noopener">Vendor List ของ MEA</a> และ <a href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">ระบบของ PEA</a> (หรือโทร 1129) · ส่งข้อความนี้ให้ 2–3 ร้าน แล้วเอาราคาที่ได้มากรอกในตารางเทียบด้านล่าง</p>`;
 }
@@ -1783,9 +1789,10 @@ $('rfqText').addEventListener('input',()=>{rfqEdited=true;});
 const rfqMail=(to,bcc)=>{const sub='ขอใบเสนอราคาติดโซลาร์ภาคประชาชน',body=$('rfqText').value;
   location.href=`mailto:${to?encodeURIComponent(to):''}?${bcc?`bcc=${encodeURIComponent(bcc)}&`:''}subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;};
 $('rfqVendors').addEventListener('click',e=>{const a=e.target.closest('[data-mail]');if(a){e.preventDefault();rfqMail(VENDORS[+a.dataset.mail].email);return;}
+  if(e.target.id==='rfqMore'){vShow+=8;rfqRender(false);return;}
   if(e.target.id==='rfqMailSel'){const em=[...document.querySelectorAll('.vpick:checked')].map(c=>VENDORS[+c.value].email).filter(Boolean);if(em.length)rfqMail('',em.join(','));}});
 $('rfqVendors').addEventListener('change',e=>{if(e.target.classList.contains('vpick')){const b=$('rfqMailSel');if(b)b.disabled=!document.querySelector('.vpick:checked');}});
-['rfqProv','rfqArea','rfqCoords'].forEach(id=>$(id).addEventListener(id==='rfqArea'?'input':'change',()=>rfqRender(true)));
+['rfqProv','rfqArea','rfqCoords'].forEach(id=>$(id).addEventListener(id==='rfqArea'?'input':'change',()=>{if(id==='rfqProv')vShow=8;rfqRender(true);}));
 $('rfqCopy').addEventListener('click',()=>{const t=$('rfqText').value,b=$('rfqCopy'),ok=()=>{b.textContent='คัดลอกแล้ว ✓';setTimeout(()=>b.textContent='คัดลอกข้อความ',1800);};
   if(navigator.clipboard)navigator.clipboard.writeText(t).then(ok,()=>{$('rfqText').select();document.execCommand('copy');ok();});else{$('rfqText').select();document.execCommand('copy');ok();}});
 $('rfqLine').addEventListener('click',()=>window.open('https://line.me/R/share?text='+encodeURIComponent($('rfqText').value),'_blank','noopener'));
