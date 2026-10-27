@@ -58,7 +58,7 @@
 #rfqText{margin-top:8px;line-height:1.5;resize:vertical}
 .rfqchk{display:flex;gap:8px;align-items:center;margin-top:4px}
 .rfqbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.rfqv{margin-top:14px;font-size:14px}.rfqv ul{margin:6px 0 0;padding-left:18px}.rfqv li{margin:4px 0}
+.rfqv{margin-top:14px;font-size:14px}.rfqv .vlist{list-style:none;padding:0}.rfqv .vlist li{padding:10px 0;border-bottom:1px solid var(--grid,#d5e0e5)}.rfqv .vlist .btn{margin-top:6px}.rfqv ul{margin:6px 0 0;padding-left:18px}.rfqv li{margin:4px 0}
 :root{color-scheme:light}
 *{box-sizing:border-box}
 body{background-color:var(--bg);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .45 0 0 0 0 .5 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
@@ -1741,8 +1741,9 @@ function renderFit(){
   svg.innerHTML=g;
 }
 // ---- question 3: ask nearby installers for a quote (no server: the user sends the text themselves) ----
-// VENDORS: registered installers by province name, e.g. {"นนทบุรี":[{name:"…",phone:"…",line:"…",url:"…"}]}; filled in when a list is available
-const VENDORS={};
+// VENDORS: snapshot of registered installers (MEA list peoplesolar.mea.or.th/vendor): {name, prov, addr, phone, email, url}
+// the app cannot read the MEA page live, so this list is copied in and dated (VENDORS_AT)
+const VENDORS=[],VENDORS_AT='';
 const MEA_PROV=['กรุงเทพมหานคร','นนทบุรี','สมุทรปราการ'];
 $('rfqProv').innerHTML='<option value="">— เลือกจังหวัด —</option>'+provSorted.map(([n])=>`<option>${n}</option>`).join('');
 let rfqEdited=false;
@@ -1769,12 +1770,21 @@ function rfqRender(force){
     '4) ถ้าต้องเสริมหลังคาหรือแก้ระบบไฟเดิม ขอแยกรายการและราคา',
     '5) วันที่สะดวกเข้าสำรวจหน้างาน','','ขอบคุณครับ'].filter(x=>x!==null);
   if(force||!rfqEdited)$('rfqText').value=lines.join('\n');
-  const mea=MEA_PROV.includes(prov),list=VENDORS[prov]||[];
-  $('rfqVendors').innerHTML=!prov?'<span class="note">เลือกจังหวัดเพื่อดูว่าจะหาร้านที่ขึ้นทะเบียนได้จากที่ไหน</span>':
-    (list.length?`<b>ร้านที่ขึ้นทะเบียนใน จ.${prov}</b><ul>${list.map(v=>`<li>${v.name}${v.phone?` · <a href="tel:${v.phone}">${v.phone}</a>`:''}${v.line?` · <a href="https://line.me/R/ti/p/${encodeURIComponent(v.line)}" target="_blank" rel="noopener">LINE</a>`:''}${v.url?` · <a href="${v.url}" target="_blank" rel="noopener">เว็บ</a>`:''}</li>`).join('')}</ul>`:'')+
-    `<p class="note">${mea?`จ.${prov} อยู่ในพื้นที่ MEA ดูรายชื่อร้านที่ขึ้นทะเบียนได้ที่ <a href="https://peoplesolar.mea.or.th/vendor" target="_blank" rel="noopener">Vendor List ของ MEA</a>`:`จ.${prov} อยู่ในพื้นที่ PEA ดูรายชื่อร้านที่ขึ้นทะเบียนในระบบ <a href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">peoplesolar.pea.co.th</a> หรือโทร 1129`} · ส่งข้อความนี้ให้ 2–3 ร้าน แล้วเอาราคาที่ได้มากรอกในตารางเทียบด้านล่าง</p>`;
+  const mea=MEA_PROV.includes(prov),pi=PROV.findIndex(x=>x[0]===prov);
+  // registered installers sorted by distance from the chosen province (same province first, then the nearest ones)
+  const near=pi<0?[]:VENDORS.map((v,i)=>{const q=PROV.find(x=>x[0]===v.prov);return{v,i,d:q?km(PROV[pi][1],PROV[pi][2],q[1],q[2]):9999};}).sort((a,b)=>a.d-b.d).slice(0,8);
+  const esc=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const vlist=near.length?`<b>ร้านที่ขึ้นทะเบียน ใกล้ จ.${esc(prov)} ที่สุด</b>${VENDORS_AT?` <span class="note">(รายชื่อ ณ ${esc(VENDORS_AT)})</span>`:''}<ul class="vlist">${near.map(({v,i,d})=>`<li><label><input type="checkbox" class="vpick" value="${i}"${v.email?'':' disabled'}> <b>${esc(v.name)}</b></label><br><span class="note">จ.${esc(v.prov)}${d>1?` · ห่างราว ${fmt(Math.round(d/5)*5)} กม.`:' · จังหวัดเดียวกัน'}${v.addr?` · ${esc(v.addr)}`:''}</span><br>${v.email?`<a class="btn sm" href="#" data-mail="${i}">ส่งอีเมล</a> `:''}${v.phone?`<a class="btn sm" href="tel:${esc(v.phone.replace(/[^0-9+]/g,''))}">โทร ${esc(v.phone)}</a> `:''}${v.url?`<a class="btn sm" href="${esc(v.url)}" target="_blank" rel="noopener">เว็บ</a>`:''}</li>`).join('')}</ul>${near.some(x=>x.v.email)?'<button type="button" class="btn solid" id="rfqMailSel" disabled>ส่งอีเมลถึงร้านที่เลือก</button> <span class="note">ร้านจะไม่เห็นอีเมลของกันและกัน (ส่งแบบ BCC)</span>':''}`:'';
+  $('rfqVendors').innerHTML=!prov?'<span class="note">เลือกจังหวัดเพื่อดูร้านที่ขึ้นทะเบียนใกล้บ้าน</span>':vlist+
+    `<p class="note">${mea?`จ.${prov} อยู่ในพื้นที่ MEA`:`จ.${prov} อยู่ในพื้นที่ PEA`} · ดูรายชื่อทางการและอัปเดตล่าสุดได้ที่ <a href="https://peoplesolar.mea.or.th/vendor" target="_blank" rel="noopener">Vendor List ของ MEA</a> และ <a href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">ระบบของ PEA</a> (หรือโทร 1129) · ส่งข้อความนี้ให้ 2–3 ร้าน แล้วเอาราคาที่ได้มากรอกในตารางเทียบด้านล่าง</p>`;
 }
 $('rfqText').addEventListener('input',()=>{rfqEdited=true;});
+// email the quote request: one shop, or several selected shops in BCC so they do not see each other
+const rfqMail=(to,bcc)=>{const sub='ขอใบเสนอราคาติดโซลาร์ภาคประชาชน',body=$('rfqText').value;
+  location.href=`mailto:${to?encodeURIComponent(to):''}?${bcc?`bcc=${encodeURIComponent(bcc)}&`:''}subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;};
+$('rfqVendors').addEventListener('click',e=>{const a=e.target.closest('[data-mail]');if(a){e.preventDefault();rfqMail(VENDORS[+a.dataset.mail].email);return;}
+  if(e.target.id==='rfqMailSel'){const em=[...document.querySelectorAll('.vpick:checked')].map(c=>VENDORS[+c.value].email).filter(Boolean);if(em.length)rfqMail('',em.join(','));}});
+$('rfqVendors').addEventListener('change',e=>{if(e.target.classList.contains('vpick')){const b=$('rfqMailSel');if(b)b.disabled=!document.querySelector('.vpick:checked');}});
 ['rfqProv','rfqArea','rfqCoords'].forEach(id=>$(id).addEventListener(id==='rfqArea'?'input':'change',()=>rfqRender(true)));
 $('rfqCopy').addEventListener('click',()=>{const t=$('rfqText').value,b=$('rfqCopy'),ok=()=>{b.textContent='คัดลอกแล้ว ✓';setTimeout(()=>b.textContent='คัดลอกข้อความ',1800);};
   if(navigator.clipboard)navigator.clipboard.writeText(t).then(ok,()=>{$('rfqText').select();document.execCommand('copy');ok();});else{$('rfqText').select();document.execCommand('copy');ok();}});
