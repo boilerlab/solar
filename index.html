@@ -1393,7 +1393,7 @@ function render(){
   if(curtM>1)warn.push(`ไฟส่วนเกินราว ${fmt(curtM)} หน่วย/เดือน ขายไม่ได้เพราะเกินเพดาน ${fmt(p.cap)} kW ลองลดขนาดระบบหรือเพิ่มแบตเตอรี่`);
   if(p.kwp>S.kwpSug*1.6&&!hy)warn.push(`ระบบใหญ่กว่าการใช้ไฟกลางวันของบ้านมาก ไฟส่วนใหญ่จะขายที่ ${fmt(p.sell,2)} บาท ซึ่งต่ำกว่าค่าไฟที่ซื้อ ทำให้คืนทุนช้าลง ลองเทียบกับระบบ Hybrid`);
   if(hy&&p.battKwh>S.battSug*1.5)warn.push(`แบต ${fmt(p.battKwh,1)} kWh ใหญ่เกินไฟส่วนเกินที่แผงผลิตได้ แบตจะชาร์จไม่เต็มเกือบทุกวัน ลดเหลือราว ${fmt(S.battSug,1)} kWh หรือเพิ่มขนาดแผง`);
-  if(p.kwp>10)warn.push(`โครงการกำหนด 5–10 kW ต่อมิเตอร์ ตอนนี้ตั้งไว้ ${fmt(p.kwp,1)} kWp เกินเพดาน ไม่ได้เงินสนับสนุน`);if(p.useSub&&p.kwp<4.9)warn.push(`โครงการกำหนดขั้นต่ำ 5 kW ตอนนี้ตั้งไว้ ${fmt(p.kwp,1)} kWp ไม่ได้เงินสนับสนุน`);
+  if(p.kwp>10)warn.push(`โครงการกำหนด 5–10 kW ต่อมิเตอร์ ตอนนี้ตั้งไว้ ${fmt(p.kwp,1)} kWp เกินเพดาน ไม่ได้เงินสนับสนุน`);if(p.useSub&&p.kwp<4.995)warn.push(`โครงการกำหนดขั้นต่ำ 5 kW ตอนนี้ตั้งไว้ ${fmt(p.kwp,1)} kWp ไม่ได้เงินสนับสนุน`);
   $('warn').hidden=!warn.length;$('warn').innerHTML=warn.join('<br>');
 
   drawDay(R.sim);
@@ -1544,7 +1544,8 @@ function renderSimple(){
 const FIT={roof:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},garage:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},ground:{sb:.5,gx:.02,gy:1.2,tilt:15,area:1.9},float:{sb:1,gx:.4,gy:.6,tilt:12,area:2.1}};
 // ---- tab 2 picture pickers: roof shape and panel arrangement ----
 // panels for a size: round to the nearest whole panel without going over the size (5 kW with 620 W = 8 panels, 4.96 kW)
-function panelsFor(kw,w){return Math.max(1,Math.floor(kw*1000/w+0.05));}
+// panels for a size; from 5 kW up, never fall below the scheme's 5 kW minimum (5 kW with 620 W panels = 9 panels, 5.58 kW, not 8 = 4.96)
+function panelsFor(kw,w){let n=Math.max(1,Math.floor(kw*1000/w+0.05));if(kw>=4.999&&n*w<5000)n=Math.ceil(5000/w-1e-9);return n;}
 function roofTypes(){return [{id:'shed',label:'เพิงหมาแหงน',two:0},{id:'gable',label:'จั่ว',two:1},{id:'hip',label:'ปั้นหยา',two:1},{id:'butterfly',label:'ผีเสื้อ',two:1},{id:'flat',label:'ดาดฟ้า / แบน',two:0}];}
 // names say the shape: "เรียง N" = one row of N, "เรียง N สองฝั่ง" = a row of N on each side of the ridge, "R แถว × N" = R rows of N on one side
 // arrangements only: the panel count comes from the system size (menu 1 or +/- panel), split evenly between rows
@@ -1636,7 +1637,7 @@ function renderFit(){
   {const keep=!dims&&P&&twoSide&&window.EFFP&&window.EFFP.id===P.id&&window.EFFP.n===P.n;if(!keep)window.EFFP=P;const E=window.EFFP,k=E?JSON.stringify([E.id,E.counts,E.countsB]):'';if(k!==window.EFFK){window.EFFK=k;if(typeof LY==='object'&&LY.mode==='group'&&LY.grp)setTimeout(()=>{buildGroup();lyResult();},0);}}
   $('q_mat').hidden=!roofy;$('q_dir').hidden=!roofy;
   $('s_dimHint').textContent=twoSide?`กรอบหลังคาทั้งหมด: ยาวตามแนวชายคา × กว้างรวมสองฝั่ง · แอปแบ่งครึ่ง${LT>0&&W>0?` เป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม.`:''}`:roofy?'กรอบหลังคาที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
-  $('s2Need').textContent=P?`ติด ${fmt(S1.size,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} = ${need} แผง (${fmt(pW)} W) · วางแบบ ${P.label} ${P.sides===2?P.counts.join('+')+' | '+P.countsB.join('+'):P.counts.join(' + ')}`:`ติด ${fmt(S1.size,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
+  $('s2Need').textContent=P?`ติด ${fmt(need*pW/1000,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} = ${need} แผง (${fmt(pW)} W) · วางแบบ ${P.label} ${P.sides===2?P.counts.join('+')+' | '+P.countsB.join('+'):P.counts.join(' + ')}`:`ติด ${fmt(need*pW/1000,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
   $('s2CountTxt').textContent=`${need} แผง · ${fmt(need*pW/1000,2)} kW`;
   $('s_sizeHint').textContent=S1.custom?`ตอนนี้ใช้ ${fmt(S1.size,2)} kW (${need} แผง) ที่ปรับจำนวนในข้อ 2 · กดขนาดด้านบนเพื่อเปลี่ยน`:`โครงการกำหนด 5–10 kW ต่อมิเตอร์ (แผง ${fmt(pW)} W ${min5} แผง ≈ 5 kW) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!S1.custom);
   document.querySelector('#t2 .sizeq').classList.toggle('needfill',!dims&&!lyN);
@@ -1666,7 +1667,7 @@ function renderFit(){
   if(roofy&&S2.dir==='ew')notes.push('ทิศตะวันออกหรือตะวันตกผลิตไฟน้อยกว่าทิศใต้ราว 5–10% ยังใช้ได้ดี ทิศตะวันตกช่วยช่วงบ่ายที่เปิดแอร์');
   if(S2.shade==='some')notes.push('เงาบางช่วงทำให้ผลิตไฟลดลง ให้ช่างวางแผงหลบเงา');
   if($('s_old').checked)notes.push('แผงอยู่ได้ 25 ปี ควรซ่อมหรือเปลี่ยนหลังคาก่อนติด ถ้ารื้อแผงทีหลังจะเสียค่าใช้จ่ายเพิ่ม');
-  {const kw=need*pW/1000;if(kw<4.9)notes.unshift(`ติด ${fmt(kw,2)} kW ต่ำกว่า 5 kW ไม่เข้าเงื่อนไขรับเงินสนับสนุน (โครงการกำหนด 5–10 kW ต่อมิเตอร์)`);if(kw>10.05)notes.unshift(`ติด ${fmt(kw,2)} kW เกินเพดาน 10 kW ต่อมิเตอร์ของโครงการ ไม่เข้าเงื่อนไขรับเงินสนับสนุน · ไฟส่วนเกินขายเข้าสายได้ไม่เกิน 5 kW ณ เวลาใดๆ ที่เหลือต้องใช้เองในบ้าน แอปคิดตามนี้แล้ว · ระบบขนาดนี้ใช้อินเวอร์เตอร์ราว ${fmt(Math.ceil(kw/1.3),0)}–${fmt(Math.ceil(kw),0)} kW แบ่งแผงเป็นสตริงตามจำนวน MPPT เช่น 3 MPPT = ${splitRows(need,3).join(' / ')} แผง`);if(panelsFor(S1.size,pW)>=panelsFor(MAX_KWP,pW))notes.unshift(`ถึงจำนวนสูงสุดที่แอปให้ตั้ง ${panelsFor(MAX_KWP,pW)} แผง (${fmt(MAX_KWP,1)} kWp) พอสำหรับอินเวอร์เตอร์ 16 kW 3 MPPT`);}
+  {const kw=need*pW/1000;if(kw<4.995)notes.unshift(`ติด ${fmt(kw,2)} kW ต่ำกว่า 5 kW ไม่เข้าเงื่อนไขรับเงินสนับสนุน (โครงการกำหนด 5–10 kW ต่อมิเตอร์)`);if(kw>10.05)notes.unshift(`ติด ${fmt(kw,2)} kW เกินเพดาน 10 kW ต่อมิเตอร์ของโครงการ ไม่เข้าเงื่อนไขรับเงินสนับสนุน · ไฟส่วนเกินขายเข้าสายได้ไม่เกิน 5 kW ณ เวลาใดๆ ที่เหลือต้องใช้เองในบ้าน แอปคิดตามนี้แล้ว · ระบบขนาดนี้ใช้อินเวอร์เตอร์ราว ${fmt(Math.ceil(kw/1.3),0)}–${fmt(Math.ceil(kw),0)} kW แบ่งแผงเป็นสตริงตามจำนวน MPPT เช่น 3 MPPT = ${splitRows(need,3).join(' / ')} แผง`);if(panelsFor(S1.size,pW)>=panelsFor(MAX_KWP,pW))notes.unshift(`ถึงจำนวนสูงสุดที่แอปให้ตั้ง ${panelsFor(MAX_KWP,pW)} แผง (${fmt(MAX_KWP,1)} kWp) พอสำหรับอินเวอร์เตอร์ 16 kW 3 MPPT`);}
   if(lyN)notes.unshift(`นับจากแผงที่วางบนภาพดาวเทียม ${lyN} แผง ดูภาพผังได้ในส่วนดาวเทียมด้านล่าง`);
   if(!notes.length)notes.push('ให้ช่างมาดูหน้างานยืนยันขนาดและโครงสร้างอีกครั้งก่อนเซ็นสัญญา');
   $('s2Verdict').textContent=v;$('s2Verdict').className='verdict-big '+c;fitCrt($('s2Verdict'));$('s2Line').innerHTML=line;
