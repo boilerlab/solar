@@ -1468,9 +1468,11 @@ $('roofPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!
 $('layPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;S2.lay=S2.lay===b.dataset.v?null:b.dataset.v;simpleSync();});
 $('s_size').addEventListener('click',()=>{S2.lay=null;S1.custom=false;},true);
 $('s_care').addEventListener('change',()=>{S1.care=$('s_care').checked;simpleSync();});
-// +/- one panel: the count becomes the system size (capped at the scheme's 10 kW)
+// +/- one panel: the count becomes the system size
+// cap = panels for a 16 kW, 3-MPPT inverter at DC/AC 1.3 (16 × 1.3 = 20.8 kWp, 33 panels of 620 W); above 10 kW the app warns
+const MAX_KWP=20.8;
 $('s2Count').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const pW=parseFloat($('panelW').value)||620,P=S2.lay?presetOf(S2.lay):null;
-  let cnt=panelsFor(S1.size,pW);cnt=Math.min(panelsFor(10,pW),Math.max(1,cnt+(+b.dataset.d)));
+  let cnt=panelsFor(S1.size,pW);cnt=Math.min(panelsFor(MAX_KWP,pW),Math.max(1,cnt+(+b.dataset.d)));
   if(!S1.custom)S1.baseSize=S1.size;S1.custom=true;S1.size=+(cnt*pW/1000).toFixed(2);simpleSync();});
 function simpleSync(){
   setTimeout(()=>{$('lyTarget').value=S1.size;if(LY.img&&LY.mode==='group'){buildGroup();lyResult();}else if(LY.img&&LY.faces.length)lyCompute();},0);
@@ -1648,6 +1650,7 @@ function renderFit(){
   if(roofy&&S2.dir==='ew')notes.push('ทิศตะวันออกหรือตะวันตกผลิตไฟน้อยกว่าทิศใต้ราว 5–10% ยังใช้ได้ดี ทิศตะวันตกช่วยช่วงบ่ายที่เปิดแอร์');
   if(S2.shade==='some')notes.push('เงาบางช่วงทำให้ผลิตไฟลดลง ให้ช่างวางแผงหลบเงา');
   if($('s_old').checked)notes.push('แผงอยู่ได้ 25 ปี ควรซ่อมหรือเปลี่ยนหลังคาก่อนติด ถ้ารื้อแผงทีหลังจะเสียค่าใช้จ่ายเพิ่ม');
+  {const kw=need*pW/1000;if(kw>10.05)notes.unshift(`ติด ${fmt(kw,2)} kW เกิน 10 kW ที่ข่าวบอกว่าโครงการรับ ต้องเช็คเงื่อนไขก่อน · ไฟส่วนเกินขายเข้าสายได้ไม่เกิน 5 kW ณ เวลาใดๆ ที่เหลือต้องใช้เองในบ้าน แอปคิดตามนี้แล้ว · ระบบขนาดนี้ใช้อินเวอร์เตอร์ราว ${fmt(Math.ceil(kw/1.3),0)}–${fmt(Math.ceil(kw),0)} kW แบ่งแผงเป็นสตริงตามจำนวน MPPT เช่น 3 MPPT = ${splitRows(need,3).join(' / ')} แผง`);if(panelsFor(S1.size,pW)>=panelsFor(MAX_KWP,pW))notes.unshift(`ถึงจำนวนสูงสุดที่แอปให้ตั้ง ${panelsFor(MAX_KWP,pW)} แผง (${fmt(MAX_KWP,1)} kWp) พอสำหรับอินเวอร์เตอร์ 16 kW 3 MPPT`);}
   if(lyN)notes.unshift(`นับจากแผงที่วางบนภาพดาวเทียม ${lyN} แผง ดูภาพผังได้ในส่วนดาวเทียมด้านล่าง`);
   if(!notes.length)notes.push('ให้ช่างมาดูหน้างานยืนยันขนาดและโครงสร้างอีกครั้งก่อนเซ็นสัญญา');
   $('s2Verdict').textContent=v;$('s2Verdict').className='verdict-big '+c;fitCrt($('s2Verdict'));$('s2Line').innerHTML=line;
