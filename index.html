@@ -1118,7 +1118,8 @@ cv.addEventListener('pointerdown',e=>{if(LY.mode!=='group'||!LY.img||!LY.grp)ret
   grpDrag={dx:p.x-LY.grp.c.x,dy:p.y-LY.grp.c.y};try{cv.setPointerCapture(e.pointerId);}catch(_){}});
 cv.addEventListener('pointermove',e=>{if(!grpDrag)return;const p=toImg(e);LY.grp.c={x:p.x-grpDrag.dx,y:p.y-grpDrag.dy};buildGroup();});
 ['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t,()=>{if(grpDrag){grpDrag=null;lyResult();}}));
-['lyRot','lyAngM','lyAngP'].forEach(id=>$(id).addEventListener('click',()=>{if(LY.mode==='group'){buildGroup();lyResult();}}));
+// rebuild after the rotate / angle handlers further down have updated LY.pRot / LY.pAng
+['lyRot','lyAngM','lyAngP'].forEach(id=>$(id).addEventListener('click',()=>setTimeout(()=>{if(LY.mode==='group'){buildGroup();lyResult();}},0)));
 function ghostAt(p){
   const d=pDims();if(!d)return null;let ang=LY.pAng*Math.PI/180,face=-1;
   for(let i=LY.polys.length-1;i>=0;i--){const P=LY.polys[i];if(inPoly(p,P)){ang=Math.atan2(P[1].y-P[0].y,P[1].x-P[0].x)+LY.pAng*Math.PI/180;face=i;break;}}
@@ -1611,7 +1612,10 @@ chipGroup('s_where',S2,'where',()=>renderFit());chipGroup('s_mat',S2,'mat',()=>r
 $('s2Go').append($('s2Maps'),$('s2Maps').nextElementSibling);
 // the satellite section itself sits where the "ดูหลังคาจากดาวเทียม" button was; its heading is the button now
 $('s2Maps').hidden=true;$('s2Maps').nextElementSibling.hidden=true;$('s2Go').append($('t2Sat'));
-$('s2Rot').addEventListener('click',()=>{const pw=lyNum('lyPW',1.13);S2.ori=S2.ori?(S2.ori==='p'?'l':'p'):(S2.curA===pw?'l':'p');renderFit();});
+$('s2Rot').addEventListener('click',()=>{
+  // panels placed from the satellite photo (no width × length typed): rotate the panel block on the photo instead
+  if(!(parseFloat($('s_w').value)>0&&parseFloat($('s_l').value)>0)&&S2.lyN){$('lyRot').click();return;}
+  const pw=lyNum('lyPW',1.13);S2.ori=S2.ori?(S2.ori==='p'?'l':'p'):(S2.curA===pw?'l':'p');renderFit();});
 [['s2PL','lyPL'],['s2PW','lyPW']].forEach(([a,b])=>$(a).addEventListener('input',()=>{$(b).value=$(a).value;$(b).dispatchEvent(new Event('input'));renderFit();}));
 $('s2Wt').addEventListener('input',()=>{$('panelW').value=$('s2Wt').value;$('panelW').dispatchEvent(new Event('input',{bubbles:true}));});
 $('s2Sb').addEventListener('input',()=>{const v=parseFloat($('s2Sb').value);S2.sb=isFinite(v)?v:undefined;renderFit();});
@@ -1643,8 +1647,8 @@ function renderFit(){
   document.querySelector('#t2 .sizeq').classList.toggle('needfill',!dims&&!lyN);
   glowTab('t3',dims||lyN>0);$('s2Next').hidden=!(dims||lyN>0);
   [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
-  $('s2Sb').placeholder=FIT[wh].sb;$('s2Params').hidden=!dims;S2.curA=F.a;
-  $('s2RotTxt').textContent=F.count?(F.a===lyNum('lyPW',1.13)?'แผงแนวตั้ง':'แผงแนวนอน')+(S2.ori?'':' · อัตโนมัติ (วางได้มากสุด)'):'';
+  $('s2Sb').placeholder=FIT[wh].sb;$('s2Params').hidden=!dims&&!lyN;S2.curA=F.a;
+  $('s2RotTxt').textContent=!dims&&lyN?'หมุนกลุ่มแผงบนภาพดาวเทียม':F.count?(F.a===lyNum('lyPW',1.13)?'แผงแนวตั้ง':'แผงแนวนอน')+(S2.ori?'':' · อัตโนมัติ (วางได้มากสุด)'):'';
   {const why=roofy&&S2.mat==='poly'?['หลังคาเป็นโพลีคาร์บอเนต / ไวนิล','q_mat']:S2.shade==='heavy'?['เลือกว่ามีเงาบังเยอะ / ทั้งวัน','q_shade']:null,w=$('s2Why');w.hidden=!why||(!dims&&!lyN);
     if(why)w.innerHTML=`เพราะ${why[0]} <button type="button" data-q="${why[1]}">แก้ตรงนี้</button>`;}
   if(!dims&&!lyN){const e=$('s2Verdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('s2Line').innerHTML='ใส่<b>ขนาดพื้นที่</b>เพื่อดูผล';$('s2Notes').innerHTML='';$('s2Svg').innerHTML='';$('s2Svg').style.display='none';return;}
