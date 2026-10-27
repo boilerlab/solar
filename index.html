@@ -1533,7 +1533,7 @@ function roofTypes(){return [{id:'shed',label:'เพิงหมาแหงน
 function layPresets(){const pW=parseFloat($('panelW').value)||620,n=panelsFor(S1.size,pW);
   const split=(m,rows)=>{const b=Math.floor(m/rows),e=m%rows;return[...Array(rows)].map((_,i)=>b+(i<e?1:0)).filter(x=>x>0);};
   const mk=(id,label,rows,sides)=>{const a=sides===2?Math.ceil(n/2):n,counts=split(a,rows),countsB=sides===2?split(n-a,rows):[];return{id,label,rows:counts.length,sides,counts,countsB,cols:Math.max(...counts,...countsB),n};};
-  return [mk('r1','เรียงแถวเดียว',1,1),mk('r2','2 แถว',2,1),mk('r3','3 แถว',3,1),mk('s2','สองฝั่ง',1,2)];}
+  return [mk('r1','เรียงแถวเดียว',1,1),mk('s2','สองฝั่ง',1,2),mk('r2','2 แถว',2,1),mk('r3','3 แถว',3,1)];}
 function presetOf(id){return layPresets().find(p=>p.id===id)||null;}
 function roofOf(){const r=S2.where==='roof'||S2.where==='garage'?(S2.roof||'shed'):'ground';return r;}
 // elevation drawing of a house with each roof shape
