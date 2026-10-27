@@ -52,6 +52,13 @@
 .why{margin:10px auto 4px;max-width:380px;text-align:center;font-size:15px;line-height:1.5;color:var(--bad);font-weight:600}.why button{font:inherit;font-weight:700;color:#fff;background:#f28c18;border:0;border-radius:999px;padding:4px 12px;margin-left:4px;cursor:pointer}
 .q.flash{outline:3px solid #f28c18;outline-offset:6px;border-radius:12px;transition:outline-color .3s}
 .regbox{display:grid;gap:8px;margin:8px 0 4px}.regbox .btn{text-align:center;text-decoration:none}a.chip.reg{text-decoration:none}
+.rfqgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:10px 0 6px}
+.rfqgrid label{display:grid;gap:4px;font-size:14px;font-weight:600;color:var(--forest)}
+.rfqgrid select,.rfqgrid input,#rfqText{font:inherit;font-size:15px;padding:10px 12px;border:1.5px solid var(--grid,#c9d6dc);border-radius:12px;background:#fff;color:var(--ink,#1d2b33);width:100%;box-sizing:border-box}
+#rfqText{margin-top:8px;line-height:1.5;resize:vertical}
+.rfqchk{display:flex;gap:8px;align-items:center;margin-top:4px}
+.rfqbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.rfqv{margin-top:14px;font-size:14px}.rfqv ul{margin:6px 0 0;padding-left:18px}.rfqv li{margin:4px 0}
 :root{color-scheme:light}
 *{box-sizing:border-box}
 body{background-color:var(--bg);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .45 0 0 0 0 .5 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
@@ -378,7 +385,8 @@ a.btn{text-decoration:none;display:inline-block}
       <button type="button" class="chip" data-guide="g5">ขายได้ไม่เกิน <b>5</b> kW (AC) ต่อมิเตอร์ ⓘ</button>
       <span class="chip">สัญญา <b>20</b> ปี (มติ กพช. 18 ก.ย. 69)</span>
       <span class="chip sun">ค่าตรวจเชื่อมต่อ กฟภ. <b>2,140</b> บาท</span>
-      <span class="chip sun">เงินสนับสนุน <b>50,000</b> บาท/ราย · ติด <b>5–10</b> kW ต่อมิเตอร์ · กู้ <b>2.5%</b> 7 ปี (ตามข่าว 24 ต.ค. 69)</span>
+      <span class="chip sun">เงินสนับสนุน <b>50,000</b> บาท/ราย · ติด <b>5–10</b> kW ต่อมิเตอร์ · กู้ <b>2.5%</b> 7 ปี</span>
+      <span class="chip sun">ราคากลางชุด 5 kW ไม่เกิน <b>140,000</b> บาท รวมดูแล 7 ปี · ลงทะเบียนถึง <b>31 ม.ค. 70</b></span>
       <a class="chip sun reg" href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">ลงทะเบียนแล้ว · <b>PEA</b> ต่างจังหวัด ↗</a>
       <a class="chip sun reg" href="https://peoplesolar.mea.or.th" target="_blank" rel="noopener">ลงทะเบียน · <b>MEA</b> กทม. นนทบุรี สมุทรปราการ ↗</a>
     </div>
@@ -401,7 +409,7 @@ a.btn{text-decoration:none;display:inline-block}
         <div class="chips" id="s_loan"><button data-v="1">กู้ธนาคารรัฐ (ดอกเบี้ย 2.5%)</button><button data-v="0">จ่ายเงินสด</button></div></div>
       <div class="q"><h4>เงิน 50,000 บาทจากรัฐเป็นแบบไหน</h4>
         <div class="chips" id="s_grant"><button data-v="1">ให้เปล่า (หักจากราคา)</button><button data-v="0">เป็นเงินกู้ (ไม่มีส่วนลด)</button></div>
-        <span class="hint">เว็บลงทะเบียน PEA / MEA เขียนว่าเป็นเงินสนับสนุนค่าอุปกรณ์และติดตั้ง สูงสุด 50,000 บาทต่อราย (ให้เปล่า) ส่วนที่เกินจ่ายเองหรือกู้</span></div>
+        <span class="hint">เงินสนับสนุนสูงสุด 50,000 บาทต่อราย (ให้เปล่า) · <b>จ่ายสด:</b> จ่ายร้านเต็มก่อน แล้วรัฐโอน 50,000 เข้าพร้อมเพย์ · <b>กู้:</b> ธนาคารจ่ายร้าน 50,000 เข้าธนาคารตรง ผ่อนแค่ส่วนที่เหลือผ่านบิลค่าไฟ ไม่เช็คเครดิตบูโร</span></div>
       <div class="q"><h4>ขนาดที่จะติด</h4>
         <div class="chips" id="s_size"><button data-v="5">5 kW</button><button data-v="7.5">7.5 kW</button><button data-v="10">10 kW</button></div>
         <span class="hint" id="s_sizeHint">ข่าวบอกติดได้ไม่เกิน 10 kW บ้านส่วนใหญ่ 5 kW ก็พอ</span></div>
@@ -492,7 +500,9 @@ a.btn{text-decoration:none;display:inline-block}
           <li>ใบกำกับภาษีค่าอุปกรณ์และติดตั้ง ลงวันที่ <b>27 ต.ค. 69 เป็นต้นไป</b> ซื้อก่อนหน้านั้นใช้ไม่ได้</li>
           <li class="alert">ใช้คู่กับสิทธิ์ลดหย่อนภาษีค่าติดโซลาร์ (พ.ร.ฎ. 805) ไม่ได้ ต้องเลือกอย่างใดอย่างหนึ่ง</li>
           <li>ผู้ถือบัตรสวัสดิการแห่งรัฐ สมัครได้ แต่ต้องสละสิทธิ์ส่วนลดค่าไฟจากบัตร 20 ปี</li>
-          <li>ยื่นขอเชื่อมต่อระบบภายใน <b>31 ส.ค. 70</b> และเชื่อมต่อเสร็จภายใน <b>30 ก.ย. 70</b></li>
+          <li>ลงทะเบียนได้ถึง <b>31 ม.ค. 70</b> (จัดสิทธิ์ตามลำดับเวลา) · ร้านต้องสำรวจหน้างานภายใน 30 มิ.ย. 70</li>
+          <li>ยื่นขอเชื่อมต่อระบบภายใน <b>31 ส.ค. 70</b> และเชื่อมต่อเสร็จภายใน <b>30 ก.ย. 70</b> · เปลี่ยนมิเตอร์ให้ฟรี</li>
+          <li>ราคากลางชุด 5 kW 1 เฟส (หลังคาซีแพค) <b>ไม่เกิน 140,000 บาท รวม VAT</b> รวมประกันงานติดตั้ง ประกันอัคคีภัย และดูแลล้างแผงปีละครั้ง 7 ปี · ของที่สูงกว่าชุดมาตรฐานต้องแยกรายการให้เราเห็นและยินยอมก่อน</li>
         </ul>
         <h4 style="margin:14px 0 6px">เลือกผู้ติดตั้ง</h4>
         <ul class="checks">
@@ -503,6 +513,7 @@ a.btn{text-decoration:none;display:inline-block}
           <li class="alert"><b>ถ้าร้านปิดกิจการ ใครดูแล?</b> เลือกร้านที่เปิดมาแล้วหลายปี และขอให้ประกันอุปกรณ์ลงชื่อเราตรงกับผู้ผลิตหรือตัวแทนในไทย จะเคลมได้แม้ร้านปิด</li>
           <li>มีผลงานติดตั้งใกล้บ้านให้ไปดูหรือโทรถามเจ้าของได้</li>
           <li>จ่ายเงินตามงวดงาน ไม่จ่ายมัดจำ "จองสิทธิ์"</li>
+          <li class="alert">อย่าเชื่อร้านที่รับปากว่า "ได้เงิน 50,000 แน่นอน" หรือ "กู้ผ่านแน่นอน" การไฟฟ้าและธนาคารเป็นคนพิจารณา ร้านรับรองแทนไม่ได้</li>
           <li class="alert">ขอใบเสนอราคาอย่างน้อย 2–3 เจ้า แล้วกรอกเทียบในตารางด้านล่าง</li>
         </ul>
       </div>
@@ -517,6 +528,17 @@ a.btn{text-decoration:none;display:inline-block}
           <li>ขอสเปก ยี่ห้อ รุ่น และใบรับประกันทุกชิ้นเป็นลายลักษณ์อักษร</li>
         </ul>
       </div>
+    </div>
+    <div class="panel" id="rfq">
+      <div class="row"><h3>ขอใบเสนอราคาจากร้านใกล้บ้าน</h3><span class="note">แอปเขียนข้อความขอราคาจากข้อมูลบ้านในข้อ 1–2 ให้ คุณส่งเองทาง LINE หรือแชทของร้าน แอปไม่ได้ส่งหรือเก็บข้อมูลของคุณ</span></div>
+      <div class="rfqgrid">
+        <label>จังหวัด<select id="rfqProv"></select></label>
+        <label>อำเภอ / ตำบล (ไม่บังคับ)<input type="text" id="rfqArea" placeholder="เช่น อ.เมือง ต.ในเมือง"></label>
+      </div>
+      <label class="note rfqchk"><input type="checkbox" id="rfqCoords"> แนบพิกัดบ้าน (ร้านดูหลังคาจากภาพดาวเทียมก่อนได้)</label>
+      <textarea id="rfqText" rows="13" aria-label="ข้อความขอใบเสนอราคา"></textarea>
+      <div class="rfqbtns"><button type="button" class="btn solid" id="rfqLine">ส่งทาง LINE</button><button type="button" class="btn" id="rfqCopy">คัดลอกข้อความ</button><button type="button" class="btn" id="rfqShare" hidden>แชร์…</button></div>
+      <div id="rfqVendors" class="rfqv"></div>
     </div>
     <div class="panel">
       <div class="row"><h3>เทียบใบเสนอราคา</h3><span class="note">กรอกจากใบเสนอราคาที่ได้ แอปคิดความคุ้มของแต่ละเจ้าให้ ด้วยข้อมูลบ้านจากข้อ 1</span></div>
@@ -602,7 +624,7 @@ a.btn{text-decoration:none;display:inline-block}
         </div>
         <div class="field">
           <label for="price">ราคาติดตั้งต่อ kWp (ระบบ On-grid)</label>
-          <div class="inrow"><input type="number" id="price" value="27000" min="0" step="500"><span class="unit">บาท/kWp</span></div>
+          <div class="inrow"><input type="number" id="price" value="28000" min="0" step="500"><span class="unit">บาท/kWp</span></div>
         </div>
         <div id="battFields" class="group" hidden>
           <span class="group-t">แบตเตอรี่ (Hybrid)</span>
@@ -816,7 +838,7 @@ a.btn{text-decoration:none;display:inline-block}
         <tr><td>กู้ธนาคาร (เงินเหลือต่อเดือนช่วงผ่อน)</td><td>+300 บาทขึ้นไป</td><td>−200 ถึง +300</td><td>ขาดเกิน 200 บาท</td></tr>
         <tr><td>จ่ายเงินสด (คืนทุนใน)</td><td>ไม่เกิน 6 ปี</td><td>6–9 ปี</td><td>เกิน 9 ปี</td></tr>
       </tbody></table>
-      <p>ยอด "รวม 20 ปี" คิดทีละปี หักแผงเสื่อมปีละ 0.5% ค่าดูแลปีละ 1,000 บาท และเปลี่ยนอินเวอร์เตอร์ 25,000 บาทในปีที่ 12 ไม่ได้คิดค่าไฟขึ้น ถ้าค่าไฟขึ้นจะคุ้มกว่าที่แอปบอก</p>
+      <p>ยอด "รวม 20 ปี" คิดทีละปี หักแผงเสื่อมปีละ 0.5% ค่าดูแลปีละ 1,000 บาทตั้งแต่ปีที่ 8 (7 ปีแรกรวมในราคากลาง 140,000 แล้ว) และเปลี่ยนอินเวอร์เตอร์ 25,000 บาทในปีที่ 12 ไม่ได้คิดค่าไฟขึ้น ถ้าค่าไฟขึ้นจะคุ้มกว่าที่แอปบอก</p>
       <p class="note">เกณฑ์คุ้ม/พอไหวเป็นเกณฑ์ของแอป ไม่ใช่มาตรฐานทางการ ตัวเลขทุกตัวเปิดดูได้ที่เมนู 4</p>
     </div></details>
     <details id="g5"><summary>"ขายได้ไม่เกิน 5 kW" หมายความว่าอะไร ต่อวันหรือเปล่า</summary><div class="gbody">
@@ -1238,6 +1260,8 @@ function simulate(p,kwp,usable,degFactor){
   return out;
 }
 
+// standard package (MEA/PEA, 27 Oct 2026): 5 kW 1-phase ≤ 140,000 baht incl. VAT, includes yearly maintenance and panel cleaning for 7 years
+const OM_FREE=7,STD_SET=140000;
 function compute(p,hybrid){
   // careful mode: 10% less sunshine yield, only 80% of surplus actually sold, inverter fails in year 5 (still paying the loan) and again in year 15
   const care=!!window.CAREFUL;if(care)p={...p,yield:p.yield*0.9};const sf=care?0.8:1;
@@ -1256,14 +1280,15 @@ function compute(p,hybrid){
     const g=Math.max(0,p.kwh-(s.self+s.dis)*m);
     const save=(bill(p.kwh,p).total-bill(g,p).total)*12*Math.pow(1+p.esc,y-1);
     const inc=y<=p.years?s.exp*m*12*p.sell*sf:0;
-    let cf=save+inc-p.om-((care?(y===5||y===15):y===12)?p.inv:0)-(y<=p.ly?pay*12:0);
+    let cf=save+inc-(y>OM_FREE?p.om:0)-((care?(y===5||y===15):y===12)?p.inv:0)-(y<=p.ly?pay*12:0);
     if(hybrid&&y===Math.round(p.battLife)&&y<N)cf-=p.battKwh*p.battPrice*p.repl;
     const prev=cum;cum+=cf;cums.push(cum);
     if(payback===null&&cum>=0&&cf>0)payback=(y-1)+(-prev/cf);
     if(y===p.years)netAtTerm=cum;
   }
   const saveY1=(b0.total-b1.total)*12,incY1=expM*12*p.sell*sf;
-  return {omM:p.om/12,care,sim,offsetM,expM,gridM,b0,b1,capex,battCost,saveY1,incY1,benefit:saveY1+incY1,payback,cums,netAtTerm,usable,sub,loan,pay,outlay};
+  // omM = maintenance per month while paying the loan (included in the standard price for 7 years); omAfter = afterwards
+  return {omM:p.ly<=OM_FREE?0:p.om/12,omAfter:p.om/12,care,sim,offsetM,expM,gridM,b0,b1,capex,battCost,saveY1,incY1,benefit:saveY1+incY1,payback,cums,netAtTerm,usable,sub,loan,pay,outlay};
 }
 
 function niceStep(max){const raw=max/4||1,p=Math.pow(10,Math.floor(Math.log10(raw)));const n=raw/p;return(n<1.5?1:n<3?2:n<7?5:10)*p;}
@@ -1499,9 +1524,9 @@ function simpleSync(){
   $('day').value=S1.pres;$('useLoan').checked=!!S1.loan;$('useSub').checked=S1.grant!==0;$('kwp').value=S1.size;
   // a total under ~10,000 baht/kW is almost always a typo (e.g. 15,000 for a whole system); keep the market price and say so
   const t=parseFloat($('s_total').value),fee=parseFloat($('fee').value)||0,ppk=t>0?(t-fee)/S1.size:0;S1.priceOk=ppk>=10000;
-  $('price').value=S1.priceOk?Math.round(ppk):27000;
+  $('price').value=S1.priceOk?Math.round(ppk):28000;
   const th=$('s_totalHint');th.className='hint'+(t>0&&!S1.priceOk?' err':'');
-  th.textContent=t>0&&!S1.priceOk?`ราคานี้ต่ำผิดปกติ (${fmt(Math.max(0,ppk))} บาท/kW) แอปจึงยังใช้ราคากลาง 27,000 บาท/kW · กรอกราคารวมทั้งระบบ เช่น 135,000`:'ราคารวมทั้งระบบก่อนหักเงินสนับสนุน เช่น 5 kW ราว 135,000 บาท';
+  th.textContent=t>0&&!S1.priceOk?`ราคานี้ต่ำผิดปกติ (${fmt(Math.max(0,ppk))} บาท/kW) แอปจึงยังใช้ราคากลาง 28,000 บาท/kW (ชุด 5 kW 140,000 บาท) · กรอกราคารวมทั้งระบบ เช่น 140,000`:'ราคารวมทั้งระบบก่อนหักเงินสนับสนุน เช่น 5 kW ราว 135,000 บาท';
   render();}
 chipGroup('s_pres',S1,'pres',simpleSync);chipGroup('s_loan',S1,'loan',simpleSync);chipGroup('s_size',S1,'size',simpleSync);chipGroup('s_grant',S1,'grant',simpleSync);
 $('sPrice').addEventListener('click',e=>{if(!e.target.closest('button'))return;const d=document.querySelector('#t1 details.more');d.open=true;d.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>$('s_total').focus(),400);});
@@ -1523,10 +1548,10 @@ function renderSimple(){
   $('sSys').textContent=`ติดโซลาร์ ${fmt(p.kwp,1)} kW · ${R.loan?'กู้ธนาคารรัฐ':'จ่ายเงินสด'}${R.sub?` · หักเงินสนับสนุน ${fmt(R.sub)} บาท`:' · ไม่มีเงินให้เปล่า'}`;
   $('sPrice').hidden=false;$('sPrice').innerHTML=`คิดจากราคาติดตั้ง ${fmt(p.price)} บาท/kW ${parseFloat($('s_total').value)>0&&S1.priceOk?'(จากราคาที่กรอก)':'(ราคากลาง)'} · <button type="button" class="linkbtn">แก้ได้</button>`;
   $('sVerdict').textContent=w;$('sVerdict').className='verdict-big '+c;fitCrt($('sVerdict'));
-  if(R.loan>0)$('sLine1').innerHTML=net>=0?`ทุกเดือน <b>เหลือ ${fmt(net)} บาท</b><br>หลังจ่ายค่างวด ${fmt(R.pay)} บาท นาน ${p.ly} ปี และค่าดูแล ${fmt(R.omM)} บาท`:`ทุกเดือน <b>ต้องควักเพิ่ม ${fmt(-net)} บาท</b><br>ช่วงผ่อน ${p.ly} ปี ค่างวด ${fmt(R.pay)} + ค่าดูแล ${fmt(R.omM)} บาท`;
+  if(R.loan>0)$('sLine1').innerHTML=net>=0?`ทุกเดือน <b>เหลือ ${fmt(net)} บาท</b><br>หลังจ่ายค่างวด ${fmt(R.pay)} บาท นาน ${p.ly} ปี${R.omM?` และค่าดูแล ${fmt(R.omM)} บาท`:' (ค่าดูแล 7 ปีแรกรวมในราคากลางแล้ว)'}`:`ทุกเดือน <b>ต้องควักเพิ่ม ${fmt(-net)} บาท</b><br>ช่วงผ่อน ${p.ly} ปี ค่างวด ${fmt(R.pay)} + ค่าดูแล ${fmt(R.omM)} บาท`;
   else if(R.outlay<=0)$('sLine1').innerHTML=`ไม่ต้องจ่ายเอง<br><b>เงินสนับสนุนครอบคลุมทั้งหมด</b>`;
-  else $('sLine1').innerHTML=`จ่ายเอง ${fmt(Math.max(0,R.outlay))} บาท<br><b>${R.payback!==null?`คืนทุนใน ${fmt(R.payback,1)} ปี`:'คืนทุนไม่ทันใน 20 ปี'}</b>`;
-  $('sLine2').textContent=`${R.loan?'ผ่อนหมดแล้ว':'หลังคืนทุน'} ได้ประโยชน์เดือนละราว ${fmt(R.benefit/12-R.omM)} บาท (หักค่าดูแลแล้ว) · รวม ${p.years} ปี ${R.netAtTerm>=0?'ได้กำไร':'ขาดทุน'} ${fmt(Math.abs(R.netAtTerm))} บาท`;
+  else $('sLine1').innerHTML=`จ่ายเอง ${fmt(Math.max(0,R.outlay))} บาท${R.sub?` <span style="font-size:.75em;font-weight:500">(ต้องสำรองจ่ายร้านเต็ม ${fmt(R.capex)} ก่อน รัฐโอน ${fmt(R.sub)} เข้าพร้อมเพย์ทีหลัง)</span>`:''}<br><b>${R.payback!==null?`คืนทุนใน ${fmt(R.payback,1)} ปี`:'คืนทุนไม่ทันใน 20 ปี'}</b>`;
+  $('sLine2').textContent=`${R.loan?'ผ่อนหมดแล้ว':'หลังคืนทุน'} ได้ประโยชน์เดือนละราว ${fmt(R.benefit/12-R.omAfter)} บาท (หักค่าดูแลหลังปีที่ 7 แล้ว) · รวม ${p.years} ปี ${R.netAtTerm>=0?'ได้กำไร':'ขาดทุน'} ${fmt(Math.abs(R.netAtTerm))} บาท`;
   const pvM=R.sim.pvDay*365/12,pct=pvM?Math.min(1,R.sim.self*365/12/pvM):0,lab=pct>=.5?'ดีมาก':pct>=.35?'ปานกลาง':'ต่ำ';
   $('sMeterFill').style.width=(pct*100).toFixed(0)+'%';$('sMeterFill').style.background=pct>=.5?'var(--forest)':pct>=.35?'#e08a00':'var(--bad)';
   $('sMeterTxt').textContent=`ใช้ไฟจากแผงเองได้ ${fmt(pct*100)}% (${lab}) · ส่วนที่เหลือขายได้หน่วยละ ${fmt(p.sell,2)} บาท`;
@@ -1712,15 +1737,57 @@ function renderFit(){
   g+=`<text x="160" y="${VH-28}" text-anchor="middle" style="fill:var(--muted);font-size:12px">กรอบ ${fmt(W,1)} × ${fmt(FH,1)} ม.${twoSide?` · เส้นประ = สันหลังคา (ฝั่งละ ${fmt(W,1)} × ${fmt(L,1)})`:''}</text><text x="160" y="${VH-10}" text-anchor="middle" style="fill:${bad||miss?'var(--bad)':'var(--muted)'};font-size:12px;font-weight:600">${cap}</text>`;
   svg.innerHTML=g;
 }
+// ---- question 3: ask nearby installers for a quote (no server: the user sends the text themselves) ----
+// VENDORS: registered installers by province name, e.g. {"นนทบุรี":[{name:"…",phone:"…",line:"…",url:"…"}]}; filled in when a list is available
+const VENDORS={};
+const MEA_PROV=['กรุงเทพมหานคร','นนทบุรี','สมุทรปราการ'];
+$('rfqProv').innerHTML='<option value="">— เลือกจังหวัด —</option>'+provSorted.map(([n])=>`<option>${n}</option>`).join('');
+let rfqEdited=false;
+function rfqRender(force){
+  const sel=$('rfqProv');
+  if(!sel.value){const c=parseCoords($('coords').value);if(c){const n=locate(c.la,c.lo).nearest;if(n)sel.value=PROV[n.i][0];}else if($('s_prov').value!=='')sel.value=PROV[+$('s_prov').value][0];}
+  const prov=sel.value,pW=parseFloat($('panelW').value)||620,n=panelsFor(S1.size,pW),kw=n*pW/1000,bill=parseFloat($('s_bill').value)||0;
+  const roofy=S2.where==='roof'||S2.where==='garage',rt=(roofTypes().find(r=>r.id===(S2.roof||'shed'))||{}).label||'';
+  const where={roof:'หลังคาบ้าน',garage:'หลังคาโรงรถ',ground:'พื้นดินว่าง',float:'บ่อน้ำ (ลอยน้ำ)'}[S2.where]||'';
+  const mat={metal:'เมทัลชีท',tile:'กระเบื้อง',concrete:'ดาดฟ้าคอนกรีต',poly:'โพลีคาร์บอเนต'}[S2.mat]||'';
+  const dir={s:'ใต้',ew:'ตะวันออก/ตะวันตก',n:'เหนือ',flat:'แบนราบ'}[S2.dir]||'';
+  const W=parseFloat($('s_w').value),L=parseFloat($('s_l').value),c=parseCoords($('coords').value);
+  const lines=['สวัสดีครับ ขอใบเสนอราคาติดโซลาร์ โครงการโซลาร์ภาคประชาชน',
+    `• พื้นที่: ${[$('rfqArea').value.trim(),prov?'จ.'+prov:''].filter(Boolean).join(' ')||'(ระบุจังหวัด)'}`,
+    bill?`• ค่าไฟเดือนละประมาณ ${fmt(bill)} บาท`:null,
+    `• ขนาดที่ต้องการ: ${fmt(kw,2)} kW (แผง ${fmt(pW)} W ${n} แผง)`,
+    `• ที่ติดตั้ง: ${where}${roofy?` ทรง${rt} ${mat}`:''}${W>0&&L>0?` ขนาด ${fmt(W,1)} × ${fmt(L,1)} ม.`:''}${roofy&&dir?` หันทิศ${dir}`:''}`,
+    `• การจ่าย: ${S1.loan?'กู้ธนาคารรัฐตามโครงการ':'เงินสด'}`,
+    $('rfqCoords').checked&&c?`• พิกัด: ${c.la.toFixed(5)}, ${c.lo.toFixed(5)}`:null,
+    '','รบกวนระบุในใบเสนอราคา:',
+    '1) ราคาชุดมาตรฐาน 5 kW (ราคากลางไม่เกิน 140,000 บาท รวม VAT) และส่วนเพิ่มแยกรายการ',
+    '2) ยี่ห้อ/รุ่น แผงและอินเวอร์เตอร์ พร้อมระยะประกัน',
+    '3) ยืนยันว่าขึ้นทะเบียนกับการไฟฟ้า และรวมดูแลล้างแผงปีละครั้ง 7 ปี',
+    '4) วันที่สะดวกเข้าสำรวจหน้างาน','','ขอบคุณครับ'].filter(x=>x!==null);
+  if(force||!rfqEdited)$('rfqText').value=lines.join('\n');
+  const mea=MEA_PROV.includes(prov),list=VENDORS[prov]||[];
+  $('rfqVendors').innerHTML=!prov?'<span class="note">เลือกจังหวัดเพื่อดูว่าจะหาร้านที่ขึ้นทะเบียนได้จากที่ไหน</span>':
+    (list.length?`<b>ร้านที่ขึ้นทะเบียนใน จ.${prov}</b><ul>${list.map(v=>`<li>${v.name}${v.phone?` · <a href="tel:${v.phone}">${v.phone}</a>`:''}${v.line?` · <a href="https://line.me/R/ti/p/${encodeURIComponent(v.line)}" target="_blank" rel="noopener">LINE</a>`:''}${v.url?` · <a href="${v.url}" target="_blank" rel="noopener">เว็บ</a>`:''}</li>`).join('')}</ul>`:'')+
+    `<p class="note">${mea?`จ.${prov} อยู่ในพื้นที่ MEA ดูรายชื่อร้านที่ขึ้นทะเบียนได้ที่ <a href="https://peoplesolar.mea.or.th/vendor" target="_blank" rel="noopener">Vendor List ของ MEA</a>`:`จ.${prov} อยู่ในพื้นที่ PEA ดูรายชื่อร้านที่ขึ้นทะเบียนในระบบ <a href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">peoplesolar.pea.co.th</a> หรือโทร 1129`} · ส่งข้อความนี้ให้ 2–3 ร้าน แล้วเอาราคาที่ได้มากรอกในตารางเทียบด้านล่าง</p>`;
+}
+$('rfqText').addEventListener('input',()=>{rfqEdited=true;});
+['rfqProv','rfqArea','rfqCoords'].forEach(id=>$(id).addEventListener(id==='rfqArea'?'input':'change',()=>rfqRender(true)));
+$('rfqCopy').addEventListener('click',()=>{const t=$('rfqText').value,b=$('rfqCopy'),ok=()=>{b.textContent='คัดลอกแล้ว ✓';setTimeout(()=>b.textContent='คัดลอกข้อความ',1800);};
+  if(navigator.clipboard)navigator.clipboard.writeText(t).then(ok,()=>{$('rfqText').select();document.execCommand('copy');ok();});else{$('rfqText').select();document.execCommand('copy');ok();}});
+$('rfqLine').addEventListener('click',()=>window.open('https://line.me/R/share?text='+encodeURIComponent($('rfqText').value),'_blank','noopener'));
+if(navigator.share){$('rfqShare').hidden=false;$('rfqShare').addEventListener('click',()=>navigator.share({text:$('rfqText').value}).catch(()=>{}));}
+document.querySelectorAll('#tabs [data-t="t3"],[data-next="t3"]').forEach(b=>b.addEventListener('click',()=>rfqRender(false)));
+rfqRender(false);
 // ---- question 3: who to install with — compare up to three quotes ----
-const QF=[['name','ชื่อร้าน / บริษัท','text'],['total','ราคารวม (บาท)','number'],['kw','ขนาด (kW)','number'],['panel','แผง (ยี่ห้อ / วัตต์)','text'],['inv','อินเวอร์เตอร์ (ยี่ห้อ)','text'],['invW','ประกันอินเวอร์เตอร์ (ปี)','number'],['workW','ประกันงานติดตั้ง (ปี)','number'],['avl','อยู่ในรายชื่อที่ขึ้นทะเบียนกับการไฟฟ้า','checkbox']];
+const QF=[['name','ชื่อร้าน / บริษัท','text'],['total','ราคารวม (บาท)','number'],['kw','ขนาด (kW)','number'],['panel','แผง (ยี่ห้อ / วัตต์)','text'],['inv','อินเวอร์เตอร์ (ยี่ห้อ)','text'],['invW','ประกันอินเวอร์เตอร์ (ปี)','number'],['workW','ประกันงานติดตั้ง (ปี)','number'],['avl','อยู่ในรายชื่อที่ขึ้นทะเบียนกับการไฟฟ้า','checkbox'],['maint','รวมดูแลล้างแผง 7 ปี','checkbox']];
 $('qbody').innerHTML=QF.map(([k,l,t])=>`<tr><td>${l}</td>${[1,2,3].map(n=>`<td>${t==='checkbox'?`<input type="checkbox" id="q${n}_${k}" aria-label="${l} เจ้าที่ ${n}">`:`<input type="${t}" id="q${n}_${k}" aria-label="${l} เจ้าที่ ${n}"${k==='kw'?' value="5" step="0.5"':''}${k==='total'?' step="1000" placeholder="เช่น 140000"':''}>`}</td>`).join('')}</tr>`).join('');
 $('qbody').addEventListener('input',()=>renderQuotes());$('qbody').addEventListener('change',()=>renderQuotes());
 function renderQuotes(){
   const p=read();let best=0,bs=-Infinity;
   const out=[1,2,3].map(n=>{const g=k=>$(`q${n}_${k}`),total=parseFloat(g('total').value),kw=parseFloat(g('kw').value)||5;if(!(total>0))return null;
-    const R=compute({...p,kwp:kw,price:Math.max(0,(total-p.fee)/kw)},false),[w,c]=verdictOf(R),net=R.benefit/12-R.pay-R.omM,fl=[];
-    if(!g('avl').checked)fl.push('ยังไม่ยืนยันว่าขึ้นทะเบียนกับการไฟฟ้า (ไม่ได้ขึ้นทะเบียน = ไม่ได้เงินสนับสนุน)');if(!(parseFloat(g('invW').value)>=5))fl.push('ประกันอินเวอร์เตอร์ไม่ถึง 5 ปี');if(!(parseFloat(g('workW').value)>=1))fl.push('ไม่ระบุประกันงานติดตั้ง');if(kw>10)fl.push('เกิน 10 kW ตามข่าว');
+    const R=compute({...p,kwp:kw,price:Math.max(0,(total-p.fee)/kw)},false),[w,c]=verdictOf(R),fl=[];let net=R.benefit/12-R.pay-R.omM;
+    if(!g('maint').checked){net-=p.om/12;fl.push('ไม่รวมดูแลล้างแผง 7 ปี (ราคากลางต้องรวม)');}if(kw<=5.7&&total>STD_SET)fl.push(`เกินราคากลางชุด 5 kW ${fmt(STD_SET)} บาท ขอให้แยกรายการส่วนเพิ่ม`);
+    if(!g('avl').checked)fl.push('ยังไม่ยืนยันว่าขึ้นทะเบียนกับการไฟฟ้า (ไม่ได้ขึ้นทะเบียน = ไม่ได้เงินสนับสนุน)');if(!(parseFloat(g('invW').value)>=5))fl.push('ประกันอินเวอร์เตอร์ไม่ถึง 5 ปี');if(!(parseFloat(g('workW').value)>=1))fl.push('ไม่ระบุประกันงานติดตั้ง');if(kw>10)fl.push('เกิน 10 kW ต่อมิเตอร์ ไม่เข้าเงื่อนไข');
     const sc=(R.loan?net:R.benefit/12-R.outlay/120)-fl.length*500;if(sc>bs){bs=sc;best=n;}
     return{n,ppk:total/kw,w,c,net,R,fl};});
   const cell=f=>[1,2,3].map(n=>`<td>${out[n-1]?f(out[n-1]):'<span class="note">–</span>'}</td>`).join('');
