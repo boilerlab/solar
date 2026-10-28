@@ -315,7 +315,8 @@ button.chip{font:inherit;font-size:13px;cursor:pointer}
 .tips li:last-child{background:var(--sun-soft)}
 .linkbtn{background:none;border:0;color:var(--cell);text-decoration:underline;font:inherit;cursor:pointer;padding:0}
 .fitsvg{width:100%;max-width:420px;height:auto}
-.qt td input{min-width:120px} .qt td input[type=checkbox]{min-width:0;width:20px;height:20px}
+.qt{table-layout:fixed;width:100%}.qt th{text-align:center}.qt td{vertical-align:top;padding:4px 3px}.qt td input{min-width:0;width:100%;font-family:var(--f-body);font-size:13.5px;padding:8px 6px}.qt td input::placeholder{color:#7b8c94}.qt td input[type=checkbox]{width:20px;height:20px;flex:none;margin:0}
+.qck{display:flex;justify-content:flex-start;text-align:left;align-items:center;gap:6px;font-size:12.5px;line-height:1.25;cursor:pointer;padding:4px 2px}.qcap{display:block;font-size:11.5px;color:var(--muted);margin-bottom:2px}#qres td{text-align:center}
 .flag{display:inline-block;font-size:12px;background:var(--sun-soft);color:var(--warn);border-radius:6px;padding:1px 6px;margin:2px 2px 0 0}
 details.more summary{font-size:14px}
 .check{display:flex;gap:8px;align-items:center;font-size:13.5px;font-weight:500}
@@ -569,7 +570,7 @@ a.btn{text-decoration:none;display:inline-block}
     <div class="panel afterR" id="qtPanel">
       <div class="row"><h3>เทียบใบเสนอราคา</h3><span class="note">กรอกจากใบเสนอราคาที่ได้ แอปคิดความคุ้มของแต่ละเจ้าให้ ด้วยข้อมูลบ้านจากข้อ 1</span></div>
       <div class="tablewrap"><table class="qt">
-        <thead><tr><th></th><th id="qh1">เจ้าที่ 1</th><th id="qh2">เจ้าที่ 2</th><th id="qh3">เจ้าที่ 3</th></tr></thead>
+        <thead><tr><th id="qh1">เจ้าที่ 1</th><th id="qh2">เจ้าที่ 2</th><th id="qh3">เจ้าที่ 3</th></tr></thead>
         <tbody id="qbody"></tbody>
         <tfoot id="qres"></tfoot>
       </table></div>
@@ -1957,7 +1958,8 @@ $('pkgList').addEventListener('click',e=>{const b=e.target.closest('[data-pkg]')
   set('avl',!!pkgVendor(k)||k.registered);set('maint',w.clean>=7);set('std',k.std);set('bg',k.bg);track('pkg-compare');renderQuotes();renderRights();$('qtPanel').scrollIntoView({behavior:'smooth',block:'start'});});
 // ---- question 3: who to install with — compare up to three quotes ----
 const QF=[['name','ชื่อร้าน / บริษัท','text'],['total','ราคารวม (บาท)','number'],['kw','ขนาด (kW)','number'],['panel','แผง (ยี่ห้อ / วัตต์ เช่น 620W)','text'],['inv','อินเวอร์เตอร์ (ยี่ห้อ)','text'],['invW','ประกันอินเวอร์เตอร์ (ปี)','number'],['workW','ประกันงานติดตั้ง (ปี)','number'],['avl','อยู่ในรายชื่อที่ขึ้นทะเบียนกับการไฟฟ้า','checkbox'],['maint','รวมดูแลล้างแผง 7 ปี','checkbox'],['std','ใช้สัญญามาตรฐานของการไฟฟ้า','checkbox'],['bg','ให้หนังสือค้ำธนาคาร 50,000 / 10,000','checkbox']];
-$('qbody').innerHTML=QF.map(([k,l,t])=>`<tr><td>${l}</td>${[1,2,3].map(n=>`<td>${t==='checkbox'?`<input type="checkbox" id="q${n}_${k}" aria-label="${l} เจ้าที่ ${n}">`:`<input type="${t}" id="q${n}_${k}" aria-label="${l} เจ้าที่ ${n}"${k==='kw'?' value="5" step="0.5"':''}${k==='total'?' step="1000" placeholder="เช่น 140000"':''}>`}</td>`).join('')}</tr>`).join('');
+const QS={"name": "ชื่อร้าน", "total": "ราคารวม", "kw": "ขนาด kW", "panel": "แผง/วัตต์", "inv": "อินเวอร์เตอร์", "invW": "ประกันอินฯ ปี", "workW": "ประกันงาน ปี", "avl": "ขึ้นทะเบียนแล้ว", "maint": "ล้างแผง 7 ปี", "std": "สัญญามาตรฐาน", "bg": "หนังสือค้ำ"};
+$('qbody').innerHTML=QF.map(([k,l,t])=>`<tr>${[1,2,3].map(n=>`<td>${t==='checkbox'?`<label class="qck" title="${l}"><input type="checkbox" id="q${n}_${k}" aria-label="${l} เจ้าที่ ${n}"><span>${QS[k]}</span></label>`:`<input type="${t}" id="q${n}_${k}" title="${l}" aria-label="${l} เจ้าที่ ${n}" placeholder="${QS[k]}"${k==='kw'?' step="0.5"':''}${k==='total'?' step="1000"':''}>`}</td>`).join('')}</tr>`).join('');
 $('qbody').addEventListener('input',()=>{renderQuotes();renderRights();});$('qbody').addEventListener('change',()=>renderQuotes());
 function renderQuotes(){
   const p=read();let best=0,bs=-Infinity;
@@ -1971,9 +1973,9 @@ function renderQuotes(){
     const sc=(R.loan?net:R.benefit/12-R.outlay/120)-fl.length*500;if(sc>bs){bs=sc;best=n;}
     return{n,ppk:total/kw,w,c,net,R,fl};});
   const cell=f=>[1,2,3].map(n=>`<td>${out[n-1]?f(out[n-1]):'<span class="note">–</span>'}</td>`).join('');
-  $('qres').innerHTML=`<tr><td>ราคาต่อ kW</td>${cell(o=>`<b class="num">${fmt(o.ppk)}</b> บาท`)}</tr>`+
-    `<tr><td>คุ้มไหม</td>${cell(o=>`<b class="${o.c}" style="font-size:18px">${o.w}</b><br><span class="note">${o.R.loan?(o.net>=0?`เหลือ ${fmt(o.net)}`:`ขาด ${fmt(-o.net)}`)+' บาท/เดือน':(o.R.payback!==null?`คืนทุน ${fmt(o.R.payback,1)} ปี`:'คืนทุนเกิน 20 ปี')}</span>`)}</tr>`+
-    `<tr><td>ข้อควรระวัง</td>${cell(o=>o.fl.length?o.fl.map(x=>`<span class="flag">${x}</span>`).join(''):'<span class="pos">ครบถ้วน</span>')}</tr>`;
+  $('qres').innerHTML=`<tr>${cell(o=>`<span class="qcap">ราคาต่อ kW</span><b class="num">${fmt(o.ppk)}</b> บาท`)}</tr>`+
+    `<tr>${cell(o=>`<span class="qcap">คุ้มไหม</span><b class="${o.c}" style="font-size:18px">${o.w}</b><br><span class="note">${o.R.loan?(o.net>=0?`เหลือ ${fmt(o.net)}`:`ขาด ${fmt(-o.net)}`)+' บาท/เดือน':(o.R.payback!==null?`คืนทุน ${fmt(o.R.payback,1)} ปี`:'คืนทุนเกิน 20 ปี')}</span>`)}</tr>`+
+    `<tr>${cell(o=>'<span class="qcap">ข้อควรระวัง</span>'+(o.fl.length?o.fl.map(x=>`<span class="flag">${x}</span>`).join(''):'<span class="pos">ครบถ้วน</span>'))}</tr>`;
   const filled=out.filter(Boolean).length;[1,2,3].forEach(n=>{$('qh'+n).innerHTML=`เจ้าที่ ${n}${filled>1&&n===best?' <span class="tag">น่าเลือกที่สุด</span>':''}`;});
 }
 // icons in front of each question (drawn inline: artifact pages cannot load outside images)
