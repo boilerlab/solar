@@ -1,0 +1,12 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:900}});
+const er=[];p.on('pageerror',e=>er.push(e.message));await p.route(/^https?:/,r=>r.abort());
+await p.goto('file://'+__dirname+'/../solar-calc/index.html');await p.evaluate(()=>localStorage.clear());await p.reload();
+await p.click('#t1 .billq button[data-v="2500"]');await p.waitForTimeout(200);
+console.log('M1:',(await p.innerText('#sLine1')).replace(/\n/g,' '),'|',await p.textContent('#sPrice'),'|',await p.textContent('#sVerdict'));
+await p.click('#s_loan button[data-v="0"]');await p.waitForTimeout(200);console.log('cash:',(await p.innerText('#sLine1')).replace(/\n/g,' '));await p.click('#s_loan button[data-v="1"]');
+await p.click('#tabs [data-t=t2]');await p.fill('#s_w','8');await p.fill('#s_l','6');await p.evaluate(()=>document.querySelector('[data-v="gable"]').click());
+await p.click('#tabs [data-t=t3]');await p.waitForTimeout(300);await p.selectOption('#rfqProv','นนทบุรี');await p.fill('#rfqArea','อ.ปากเกร็ด');
+console.log(await p.inputValue('#rfqText'));console.log('V:',await p.innerText('#rfqVendors'));
+await p.fill('#q1_total','150000');await p.fill('#q1_panel','Jinko 550W');await p.fill('#q1_invW','5');await p.fill('#q2_invW','10');await p.fill('#q2_workW','7');await p.fill('#q2_panel','Longi 620W');await p.fill('#q2_total','139000');await p.check('#q2_avl');await p.check('#q2_maint');await p.waitForTimeout(200);
+console.log('Q:',(await p.innerText('#qres')).replace(/\n/g,' | '));
+await p.evaluate(()=>document.querySelector('#rfq').scrollIntoView());await p.screenshot({path:'lytest/t71.png'});console.log(er);await b.close();})();

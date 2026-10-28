@@ -1,0 +1,1883 @@
+<title>คำนวณโซลาร์ภาคประชาชน | Boiler Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- fonts load without blocking the first paint; the page shows in system fonts until they arrive -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Kanit:wght@600;700&family=IBM+Plex+Sans+Thai:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@600;700&family=IBM+Plex+Sans+Thai:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap"></noscript>
+<style>
+/* Layout: meter-panel tool — sticky input column left, results ledger right; stacks on phone */
+:root{
+  /* palette sampled from the owner's reference photo: dusty blue-grey plaster wall (#93abb7) */
+  --bg:#edf2f4; --surface:#f8fafb; --ink:#1c2a31; --muted:#56666f; --line:#d2dde2;
+  --leaf:#dae5ea; --leaf-2:#b7cad3; --forest:#28495a; --lime:#93abb7; --yel:#a9bfc9; --pv:#1f4fa3;
+  --fr-g:#93abb7; --fr-o:#c3d3da; --bad:#c8443f;
+  --cell:#3b6577; --cell-soft:#e0eaee; --sun:#f5b800; --sun-soft:#f4f0e2;
+  --batt:#7c4ddb; --batt-soft:#eee7fb;
+  --good:#1e7a3c; --good-soft:#dff1d6; --warn:#a86400; --grid:#8f9a8c;
+  --f-display:"Kanit","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,monospace;
+}
+/* single ivory look in every theme (owner's choice) */
+.iab{display:none;position:sticky;top:0;z-index:50;margin:0 0 10px;padding:10px 12px;border-radius:12px;background:#28495a;color:#fff;font-size:14px;line-height:1.45;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.iab.on{display:block}.iab b{color:#ffd9a8}.iab .row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.iab a,.iab button{font:inherit;font-weight:600;border:0;border-radius:999px;padding:8px 14px;cursor:pointer;text-decoration:none}
+.iab .go{background:#f28c18;color:#fff}.iab .cp{background:#fff;color:#28495a}.iab .x{background:transparent;color:#cfe0e8;margin-left:auto;padding:8px 6px}
+.why{margin:10px auto 4px;max-width:380px;text-align:center;font-size:15px;line-height:1.5;color:var(--bad);font-weight:600}.why button{font:inherit;font-weight:700;color:#fff;background:#f28c18;border:0;border-radius:999px;padding:4px 12px;margin-left:4px;cursor:pointer}
+.q.flash{outline:3px solid #f28c18;outline-offset:6px;border-radius:12px;transition:outline-color .3s}
+.regbox{display:grid;gap:8px;margin:8px 0 4px}.regbox .btn{text-align:center;text-decoration:none}a.chip.reg{text-decoration:none}
+.rfqgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:10px 0 6px}
+.rfqgrid label{display:grid;gap:4px;font-size:14px;font-weight:600;color:var(--forest)}
+.rfqgrid select,.rfqgrid input,#rfqText{font:inherit;font-size:15px;padding:10px 12px;border:1.5px solid var(--grid,#c9d6dc);border-radius:12px;background:#fff;color:var(--ink,#1d2b33);width:100%;box-sizing:border-box}
+#rfqText{margin-top:8px;line-height:1.5;resize:vertical}
+.rfqchk{display:flex;gap:8px;align-items:center;margin-top:4px}
+.rfqbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.rfqv{margin-top:14px;font-size:14px}.rfqv .vlist{list-style:none;padding:0}.rfqv .vlist li{padding:10px 0;border-bottom:1px solid var(--grid,#d5e0e5)}.rfqv .vlist .btn{margin-top:6px}.rfqv ul{margin:6px 0 0;padding-left:18px}.rfqv li{margin:4px 0}
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{background-color:var(--bg);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .45 0 0 0 0 .5 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:24px}
+header{display:grid;gap:8px;position:relative;background:var(--leaf);border-radius:20px;padding:28px 250px 28px 28px;overflow:hidden}
+header .hero{position:absolute;right:16px;bottom:0;width:230px;height:auto}
+@media (max-width:760px){header{padding:12px 16px 14px;gap:2px;border-radius:14px}header .hero,header .terms{display:none}
+  header h1{font-size:24.2px;line-height:1.25;padding-right:96px} header .eyebrow{font-size:10.5px;padding-right:96px} header .lede{font-size:13px;line-height:1.45}}
+.resetbtn{position:absolute;top:12px;right:14px;z-index:2;font:inherit;font-size:13px;font-weight:600;padding:5px 12px;border-radius:999px;border:1.5px solid var(--forest);background:var(--surface);color:var(--forest);cursor:pointer}
+.resetbtn.wide{position:static;border-style:dashed}
+.resetbtn.armed{background:var(--bad);border-color:var(--bad);color:#fff}
+.eyebrow{font-family:var(--f-num);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--forest)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28.6px,4.4vw,41.8px);line-height:1.2;margin:0;text-wrap:balance}
+h1{color:var(--forest);font-weight:800} h1 span{color:var(--forest);background:linear-gradient(transparent 58%,var(--yel) 58%);padding:0 4px}
+.lede{color:var(--muted);max-width:68ch;margin:0}
+.terms{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{font-size:13px;padding:4px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--leaf-2);color:var(--ink)}
+.wrap>*{min-width:0}
+.chip b{font-family:var(--f-num);font-weight:500;color:var(--cell)}
+.chip.sun{background:var(--yel);border-color:var(--sun)} .chip.sun b{color:var(--forest)}
+.main{display:grid;grid-template-columns:minmax(0,370px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:880px){.main{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:2px solid var(--fr-o);box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--fr-g);border-radius:14px;padding:20px;display:grid;gap:16px;min-width:0}
+.inputs{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow-y:auto}
+@media (max-width:880px){.inputs{position:static;max-height:none;overflow:visible}}
+h2{font-family:var(--f-display);font-size:18px;font-weight:600;margin:0}
+h3{font-family:var(--f-display);font-size:15px;font-weight:600;margin:0}
+.group{display:grid;gap:14px;padding-top:14px;border-top:1px solid var(--line)}
+.group-t{font-family:var(--f-num);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.field{display:grid;gap:4px}
+.field label{font-size:13.5px;font-weight:500}
+.field .hint{font-size:12px;color:var(--muted)}
+.inrow{display:flex;align-items:center;gap:8px}
+input[type=number],input[type=text],select{width:100%;font:inherit;font-family:var(--f-num);font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);min-width:0}
+input[type=text]{font-size:14px}
+select{font-family:var(--f-body)}
+input[type=range]{width:100%;accent-color:var(--cell)}
+.unit{font-size:13px;color:var(--muted);white-space:nowrap}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--cell);outline-offset:2px}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:inherit;font-size:14px;padding:8px;border:0;background:transparent;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--cell);color:#fff}
+#sysType button[data-v=hybrid][aria-pressed=true]{background:var(--batt)}
+.suggest{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;background:var(--sun-soft);border-radius:8px;padding:8px 10px}
+.suggest.b{background:var(--batt-soft)}
+.suggest button,.btn{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--cell);color:var(--cell);background:transparent;border-radius:8px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+.btn.solid{background:var(--cell);color:#fff}
+.locbox{background:var(--cell-soft);border-radius:8px;padding:8px 10px;font-size:13px;display:grid;gap:2px}
+.locbox b{font-family:var(--f-num);font-weight:500}
+.locbox.err{background:var(--sun-soft);color:var(--warn)}
+details{border-top:1px solid var(--line);padding-top:12px}
+summary{cursor:pointer;font-weight:600;font-size:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+details .grid2{margin-top:12px}
+.results{display:grid;gap:20px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--surface);border:2px solid var(--fr-o);box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--fr-g);border-radius:12px;padding:14px 16px;display:grid;gap:2px;min-width:0}
+.kpi .k{font-size:12.5px;color:var(--muted)}
+.kpi .v{font-family:var(--f-num);font-size:clamp(20px,2.4vw,26px);font-weight:500;font-variant-numeric:tabular-nums;line-height:1.3}
+.kpi .s{font-size:12px;color:var(--muted)}
+.kpi.hero{background:var(--cell);border-color:var(--cell);color:#fff}
+.kpi.hero.hy{background:var(--batt);border-color:var(--batt)}
+.kpi.hero .k,.kpi.hero .s{color:rgba(255,255,255,.85)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+th{font-size:12.5px;color:var(--muted);font-weight:500}
+td.num{font-family:var(--f-num)}
+tr.total td{font-weight:600;border-bottom:0}
+th.sel{color:var(--ink);font-weight:600}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--good-soft);color:var(--good);margin-left:6px;vertical-align:1px}
+.pos{color:var(--good)}
+.tablewrap{overflow-x:auto}
+.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font-family:var(--f-num);font-size:11px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+@media (max-width:1100px){.two{grid-template-columns:minmax(0,1fr)}}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:14px}
+.checks li{position:relative;padding-left:28px}
+.checks li::before{content:"✓";color:var(--good);font-weight:700;position:absolute;left:4px;top:0}
+.checks li.alert::before{content:"!";color:var(--warn)}
+.note{font-size:12.5px;color:var(--muted);margin:0}
+.warnbox{background:var(--sun-soft);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.sources{font-size:12.5px;color:var(--muted);display:grid;gap:2px}
+.sources a{color:var(--cell)}
+pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;margin:0;max-height:280px;overflow:auto}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.tabs{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.tabs button{font:inherit;font-family:var(--f-display);font-size:17px;font-weight:600;padding:10px 18px;border-radius:12px;border:2px solid var(--fr-o);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;gap:8px;align-items:center}
+.tabs button[aria-selected=true]{background:var(--forest);border-color:var(--forest);color:#fff}
+.tabs .tn{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--yel);color:var(--forest);font-size:14px}
+.tabs .advbtn{margin-left:auto;font-family:var(--f-body);font-size:13.5px;font-weight:500;border-style:dashed;border-color:var(--fr-g)}
+.simple{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:24px;align-items:start}
+@media (max-width:880px){.simple{grid-template-columns:minmax(0,1fr)}.tabs .advbtn{margin-left:0}}
+.qs{gap:22px}
+.q{display:grid;gap:8px} .q h4{font-family:var(--f-display);font-size:18px;margin:0} .q>label{font-weight:600}
+.big-in input{font-size:26px;padding:10px 14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font:inherit;font-size:14.5px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.chips button[aria-pressed=true]{background:var(--cell);color:#fff;border-color:var(--cell)}
+.answer{text-align:center;justify-items:center;padding:28px 20px;gap:14px}
+.answer p{margin:0}
+.simple .answer{order:-1}
+.satbox{grid-column:1/-1}
+.answer .satbox{width:100%;grid-column:auto;text-align:left;box-shadow:0 3px 0 var(--forest);border:2px solid var(--forest);background:var(--surface);padding:12px 14px;border-radius:14px}
+.answer .satbox>summary{font-size:18px}
+.answer .satbox[open]{box-shadow:none}
+.pageh{grid-column:1/-1;order:-2;display:grid;gap:4px}
+.pageh h2{font-family:var(--f-display);font-size:clamp(22px,4vw,28px);font-weight:700;color:var(--forest)}
+.pageh p{margin:0;font-size:14px;color:var(--muted)}
+.satbox>summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;font-family:var(--f-display);font-size:20px;font-weight:700;color:var(--forest)}
+.satbox>summary::-webkit-details-marker{display:none}
+.satbox>summary svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+@media (max-width:480px){.satbox>summary small{display:none}}
+.satbox>summary small{font-size:13px;font-weight:500;color:var(--muted);font-family:inherit}
+.satbox>summary::after{content:"";margin-left:auto;width:10px;height:10px;border-right:2.5px solid currentColor;border-bottom:2.5px solid currentColor;transform:rotate(45deg);transition:transform .2s}
+.satbox[open]>summary::after{transform:rotate(-135deg)}
+.satsteps{margin:14px 0 4px;padding-left:22px;display:grid;gap:6px;font-size:14px;line-height:1.55}
+.satbody{display:grid;gap:18px;margin-top:14px}
+.satbody #roofPanel{padding:0;border:0;box-shadow:none;background:none}
+.satbody #roofToggle,.satbody .roofIntro{display:none}
+.answer,.tab{scroll-margin-top:12px}
+.answer .billq{width:100%;max-width:420px;text-align:left;margin-top:6px}
+.answer .billq h4{padding-right:64px}
+.answer .billq input{background:var(--surface);border:2px solid var(--forest)}
+.answer .billq .chips button{background:var(--surface)}
+.answer .billq .chips{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.answer .billq .chips button{padding:8px 0;font-size:14px}
+.answer .sizeq1 .chips{grid-template-columns:repeat(3,minmax(0,1fr))}
+.answer .sizeq1 .chips button{font-size:15.5px;font-weight:600}
+.answer .sizeq1 h4{padding-right:0}
+.answer .sizeq1 .hint{font-size:12.5px;color:#2f3f48}
+.answer .billq .chips button[aria-pressed=true]{background:var(--forest);color:#fff;border-color:var(--forest)}
+.answer .billq h4 svg{background:var(--surface)}
+.answer .billq .unit{color:var(--forest);font-weight:600}
+.answer .sizeq{width:100%;max-width:420px;text-align:left;border:2px solid transparent;border-radius:14px;padding:8px 10px}
+.answer .sizeq.needfill{border-color:#f28c18;animation:tabGlow 1.1s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.answer .sizeq.needfill{animation:none}}
+.answer{grid-template-columns:minmax(0,1fr)}
+.pick,.pickrow{min-width:0}
+.pick{width:100%;max-width:420px;display:grid;gap:12px;text-align:left}
+.pickrow h4{font-family:var(--f-display);font-size:16px;color:var(--forest);margin:0 0 6px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.pickrow h4 small{font-family:var(--f-body);font-size:12px;font-weight:500;color:#2f3f48}
+.swipe{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.swipe .opt{flex:0 0 104px;scroll-snap-align:start;display:grid;justify-items:center;gap:2px;padding:6px 4px 6px;border-radius:12px;border:2px solid transparent;background:var(--surface);color:var(--ink);font:inherit;font-size:13px;font-weight:600;line-height:1.25;cursor:pointer;text-align:center}
+.swipe .opt svg{width:84px;height:59px;display:block}
+.swipe .opt small{font-family:var(--f-body);font-size:11.5px;font-weight:500;color:var(--muted);white-space:nowrap}
+.swipe .opt small.low{color:#b45c00}
+#t1 .answer>.crt{margin-top:22px}
+.carebtn{display:flex;gap:8px;align-items:flex-start;max-width:420px;text-align:left;font-size:13px;line-height:1.45;background:var(--surface);border:1.5px dashed #b45c00;border-radius:10px;padding:8px 12px;cursor:pointer}
+.carebtn input{margin-top:3px;accent-color:#b45c00}
+.pcount{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;max-width:420px}
+.pcount .btn{font-size:15px;padding:6px 14px;background:var(--surface)}
+.pcount span{font-family:var(--f-display);font-size:17px;font-weight:700;color:var(--forest);min-width:150px;text-align:center}
+.satsteps-t{margin:10px 0 0;font-family:var(--f-display);font-weight:600;color:var(--forest)}
+.laymin{margin:2px 0 0;font-size:12.5px;color:#2f3f48}
+.swipe .opt[aria-pressed=true]{border-color:#f28c18;box-shadow:0 0 0 3px rgba(242,140,24,.3)}
+.fitp{width:100%;max-width:420px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;text-align:left}
+.fitp .rotrow{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.fitp label{display:grid;gap:2px;font-size:13px;font-weight:600;color:#2f3f48}
+.fitp input{background:var(--surface);font-size:16px}
+.sat2go{width:100%;max-width:420px;display:grid;gap:8px;text-align:left}
+.answer .sizeq h4 svg{background:var(--surface)}
+.answer .sizeq input{background:var(--surface);border:2px solid var(--forest)}
+.answer .sizeq .unit{color:var(--forest);font-weight:600}
+.orline{display:flex;align-items:center;gap:10px;color:#34454e;font-size:13px;margin-top:4px}
+.orline::before,.orline::after{content:"";flex:1;height:1px;background:rgba(40,73,90,.35)}
+.mapsbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;font-family:var(--f-display);font-size:18px;font-weight:700;border:2px solid var(--forest);color:var(--forest);background:var(--surface);border-radius:14px;text-decoration:none;box-shadow:0 3px 0 var(--forest)}
+.mapsbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--forest)}
+.mapsbtn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.crt{position:relative;width:min(100%,380px);aspect-ratio:4/3;border-radius:22px/26px;background:radial-gradient(ellipse 85% 80% at 50% 45%,#77868e 0%,#64737b 60%,#4f5c63 100%);box-shadow:inset 0 0 26px rgba(0,0,0,.28),inset 0 2px 0 rgba(255,255,255,.14),0 10px 24px rgba(30,45,55,.2);overflow:hidden;display:grid;place-items:center;container-type:inline-size;padding:6%}
+.crt::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);pointer-events:none}
+.crt::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 30% 18%,rgba(255,255,255,.16),transparent 70%);pointer-events:none}
+.crt .verdict-big{position:relative;z-index:1;line-height:1.1;text-align:center;font-size:30cqw}
+.answer .crt .v-good{color:#b9ff72;text-shadow:0 0 4px rgba(185,255,114,.9),0 0 18px rgba(110,255,70,.5)}
+.answer .crt .v-mid{color:#ffd24a;text-shadow:0 0 4px rgba(255,210,74,.9),0 0 18px rgba(255,170,40,.5)}
+.answer .crt .v-bad{color:#ff6f61;text-shadow:0 0 4px rgba(255,111,97,.9),0 0 18px rgba(255,60,40,.5)}
+.answer .crt .v-idle{color:#ff9a90;text-shadow:0 0 6px rgba(255,120,110,.55),0 0 16px rgba(255,90,80,.3);animation:crtBlink 1.2s steps(2,start) infinite}
+@keyframes crtBlink{to{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.answer .crt .v-idle{animation:none}}
+.qs{background:var(--leaf)}
+.q h4{display:flex;align-items:center;gap:10px;color:var(--forest)}
+.q h4 svg{width:30px;height:30px;flex:none;padding:4px;border-radius:9px;background:var(--yel);fill:none;stroke:var(--forest);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.answer{position:relative;background:var(--yel);border:2px solid var(--forest);box-shadow:0 0 0 3px var(--bg),0 0 0 6px var(--lime);overflow:visible}
+.answer::before{content:"";position:absolute;inset:10px;pointer-events:none;background:
+  linear-gradient(var(--forest),var(--forest)) left top/30px 4px no-repeat,linear-gradient(var(--forest),var(--forest)) left top/4px 30px no-repeat,
+  linear-gradient(var(--forest),var(--forest)) right top/30px 4px no-repeat,linear-gradient(var(--forest),var(--forest)) right top/4px 30px no-repeat,
+  linear-gradient(var(--forest),var(--forest)) left bottom/30px 4px no-repeat,linear-gradient(var(--forest),var(--forest)) left bottom/4px 30px no-repeat,
+  linear-gradient(var(--forest),var(--forest)) right bottom/30px 4px no-repeat,linear-gradient(var(--forest),var(--forest)) right bottom/4px 30px no-repeat}
+.answer #sSys,.answer #s2Need{background:#f28c18;color:#fff;padding:7px 16px;border-radius:999px;font-weight:700;font-size:14.5px;line-height:1.45;max-width:100%;box-shadow:0 2px 0 #b45c00;text-shadow:0 1px 0 rgba(0,0,0,.18)}
+.answer .verdict-big{font-weight:800;letter-spacing:-.01em}
+.answer .v-good{color:var(--forest)} .answer .v-mid{color:#9a4d00} .answer .v-bad{color:var(--bad)}
+.answer .note{color:#2f3f48}
+.answer .tips li{background:var(--surface)} .answer .tips li:last-child{background:#fff;border-left:4px solid var(--bad)}
+.answer .meter .bar{background:rgba(40,73,90,.18)}
+/* menu sits right under the output frame; on wide screens the questions take the right column */
+/* the menu sits at the bottom, just above the guide */
+#tabs{justify-content:center;padding:18px 0 4px;border-top:1px solid var(--line)}
+#tabs .advbtn{margin-left:0}
+.nextbtn{display:flex;align-items:center;gap:10px;white-space:nowrap;max-width:100%;font-family:var(--f-display);font-size:clamp(15px,4.4vw,19px);font-weight:700;padding:10px 20px 10px 12px;border-radius:14px;border:2px solid #f28c18;background:var(--surface);color:var(--forest);cursor:pointer;animation:tabGlow 1.1s ease-in-out infinite}
+.nextbtn .tn{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--yel);color:var(--forest);font-size:15px}
+@media (prefers-reduced-motion:reduce){.nextbtn{animation:none}}
+/* before the bill is entered, tab 1 shows only the output frame and the menu */
+.simple.pre>.qs{display:none}
+.simple.pre{grid-template-columns:minmax(0,600px);justify-content:center}
+.qs-t{font-family:var(--f-display);font-size:15px;font-weight:600;color:var(--muted);margin:0}
+/* the next step's tab glows once the current answer is on screen */
+.tabs button.glow{animation:tabGlow 1.1s ease-in-out infinite;border-color:#f28c18}
+@keyframes tabGlow{50%{background:#fff;border-color:#f28c18;box-shadow:0 0 0 4px rgba(242,140,24,.45),0 0 20px 6px rgba(242,140,24,.45)}}
+@media (prefers-reduced-motion:reduce){.tabs button.glow{animation:none;background:#fff;box-shadow:0 0 0 4px rgba(242,140,24,.45)}}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:700;font-size:17px;letter-spacing:.04em;color:#12161d}
+.brand svg{width:34px;height:34px;flex:none}
+.brand b,.foot-name b{color:#1f7fe0;font-weight:700}
+.brand small{font-family:var(--f-body);font-weight:500;font-size:12.5px;letter-spacing:0;color:var(--muted);margin-left:4px}
+.foot{display:flex;gap:14px;align-items:center;padding:18px 20px;border-radius:14px;background:var(--leaf)}
+.foot>svg{width:56px;height:56px;flex:none}
+.foot-name{font-family:var(--f-display);font-weight:700;font-size:18px;letter-spacing:.03em;color:#12161d}
+.foot-tag{font-family:var(--f-num);font-size:13px;color:#12161d}
+.foot-tag span{color:#1668c7;font-weight:600} .foot-tag em{font-style:normal;color:#c27a07}
+.guide{display:grid;gap:10px}
+.guide>h2{display:flex;align-items:center;gap:10px;color:var(--forest)}
+.guide details{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:var(--surface)}
+.guide summary{font-family:var(--f-display);font-size:16px;color:var(--forest)}
+.guide .gbody{display:grid;gap:10px;margin-top:10px;font-size:14.5px}
+.guide .gbody p,.guide .gbody ul,.guide .gbody ol{margin:0}
+.guide .gbody ul,.guide .gbody ol{padding-left:20px;display:grid;gap:4px}
+.guide table{font-size:13.5px} .guide th,.guide td{text-align:left}
+button.chip{font:inherit;font-size:13px;cursor:pointer}
+.answer .linkbtn{color:var(--forest);font-weight:600}
+.stamp{position:absolute;top:-16px;right:-12px;width:84px;height:84px;border-radius:50%;background:var(--bad);color:#fff;outline:3px dashed #fff;outline-offset:-8px;display:grid;place-items:center;text-align:center;font-family:var(--f-display);font-weight:700;font-size:12.5px;line-height:1.2;transform:rotate(-12deg);box-shadow:0 4px 10px rgba(0,0,0,.15)}
+@media (max-width:480px){.stamp{width:70px;height:70px;font-size:11px;right:-6px}}
+.verdict-big{font-family:var(--f-display);font-weight:700;font-size:clamp(56px,10vw,104px);line-height:1.05;text-wrap:balance}
+.v-good{color:var(--good)} .v-mid{color:var(--warn)} .v-bad{color:var(--bad)}
+.answer .line{font-size:19px;line-height:1.5} .answer .line b{font-size:24px}
+.meter{width:100%;max-width:440px;display:grid;gap:6px}
+.meter .bar{height:14px;border-radius:7px;background:var(--line);overflow:hidden} .meter .fill{height:100%;width:0;transition:width .3s}
+.tips{list-style:none;margin:0;padding:0;display:grid;gap:8px;text-align:left;width:100%}
+.tips li{background:var(--bg);border-radius:10px;padding:10px 12px;font-size:15px}
+.tips li:last-child{background:var(--sun-soft)}
+.linkbtn{background:none;border:0;color:var(--cell);text-decoration:underline;font:inherit;cursor:pointer;padding:0}
+.fitsvg{width:100%;max-width:420px;height:auto}
+.qt td input{min-width:120px} .qt td input[type=checkbox]{min-width:0;width:20px;height:20px}
+.flag{display:inline-block;font-size:12px;background:var(--sun-soft);color:var(--warn);border-radius:6px;padding:1px 6px;margin:2px 2px 0 0}
+details.more summary{font-size:14px}
+.check{display:flex;gap:8px;align-items:center;font-size:13.5px;font-weight:500}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.presets button{font:inherit;font-size:12.5px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--ink);cursor:pointer}
+.presets button[aria-pressed=true]{background:var(--cell);color:#fff;border-color:var(--cell)}
+.verdict{font-weight:600;font-size:14px;padding:4px 12px;border-radius:999px;background:var(--cell-soft)}
+.verdict.ok{background:var(--good-soft);color:var(--good)} .verdict.bad{background:var(--sun-soft);color:var(--warn)}
+#cashTable td small{display:block;font-size:12px;color:var(--muted);font-weight:400}
+#roofPanel{order:20} .sources{order:30}
+#roofPanel.collapsed>:not(.row):not(.roofIntro){display:none}
+[hidden]{display:none!important}
+.roofbtns{display:flex;flex-wrap:wrap;gap:8px}
+.layout{display:grid;gap:12px}
+.lytools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg3{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg3 button{font:inherit;font-size:13px;padding:6px 12px;border:0;background:transparent;color:var(--muted);cursor:pointer}
+.seg3 button[aria-pressed=true]{background:var(--cell);color:#fff}
+.canvaswrap{border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#000}
+#lyCanvas{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair}
+.lyparams{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.lyresult{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;background:var(--cell-soft);border-radius:10px;padding:12px 14px}
+.lyresult .n{font-family:var(--f-num);font-size:28px;line-height:1.1}
+.lyresult .n small{font-family:var(--f-body);font-size:14px;color:var(--muted)}
+.lyhint{font-size:13px;color:var(--ink);background:var(--sun-soft);border-radius:8px;padding:8px 10px;margin:0;min-height:calc(4.8em + 16px)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.danger{border-color:var(--warn);color:var(--warn)}
+.btn.blink{animation:btnBlink 1s ease-in-out infinite;border:2px solid #f28c18}
+@keyframes btnBlink{50%{background:#fff;color:var(--forest);border-color:#f28c18;box-shadow:0 0 0 4px rgba(242,140,24,.45),0 0 16px 4px rgba(242,140,24,.45)}}
+@media (prefers-reduced-motion:reduce){.btn.blink{animation:none;background:#fff;color:var(--forest);border-color:#f28c18}}
+.locbtns{display:flex;flex-wrap:wrap;gap:6px}
+.btn.sm{font-size:12.5px;padding:5px 10px}
+#coordHint.ok{color:var(--good)} #coordHint.err{color:var(--warn)}
+#s_sizeHint.on{color:#b45c00;font-weight:600}
+#s_totalHint{font-size:12.5px;color:var(--muted)} #s_totalHint.err{color:var(--bad);font-weight:600}
+#coords.flash{border-color:var(--cell);box-shadow:0 0 0 3px var(--cell-soft)}
+a.btn{text-decoration:none;display:inline-block}
+.drop{display:grid;place-items:center;gap:8px;min-height:200px;border:2px dashed var(--line);border-radius:12px;background:var(--bg);color:var(--muted);text-align:center;padding:16px;cursor:pointer;font-size:14px}
+.drop.over{border-color:var(--cell);background:var(--cell-soft)}
+.drop:focus-visible{outline:2px solid var(--cell);outline-offset:2px}
+.drop img{max-width:100%;max-height:460px;border-radius:8px;display:block}
+.drop .big{font-family:var(--f-display);font-size:16px;color:var(--ink)}
+</style>
+
+<!-- Boiler Lab gauge icon (owner's brand kit), defined once and reused -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="blBlue" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#1668C7"/><stop offset="1" stop-color="#3AA8FF"/></linearGradient>
+  <linearGradient id="blGold" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#D98A0B"/><stop offset="1" stop-color="#F5B642"/></linearGradient>
+  <symbol id="blIcon" viewBox="0 0 240 240"><g transform="translate(20,20)">
+    <path d="M43.43,156.57 A80,80 0 0 1 135.07,28.10" fill="none" stroke="url(#blBlue)" stroke-width="16" stroke-linecap="round"/>
+    <path d="M164.72,52.98 A80,80 0 0 1 156.57,156.57" fill="none" stroke="url(#blGold)" stroke-width="16" stroke-linecap="round"/>
+    <g stroke="url(#blBlue)" stroke-width="5" stroke-linecap="round" opacity="0.85"><line x1="48.64" y1="91.87" x2="40.74" y2="90.61"/><line x1="76.39" y1="53.67" x2="72.76" y2="46.54"/><line x1="123.61" y1="53.67" x2="127.24" y2="46.54"/></g>
+    <path d="M162.99,24.93 L91.96,93.25 L87.14,115.32 L108.04,106.75 Z" fill="url(#blGold)"/>
+    <circle cx="100" cy="100" r="15" fill="url(#blGold)"/><circle cx="100" cy="100" r="6" fill="#12161D"/>
+    <path d="M168.14,1.80 L170.82,16.11 L185.14,18.80 L170.82,21.49 L168.14,35.80 L165.45,21.49 L151.14,18.80 L165.45,16.11 Z" fill="url(#blGold)"/>
+  </g></symbol></defs></svg>
+<div class="wrap">
+  <div class="iab" id="iab" role="region" aria-label="เปิดในเบราว์เซอร์"><span id="iabMsg"></span><div class="row"><a class="go" id="iabGo" href="#">เปิดใน Chrome</a><button class="cp" id="iabCp" type="button">คัดลอกลิงก์</button><button class="x" id="iabX" type="button" aria-label="ปิด">ปิด ✕</button></div></div>
+  <header>
+    <svg class="hero" viewBox="0 0 240 170" aria-hidden="true">
+      <circle cx="192" cy="40" r="30" style="fill:none;stroke:var(--fr-g);stroke-width:3;stroke-dasharray:1 7;stroke-linecap:round"/>
+      <circle cx="192" cy="40" r="18" style="fill:var(--yel);stroke:var(--sun);stroke-width:3"/>
+      <rect x="0" y="156" width="240" height="14" style="fill:var(--leaf-2)"/>
+      <rect x="40" y="92" width="120" height="64" rx="4" style="fill:#fff;stroke:var(--forest);stroke-width:3"/>
+      <polygon points="28,96 100,46 172,96" style="fill:var(--forest)"/>
+      <g transform="translate(104,53) rotate(34.8)"><rect x="6" y="4" width="64" height="22" rx="2" style="fill:var(--pv);stroke:#fff;stroke-width:1.5"/><path d="M22 4v22M38 4v22M54 4v22M6 15h64" style="stroke:#fff;stroke-width:1.2"/></g>
+      <rect x="54" y="106" width="24" height="20" rx="2" style="fill:var(--yel);stroke:var(--forest);stroke-width:2.5"/>
+      <rect x="122" y="106" width="24" height="20" rx="2" style="fill:var(--yel);stroke:var(--forest);stroke-width:2.5"/>
+      <rect x="89" y="122" width="22" height="34" rx="2" style="fill:var(--sun-soft);stroke:var(--forest);stroke-width:2.5"/>
+      <circle cx="212" cy="128" r="20" style="fill:var(--yel);stroke:var(--forest);stroke-width:3"/>
+      <text x="212" y="136" text-anchor="middle" style="font:800 22px Kanit,sans-serif;fill:var(--forest)">฿</text>
+      <path d="M176 104l10-6M176 122h-8M180 88l6-8" style="stroke:var(--sun);stroke-width:3;stroke-linecap:round"/>
+    </svg>
+    <button type="button" class="resetbtn" data-reset>↺ เริ่มใหม่</button>
+    <h1>ติด<span>โซลาร์ภาคประชาชน</span> คุ้มไหม?</h1>
+    <div class="terms">
+      <span class="chip">รับซื้อไฟส่วนเกิน <b>2.20</b> บาท/หน่วย</span>
+      <button type="button" class="chip" data-guide="g5">ขายได้ไม่เกิน <b>5</b> kW (AC) ต่อมิเตอร์ ⓘ</button>
+      <span class="chip">สัญญา <b>20</b> ปี (มติ กพช. 18 ก.ย. 69)</span>
+      <span class="chip sun">ค่าตรวจเชื่อมต่อ กฟภ. <b>2,140</b> บาท</span>
+      <span class="chip sun">เงินสนับสนุน <b>50,000</b> บาท/ราย · ติด <b>5–10</b> kW ต่อมิเตอร์ · กู้ <b>2.5%</b> 7 ปี</span>
+      <span class="chip sun">ราคากลางชุด 5 kW ไม่เกิน <b>140,000</b> บาท รวมดูแล 7 ปี · ลงทะเบียนถึง <b>31 ม.ค. 70</b></span>
+      <a class="chip sun reg" href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">ลงทะเบียนแล้ว · <b>PEA</b> ต่างจังหวัด ↗</a>
+      <a class="chip sun reg" href="https://peoplesolar.mea.or.th" target="_blank" rel="noopener">ลงทะเบียน · <b>MEA</b> กทม. นนทบุรี สมุทรปราการ ↗</a>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs" aria-label="คำถาม">
+    <button type="button" data-t="t1" aria-selected="true"><span class="tn">1</span>คุ้มไหม?</button>
+    <button type="button" data-t="t2" aria-selected="false"><span class="tn">2</span>พื้นที่พอไหม?</button>
+    <button type="button" data-t="t3" aria-selected="false"><span class="tn">3</span>ติดกับใคร?</button>
+    <button type="button" data-t="adv" aria-selected="false"><span class="tn">4</span>ตัวเลขละเอียด / สำหรับช่าง</button>
+    <button type="button" class="resetbtn wide" data-reset>↺ เริ่มใหม่ ล้างทุกคำตอบ</button>
+  </nav>
+
+  <section class="tab simple pre" id="t1">
+    <div class="panel qs">
+      <p class="qs-t">ตอบเพิ่ม ให้ผลตรงกับบ้านคุณ</p>
+      <div class="q"><h4>กลางวันมีคนอยู่บ้านไหม</h4>
+        <div class="chips" id="s_pres"><button data-v="25">ไม่มี ไปทำงานทั้งวัน</button><button data-v="40">อยู่บ้างบางวัน</button><button data-v="55">อยู่บ้านทั้งวัน</button><button data-v="70">เปิดร้าน / ทำกิจการกลางวัน</button></div></div>
+      <div class="q"><h4>จะจ่ายอย่างไร</h4>
+        <div class="chips" id="s_loan"><button data-v="1">กู้ธนาคารรัฐ (ดอกเบี้ย 2.5%)</button><button data-v="0">จ่ายเงินสด</button></div></div>
+      <div class="q"><h4>เงิน 50,000 บาทจากรัฐเป็นแบบไหน</h4>
+        <div class="chips" id="s_grant"><button data-v="1">ให้เปล่า (หักจากราคา)</button><button data-v="0">เป็นเงินกู้ (ไม่มีส่วนลด)</button></div>
+        <span class="hint">เงินสนับสนุนสูงสุด 50,000 บาทต่อราย (ให้เปล่า) · <b>จ่ายสด:</b> จ่ายร้านเต็มก่อน แล้วรัฐโอน 50,000 เข้าพร้อมเพย์ · <b>กู้:</b> ธนาคารจ่ายร้าน 50,000 เข้าธนาคารตรง ผ่อนแค่ส่วนที่เหลือผ่านบิลค่าไฟ ไม่เช็คเครดิตบูโร</span></div>
+      <div class="q"><h4>ขนาดที่จะติด</h4>
+        <div class="chips" id="s_size"><button data-v="5">5 kW</button><button data-v="7.5">7.5 kW</button><button data-v="10">10 kW</button></div>
+        <span class="hint" id="s_sizeHint">ข่าวบอกติดได้ไม่เกิน 10 kW บ้านส่วนใหญ่ 5 kW ก็พอ</span></div>
+      <details class="more"><summary>ข้อมูลเพิ่ม (ไม่บังคับ)</summary>
+        <div class="q" style="margin-top:12px"><label for="s_prov">จังหวัด (ใช้ค่าแสงแดดของพื้นที่)</label><select id="s_prov"></select></div>
+        <div class="q" style="margin-top:12px"><label for="s_total">ราคาที่ช่างเสนอ (รวมทั้งหมด)</label><div class="inrow"><input type="number" id="s_total" placeholder="ไม่ทราบ ใช้ราคากลาง" step="1000"><span class="unit">บาท</span></div><span class="hint" id="s_totalHint">ราคารวมทั้งระบบก่อนหักเงินสนับสนุน เช่น 5 kW ราว 135,000 บาท</span></div>
+      </details>
+    </div>
+    <div class="panel answer">
+      <span class="stamp" aria-label="ข้อมูล ณ 27 ต.ค. 69">ข้อมูล<br>ณ 27 ต.ค.<br>69</span>
+      <div class="crt"><div class="verdict-big v-idle" id="sVerdict">--/--</div></div>
+      <div class="q billq"><h4>ค่าไฟเดือนละประมาณกี่บาท</h4>
+        <div class="inrow big-in"><input type="number" id="s_bill" value="" placeholder="เช่น 1800" min="0" step="100" inputmode="numeric"><span class="unit">บาท/เดือน</span></div>
+        <div class="chips" id="s_billChips"><button type="button" data-v="800">800</button><button type="button" data-v="1500">1,500</button><button type="button" data-v="2000">2,000</button><button type="button" data-v="2500">2,500</button><button type="button" data-v="4000">4,000</button></div></div>
+      <span class="note" id="sSys"></span>
+      <p class="note" id="sPrice" hidden></p>
+      <label class="carebtn" id="careBox" hidden><input type="checkbox" id="s_care"> <span><b>คิดแบบระวัง</b> · ขายไฟได้ 80% · ผลิตไฟน้อยลง 10% · อินเวอร์เตอร์เสียปีที่ 5</span></label>
+      <p class="line" id="sLine1"></p>
+      <button type="button" class="nextbtn" id="sNext" data-next="t2" hidden><span class="tn">2</span>ไปข้อ 2 พื้นที่พอไหม →</button>
+      <p class="note" id="sLine2"></p>
+      <div class="meter" id="sMeter"><span class="note" id="sMeterTxt"></span><div class="bar"><div class="fill" id="sMeterFill"></div></div></div>
+      <ul class="tips" id="sTips"></ul>
+      <p class="note">ประมาณการจากเงื่อนไข ณ 27 ต.ค. 69 (เงินสนับสนุน 50,000 บาท · รับซื้อไฟ 2.20 บาท 20 ปี) · เปิดลงทะเบียนแล้ว · <button type="button" class="linkbtn" data-guide="g1">คิดอย่างไร</button> · <button type="button" class="linkbtn" data-go="adv">ดูตัวเลขละเอียด</button></p>
+    </div>
+  </section>
+
+  <section class="tab simple" id="t2" hidden>
+    <div class="pageh"><h2>เช็คว่าพื้นที่พอวางแผงไหม</h2><p>หลังคา โรงรถ พื้นดิน หรือบ่อน้ำ วางแผงได้กี่แผ่น · หน้านี้ไม่ใช่การเช็คสิทธิ์เข้าโครงการ ดูคุณสมบัติในข้อ 3</p></div>
+    <div class="panel qs">
+      <div class="q"><h4>จะติดตรงไหน</h4>
+        <div class="chips" id="s_where"><button data-v="roof">หลังคาบ้าน</button><button data-v="garage">หลังคาโรงรถ</button><button data-v="ground">พื้นดินว่าง</button><button data-v="float">บ่อน้ำ (ลอยน้ำ)</button></div></div>
+      <div class="q sizeq"><h4>ขนาดพื้นที่</h4>
+        <div class="inrow big-in"><input type="number" id="s_w" value="" placeholder="ยาว" step="0.5" min="0" inputmode="decimal" aria-label="ความยาว (เมตร)"><span class="unit">×</span><input type="number" id="s_l" value="" placeholder="กว้าง" step="0.5" min="0" inputmode="decimal" aria-label="ความกว้าง (เมตร)"><span class="unit">ม.</span></div>
+        <span class="hint" id="s_dimHint"></span>
+        <button type="button" class="mapsbtn" id="s2Maps"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>ดูหลังคาจากดาวเทียม</button>
+        <span class="hint">ใส่ตำแหน่งบ้าน แล้ววัดขนาดใน Google Maps หรือวางแผงบนภาพดาวเทียม แอปนับแผงให้</span></div>
+      <div class="q" id="q_mat"><h4>หลังคาทำจากอะไร</h4>
+        <div class="chips" id="s_mat"><button data-v="metal">เมทัลชีท</button><button data-v="tile">กระเบื้อง (ลอนคู่ / ซีแพค)</button><button data-v="concrete">ดาดฟ้าคอนกรีต</button><button data-v="poly">โพลีคาร์บอเนต / ไวนิล</button></div></div>
+      <div class="q" id="q_dir"><h4>หลังคาด้านนี้หันไปทางไหน</h4>
+        <div class="chips" id="s_dir"><button data-v="s">ใต้</button><button data-v="ew">ตะวันออก / ตะวันตก</button><button data-v="n">เหนือ</button><button data-v="flat">แบนราบ</button></div></div>
+      <div class="q" id="q_shade"><h4>มีเงาบังไหม (ต้นไม้ ตึก)</h4>
+        <div class="chips" id="s_shade"><button data-v="none">ไม่มี</button><button data-v="some">บางช่วง</button><button data-v="heavy">เยอะ / ทั้งวัน</button></div></div>
+      <label class="check"><input type="checkbox" id="s_old"> หลังคาอายุเกิน 15 ปี หรือเคยรั่ว</label>
+    </div>
+    <div class="panel answer">
+      <span class="note" id="s2Need"></span>
+      <div class="crt"><div class="verdict-big v-idle" id="s2Verdict">--/--</div></div>
+      <p class="why" id="s2Why" hidden></p>
+      <div class="pick" id="s2Pick">
+        <div class="pickrow" id="roofRow"><h4>หลังคาแบบไหน <small>ปัดดูเพิ่ม →</small></h4><div class="swipe" id="roofPick"></div></div>
+        <div class="pickrow"><h4>วางแผงแบบไหน <small>แตะซ้ำเพื่อยกเลิก</small></h4><div class="swipe" id="layPick"></div><p class="note laymin" id="layMin"></p></div>
+      </div>
+      <p class="note">หมายถึงพื้นที่พอ ยังไม่ใช่สิทธิ์เข้าโครงการ</p>
+      <p class="line" id="s2Line"></p>
+      <button type="button" class="nextbtn" id="s2Next" data-next="t3" hidden><span class="tn">3</span>ไปข้อ 3 ติดกับใคร →</button>
+      <svg id="s2Svg" class="fitsvg" viewBox="0 0 320 210" role="img" aria-label="ภาพจำลองการวางแผงบนพื้นที่"></svg>
+      <div class="pcount" id="s2Count"><button type="button" class="btn" data-d="-1" aria-label="ลดแผง 1 แผ่น">− แผง</button><span id="s2CountTxt"></span><button type="button" class="btn" data-d="1" aria-label="เพิ่มแผง 1 แผ่น">+ แผง</button></div>
+      <div class="fitp" id="s2Params" hidden>
+        <div class="rotrow"><button type="button" class="btn sm solid" id="s2Rot">หมุนแผง 90°</button><span class="note" id="s2RotTxt"></span></div>
+        <label>แผงยาว<span class="inrow"><input type="number" id="s2PL" step="0.01" min="0.5" inputmode="decimal"><span class="unit">ม.</span></span></label>
+        <label>แผงกว้าง<span class="inrow"><input type="number" id="s2PW" step="0.01" min="0.5" inputmode="decimal"><span class="unit">ม.</span></span></label>
+        <label>กำลังแผง<span class="inrow"><input type="number" id="s2Wt" step="5" min="100" inputmode="numeric"><span class="unit">W</span></span></label>
+        <label>เว้นจากขอบ<span class="inrow"><input type="number" id="s2Sb" step="0.1" min="0" inputmode="decimal"><span class="unit">ม.</span></span></label>
+      </div>
+      <div class="sat2go" id="s2Go"><div class="orline"><span>ไม่รู้ขนาด หรืออยากดูหลังคาจริง</span></div></div>
+      <ul class="tips" id="s2Notes"></ul>
+    </div>
+    <details class="panel satbox" id="t2Sat">
+      <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/></svg><span>ดูหลังคาจริงจากดาวเทียม</span><small>ไม่บังคับ</small></summary>
+      <ol class="satsteps"><li><b>อยู่ที่บ้าน:</b> กด <b>ตำแหน่งปัจจุบัน</b></li><li><b>ไม่ได้อยู่บ้าน:</b> กด <b>เปิด Google Maps</b> แตะค้างที่หลังคาบ้าน คัดลอกตัวเลขพิกัด กลับมากด <b>วางพิกัด</b></li><li>แอปดึงภาพดาวเทียมซูมใกล้สุดให้เอง พร้อมวางแผงตามจำนวนที่เลือกไว้ลงบนภาพ <b>ลากกลุ่มแผงไปวางบนหลังคา</b> หมุนให้แนวแผงขนานกับชายคา ถ้าแผงล้นหลังคาแปลว่าพื้นที่ไม่พอ ปรับจำนวนด้วย <b>+ แผง / − แผง</b></li></ol>
+      <div class="satbody" id="t2SatBody"></div>
+    </details>
+  </section>
+
+  <section class="tab" id="t3" hidden style="display:grid;gap:24px">
+    <div class="panel">
+        <h3>ลงทะเบียนและเลือกผู้ติดตั้ง</h3>
+        <div class="regbox">
+          <a class="btn solid" href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">ลงทะเบียน PEA (ต่างจังหวัด) ↗</a>
+          <a class="btn solid" href="https://peoplesolar.mea.or.th" target="_blank" rel="noopener">ลงทะเบียน MEA (กทม. นนทบุรี สมุทรปราการ) ↗</a>
+          <p class="note">ดูบิลค่าไฟว่าเป็น PEA หรือ MEA · ถาม PEA โทร 1129 · MEA โทร 1130 · ลงทะเบียนแล้วยังไม่ใช่ได้สิทธิ์ ต้องรอตรวจคุณสมบัติก่อน</p>
+        </div>
+        <h4 style="margin:14px 0 6px">เลือกผู้ติดตั้ง</h4>
+        <ul class="checks">
+          <li class="alert"><b>ต้องเป็นการไฟฟ้า หรือผู้ติดตั้งที่ขึ้นทะเบียนกับการไฟฟ้าเท่านั้น</b> · MEA: <a href="https://peoplesolar.mea.or.th/vendor" target="_blank" rel="noopener">ดูรายชื่อ Vendor List</a> · PEA: ดูในระบบ <a href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">peoplesolar.pea.co.th</a> หรือโทร 1129</li>
+          <li>เป็นบริษัทจดทะเบียน มีที่อยู่และหน้าร้านจริง เช็คได้ที่ <a href="https://datawarehouse.dbd.go.th" target="_blank" rel="noopener">กรมพัฒนาธุรกิจการค้า</a></li>
+          <li>มีวิศวกรไฟฟ้าเซ็นรับรองแบบ และติดตั้งตามมาตรฐาน วสท.</li>
+          <li>รับประกันงานติดตั้งและหลังคารั่วอย่างน้อย 1–2 ปี บอกเวลาเข้าซ่อมเป็นลายลักษณ์อักษร</li>
+          <li class="alert"><b>ถ้าร้านปิดกิจการ ใครดูแล?</b> เลือกร้านที่เปิดมาแล้วหลายปี และขอให้ประกันอุปกรณ์ลงชื่อเราตรงกับผู้ผลิตหรือตัวแทนในไทย จะเคลมได้แม้ร้านปิด</li>
+          <li>มีผลงานติดตั้งใกล้บ้านให้ไปดูหรือโทรถามเจ้าของได้</li>
+          <li>จ่ายเงินตามงวดงาน ไม่จ่ายมัดจำ "จองสิทธิ์"</li>
+          <li class="alert">อย่าเชื่อร้านที่รับปากว่า "ได้เงิน 50,000 แน่นอน" หรือ "กู้ผ่านแน่นอน" การไฟฟ้าและธนาคารเป็นคนพิจารณา ร้านรับรองแทนไม่ได้</li>
+          <li class="alert">ขอใบเสนอราคาอย่างน้อย 2–3 เจ้า แล้วกรอกเทียบในตารางด้านล่าง</li>
+        </ul>
+      </div>
+    <div class="panel" id="rfq">
+      <div class="row"><h3>ขอใบเสนอราคาจากร้านใกล้บ้าน</h3><span class="note">แอปเขียนข้อความขอราคาจากข้อมูลบ้านในข้อ 1–2 ให้ คุณส่งเองทาง LINE หรือแชทของร้าน แอปไม่ได้ส่งหรือเก็บข้อมูลของคุณ</span></div>
+      <div class="rfqgrid">
+        <label>จังหวัด<select id="rfqProv"></select></label>
+        <label>อำเภอ / ตำบล (ไม่บังคับ)<input type="text" id="rfqArea" placeholder="เช่น อ.เมือง ต.ในเมือง"></label>
+      </div>
+      <label class="note rfqchk"><input type="checkbox" id="rfqCoords"> แนบพิกัดบ้าน (ร้านดูหลังคาจากภาพดาวเทียมก่อนได้)</label>
+      <textarea id="rfqText" rows="13" aria-label="ข้อความขอใบเสนอราคา"></textarea>
+      <div class="rfqbtns"><button type="button" class="btn solid" id="rfqLine">ส่งทาง LINE</button><button type="button" class="btn" id="rfqCopy">คัดลอกข้อความ</button><button type="button" class="btn" id="rfqShare" hidden>แชร์…</button></div>
+      <div id="rfqVendors" class="rfqv"></div>
+    </div>
+    <div class="two" style="align-items:start">
+      <div class="panel" style="align-content:start">
+        <h3>เงื่อนไขหลัก (จากเว็บ MEA และข่าว 27 ต.ค. 69)</h3>
+        <ul class="checks">
+          <li>คนไทย บุคคลธรรมดา มิเตอร์บ้านอยู่อาศัย (ประเภท 1) <b>ชื่อผู้ลงทะเบียนตรงกับชื่อเจ้าของมิเตอร์</b></li>
+          <li>ติด <b>5–10 kW ต่อมิเตอร์</b> ใช้สิทธิ์ได้ครั้งเดียว ถ้าต่อเติมระบบเดิม ส่วนที่เพิ่มต้องอยู่ในช่วงนี้</li>
+          <li>ใบกำกับภาษีค่าอุปกรณ์และติดตั้ง ลงวันที่ <b>27 ต.ค. 69 เป็นต้นไป</b> ซื้อก่อนหน้านั้นใช้ไม่ได้</li>
+          <li class="alert">ใช้คู่กับสิทธิ์ลดหย่อนภาษีค่าติดโซลาร์ (พ.ร.ฎ. 805) ไม่ได้ ต้องเลือกอย่างใดอย่างหนึ่ง</li>
+          <li>ผู้ถือบัตรสวัสดิการแห่งรัฐ สมัครได้ แต่ต้องสละสิทธิ์ส่วนลดค่าไฟจากบัตร 20 ปี</li>
+          <li>ลงทะเบียนได้ถึง <b>31 ม.ค. 70</b> (จัดสิทธิ์ตามลำดับเวลา) · ร้านต้องสำรวจหน้างานภายใน 30 มิ.ย. 70</li>
+          <li>ยื่นขอเชื่อมต่อระบบภายใน <b>31 ส.ค. 70</b> และเชื่อมต่อเสร็จภายใน <b>30 ก.ย. 70</b> · เปลี่ยนมิเตอร์ให้ฟรี</li>
+          <li>ราคากลางชุด 5 kW 1 เฟส (หลังคาซีแพค) <b>ไม่เกิน 140,000 บาท รวม VAT</b> รวมประกันงานติดตั้ง ประกันอัคคีภัย และดูแลล้างแผงปีละครั้ง 7 ปี · ของที่สูงกว่าชุดมาตรฐานต้องแยกรายการให้เราเห็นและยินยอมก่อน</li>
+        </ul>
+      </div>
+      <div class="panel" style="align-content:start">
+        <h3>เลือกอุปกรณ์</h3>
+        <p class="note">เกณฑ์ขั้นต่ำชุดมาตรฐาน 5 kW 1 เฟส จากร่างคู่มือ Vendor ของ MEA/PEA (27 ต.ค. 69 · ยังเป็นร่าง ยังไม่บังคับใช้)</p>
+        <ul class="checks">
+          <li><b>แผง:</b> ผลึกซิลิคอน อย่างน้อย <b>600 W ต่อแผง</b> ประสิทธิภาพ (Module Efficiency) ไม่ต่ำกว่า <b>21%</b> รวมกำลังฝั่งแผงไม่ต่ำกว่า 5 kWp ได้มาตรฐาน มอก./IEC</li>
+          <li><b>ประกันแผง:</b> ตัวสินค้า 12 ปีขึ้นไป · กำลังผลิตเหลือไม่ต่ำกว่า 80% ที่ 25 ปี (ปีแรกเสื่อมไม่เกิน 1% ปีต่อไปไม่เกิน 0.4%/ปี)</li>
+          <li><b>อินเวอร์เตอร์:</b> รุ่นที่ขึ้นทะเบียนกับการไฟฟ้า ขนาด 5 kW ขึ้นไป 1 เฟส ดูรายชื่อ กฟภ. ที่ <a href="https://smartlist.pea.co.th/products" target="_blank" rel="noopener">smartlist.pea.co.th</a> (เขต กฟน. ให้ถาม MEA)</li>
+          <li class="alert"><b>อินเวอร์เตอร์รับประกันอย่างน้อย 10 ปี</b> เป็นชิ้นที่เสียบ่อยที่สุด ถ้าเสียหลังหมดประกันต้องจ่ายเองราว 20,000–40,000 บาท</li>
+          <li><b>ร้านต้องรับประกันงานติดตั้ง 7 ปี</b> ตอบกลับเมื่อมีปัญหาภายใน 24 ชม. แก้ให้เสร็จภายใน 15 วันทำการ ดูแลล้างแผงปีละครั้ง และทำประกันอัคคีภัยตลอด 7 ปี</li>
+          <li>มีเบรกเกอร์ฝั่ง DC และ AC อุปกรณ์กันฟ้าผ่า (SPD) สายดิน และอุปกรณ์กันไฟไหลย้อน (Export Limiting) ตามที่การไฟฟ้ากำหนด</li>
+          <li>ใบเสนอราคาต้องแยก: อุปกรณ์ (ยี่ห้อ รุ่น จำนวน) งานสำรวจ ออกแบบ ติดตั้ง ขออนุญาต บำรุงรักษา VAT วันส่งมอบ เงื่อนไขจ่ายเงิน และใครจ่ายค่าเสริมหลังคาหรือปรับปรุงระบบไฟเดิม</li>
+          <li>ราคากลาง 140,000 ครอบคลุมงานติดตั้งพื้นฐานบนหลังคาที่พร้อมติดตั้ง ถ้าต้องเสริมหลังคาหรือแก้ระบบไฟเดิม ร้านต้องแจ้งรายการและราคาให้เราเห็นชอบก่อน</li>
+        </ul>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="row"><h3>เทียบใบเสนอราคา</h3><span class="note">กรอกจากใบเสนอราคาที่ได้ แอปคิดความคุ้มของแต่ละเจ้าให้ ด้วยข้อมูลบ้านจากข้อ 1</span></div>
+      <div class="tablewrap"><table class="qt">
+        <thead><tr><th></th><th id="qh1">เจ้าที่ 1</th><th id="qh2">เจ้าที่ 2</th><th id="qh3">เจ้าที่ 3</th></tr></thead>
+        <tbody id="qbody"></tbody>
+        <tfoot id="qres"></tfoot>
+      </table></div>
+    </div>
+  </section>
+
+  <div class="main tab" id="adv" hidden>
+    <form class="panel inputs" id="form" autocomplete="off">
+      <h2>ข้อมูลบ้านลูกค้า</h2>
+
+      <div class="group" style="border-top:0;padding-top:0">
+        <span class="group-t">ที่ตั้งและหลังคา</span>
+        <p class="note">พิกัดบ้านและภาพดาวเทียมอยู่ในข้อ 2 · <button type="button" class="linkbtn" data-go="roof">แก้ตำแหน่งที่ข้อ 2</button></p>
+        <div class="field">
+          <label for="coords">พิกัดจาก Google Maps</label>
+          <input type="text" id="coords" value="" placeholder="เช่น 14.9799, 102.0978 หรือวางลิงก์ Google Maps">
+          <div class="locbtns">
+            <button class="btn sm" type="button" id="gpsBtn">ตำแหน่งปัจจุบัน</button>
+            <a class="btn sm" id="lnkPick" href="https://www.google.com/maps/@?api=1&amp;map_action=map&amp;basemap=satellite&amp;zoom=19" target="_blank" rel="noopener">เปิด Google Maps</a>
+            <button class="btn sm" type="button" id="pasteCoords">วางพิกัด</button>
+          </div>
+          <span class="hint" id="coordHint">ใน Google Maps คลิกขวาที่หลังคาบ้าน แล้วคลิกตัวเลขพิกัดบรรทัดบนสุดเพื่อคัดลอก กลับมากด "วางพิกัด" หรือ Ctrl+V ในช่องนี้</span>
+        </div>
+        <div class="field">
+          <label for="prov">หรือเลือกจังหวัด</label>
+          <select id="prov"></select>
+        </div>
+        <div class="locbox" id="locbox">–</div>
+        <div class="grid2">
+          <div class="field"><label for="dir">ทิศหน้าแผง</label>
+            <select id="dir"><option value="1">ใต้</option><option value="0.97">ตะวันออกเฉียงใต้</option><option value="0.97">ตะวันตกเฉียงใต้</option><option value="0.91">ตะวันออก</option><option value="0.91">ตะวันตก</option><option value="0.86">ตะวันออกเฉียงเหนือ</option><option value="0.86">ตะวันตกเฉียงเหนือ</option><option value="0.82">เหนือ</option></select></div>
+          <div class="field"><label for="shade">เงาบัง</label>
+            <div class="inrow"><input type="number" id="shade" value="0" min="0" max="60" step="1"><span class="unit">%</span></div></div>
+        </div>
+      </div>
+
+      <div class="group">
+        <span class="group-t">การใช้ไฟ</span>
+        <div class="field">
+          <label>การไฟฟ้า</label>
+          <div class="seg" id="utility">
+            <button type="button" data-v="PEA" aria-pressed="true">กฟภ. (PEA)</button>
+            <button type="button" data-v="MEA" aria-pressed="false">กฟน. (MEA)</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="billBaht">ค่าไฟเฉลี่ยต่อเดือน (ยอดตามบิล)</label>
+          <div class="inrow"><input type="number" id="billBaht" min="0" step="50"><span class="unit">บาท</span></div>
+          <span class="hint">ไม่รู้จำนวนหน่วย กรอกเป็นบาทได้เลย แอปแปลงเป็นหน่วยให้</span>
+        </div>
+        <div class="field">
+          <label for="kwh">การใช้ไฟเฉลี่ยต่อเดือน</label>
+          <div class="inrow"><input type="number" id="kwh" value="650" min="0" step="10"><span class="unit">หน่วย (kWh)</span></div>
+          <span class="hint" id="billHint">ค่าไฟประมาณ – บาท/เดือน</span>
+        </div>
+        <div class="field">
+          <span class="field" style="gap:6px"><label>บ้านนี้ใช้ไฟแบบไหน</label>
+          <span class="presets" id="presets"><button type="button" data-d="25">ไม่มีคนอยู่กลางวัน</button><button type="button" data-d="40">อยู่บ้านบางวัน</button><button type="button" data-d="55">อยู่บ้านทั้งวัน / WFH</button><button type="button" data-d="70">ร้านค้า / กิจการกลางวัน</button></span></span>
+          <label for="day">สัดส่วนการใช้ไฟช่วงกลางวัน (09:00–16:00) <b id="dayOut">45%</b></label>
+          <input type="range" id="day" min="10" max="80" value="45" step="5">
+          <span class="hint">มีคนอยู่บ้านกลางวัน หรือเปิดแอร์กลางวัน ให้ตั้งค่าสูงขึ้น</span>
+        </div>
+      </div>
+
+      <div class="group">
+        <span class="group-t">ระบบโซลาร์</span>
+        <div class="field">
+          <label>ประเภทระบบ</label>
+          <div class="seg" id="sysType">
+            <button type="button" data-v="ongrid" aria-pressed="true">On-grid</button>
+            <button type="button" data-v="hybrid" aria-pressed="false">Hybrid + แบต</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="kwp">ขนาดแผงโซลาร์</label>
+          <div class="inrow"><input type="number" id="kwp" value="5" min="0.5" step="0.5"><span class="unit">kWp</span></div>
+          <div class="suggest"><span id="sugText">ขนาดที่เหมาะ ≈ – kWp</span><button type="button" id="useSug">ใช้ขนาดนี้</button></div>
+        </div>
+        <div class="field">
+          <label for="price">ราคาติดตั้งต่อ kWp (ระบบ On-grid)</label>
+          <div class="inrow"><input type="number" id="price" value="28000" min="0" step="500"><span class="unit">บาท/kWp</span></div>
+        </div>
+        <div id="battFields" class="group" hidden>
+          <span class="group-t">แบตเตอรี่ (Hybrid)</span>
+          <div class="field">
+            <label for="battKwh">ขนาดแบตเตอรี่</label>
+            <div class="inrow"><input type="number" id="battKwh" value="10" min="0" step="2.5"><span class="unit">kWh</span></div>
+            <div class="suggest b"><span id="battSug">ขนาดที่เหมาะ ≈ – kWh</span><button type="button" id="useBattSug">ใช้ขนาดนี้</button></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label for="battPrice">ราคาแบตต่อ kWh</label><input type="number" id="battPrice" value="7000" step="500"><span class="hint">บาท/kWh</span></div>
+            <div class="field"><label for="hybExtra">ส่วนต่างอินเวอร์เตอร์ไฮบริด</label><input type="number" id="hybExtra" value="15000" step="1000"><span class="hint">บาท</span></div>
+            <div class="field"><label for="backup">โหลดจำเป็นตอนไฟดับ</label><input type="number" id="backup" value="1" step="0.1"><span class="hint">kW (ตู้เย็น ไฟ พัดลม เราเตอร์)</span></div>
+            <div class="field"><label for="battLife">อายุแบต</label><input type="number" id="battLife" value="15" step="1"><span class="hint">ปี</span></div>
+          </div>
+        </div>
+        <span class="hint" id="capexHint">งบลงทุนรวม – บาท</span>
+      </div>
+
+      <div class="group">
+        <span class="group-t">เงินสนับสนุนและสินเชื่อ (เงินสนับสนุนตามเว็บลงทะเบียน · เงื่อนไขกู้ตามข่าว)</span>
+        <label class="check"><input type="checkbox" id="useSub" checked> ใช้สิทธิ์เงินสนับสนุนจากรัฐ</label>
+        <div class="inrow"><input type="number" id="sub" value="50000" step="1000"><span class="unit">บาทต่อครัวเรือน</span></div>
+        <label class="check"><input type="checkbox" id="useLoan" checked> กู้ส่วนที่เหลือจากธนาคารรัฐ (ออมสิน / ธอส. / ธ.ก.ส.)</label>
+        <div class="grid2" id="loanFields">
+          <div class="field"><label for="rate">ดอกเบี้ย</label><div class="inrow"><input type="number" id="rate" value="2.5" step="0.1"><span class="unit">%/ปี</span></div></div>
+          <div class="field"><label for="ly">ผ่อน</label><div class="inrow"><input type="number" id="ly" value="7" min="1" max="20" step="1"><span class="unit">ปี</span></div></div>
+          <div class="field"><label for="own">จ่ายเองบางส่วน</label><div class="inrow"><input type="number" id="own" value="0" step="1000"><span class="unit">บาท</span></div></div>
+        </div>
+      </div>
+
+      <details>
+        <summary>สมมติฐานการคำนวณ (แก้ได้)</summary>
+        <div class="grid2">
+          <div class="field"><label for="yield">ผลผลิตไฟต่อปี</label><input type="number" id="yield" value="1350" step="10"><span class="hint">kWh/kWp/ปี (คำนวณจากพิกัด แก้เองได้)</span></div>
+          <div class="field"><label for="pr">ประสิทธิภาพระบบ (PR)</label><input type="number" id="pr" value="75" step="1"><span class="hint">% รวมความร้อน สาย อินเวอร์เตอร์</span></div>
+          <div class="field"><label for="panelW">วัตต์ต่อแผง</label><input type="number" id="panelW" value="620" step="5"><span class="hint">W</span></div>
+          <div class="field"><label for="sell">อัตรารับซื้อ</label><input type="number" id="sell" value="2.20" step="0.01"><span class="hint">บาท/หน่วย</span></div>
+          <div class="field"><label for="years">ระยะสัญญา</label><select id="years"><option value="20" selected>20 ปี</option><option value="10">10 ปี</option></select></div>
+          <div class="field"><label for="cap">เพดานขายไฟ</label><input type="number" id="cap" value="5" step="0.5"><span class="hint">kW (AC)</span></div>
+          <div class="field"><label for="ft">ค่า Ft</label><input type="number" id="ft" value="0.1623" step="0.0001"><span class="hint">บาท/หน่วย</span></div>
+          <div class="field"><label for="svc">ค่าบริการรายเดือน</label><input type="number" id="svc" value="24.62" step="0.01"><span class="hint">บาท (เช็คจากบิล)</span></div>
+          <div class="field"><label for="fee">ค่าตรวจเชื่อมต่อ</label><input type="number" id="fee" value="2140" step="10"><span class="hint">บาท รวม VAT</span></div>
+          <div class="field"><label for="deg">แผงเสื่อมต่อปี</label><input type="number" id="deg" value="0.5" step="0.1"><span class="hint">%</span></div>
+          <div class="field"><label for="esc">ค่าไฟขึ้นต่อปี</label><input type="number" id="esc" value="0" step="0.5"><span class="hint">%</span></div>
+          <div class="field"><label for="om">ค่าดูแลรักษา</label><input type="number" id="om" value="1000" step="100"><span class="hint">บาท/ปี</span></div>
+          <div class="field"><label for="inv">เปลี่ยนอินเวอร์เตอร์ ปีที่ 12</label><input type="number" id="inv" value="25000" step="1000"><span class="hint">บาท</span></div>
+          <div class="field"><label for="dod">แบตใช้ได้จริง (DoD)</label><input type="number" id="dod" value="90" step="5"><span class="hint">%</span></div>
+          <div class="field"><label for="rte">ประสิทธิภาพชาร์จ-จ่าย</label><input type="number" id="rte" value="90" step="1"><span class="hint">% (round-trip)</span></div>
+          <div class="field"><label for="repl">ค่าเปลี่ยนแบตเมื่อหมดอายุ</label><input type="number" id="repl" value="60" step="5"><span class="hint">% ของราคาแบตวันนี้</span></div>
+        </div>
+      </details>
+    </form>
+
+    <section class="results" aria-live="polite">
+      <div class="panel collapsed" id="roofPanel">
+        <div class="row"><h3>วางแผงบนภาพหลังคา</h3><span class="note" id="roofCoord"></span><button class="btn sm" type="button" id="roofToggle">เปิดเครื่องมือวางแผง</button></div>
+        <p class="note roofIntro">ระบบ 5 kW ใช้แผงราว 8 แผง พื้นที่หลังคาประมาณ 25 ตร.ม. (10 kW ราว 50 ตร.ม.) หลังคาบ้านทั่วไปมักพอ เครื่องมือนี้ใช้เช็คหลังคาที่เล็ก มีหลายด้าน หรือหันไม่ตรงทิศใต้</p>
+        <div class="roofbtns">
+          <button class="btn solid" type="button" id="fetchSat" hidden>ดึงภาพดาวเทียมของพิกัดนี้</button>
+          <select id="satZoom" hidden aria-label="ระดับซูม" style="width:auto"><option value="21" selected>ซูม 21 (ใกล้สุด)</option><option value="20">ซูม 20</option><option value="19">ซูม 19</option><option value="18">ซูม 18</option></select>
+          <button class="btn" type="button" id="roofClear" hidden>ล้างภาพ</button>
+        </div>
+        <p class="note" id="satMsg" hidden></p>
+        <label class="drop" id="drop" for="roofFile" tabindex="0">
+          <input type="file" id="roofFile" accept="image/*" hidden>
+          <span id="dropText"><span class="big">วางภาพหลังคาที่นี่</span><br>แคปหน้าจอภาพดาวเทียมแล้วกด Ctrl+V ลากไฟล์ภาพมาวาง หรือคลิกเพื่อเลือกไฟล์ ใช้ภาพโดรนหรือภาพถ่ายที่ลูกค้าส่งมาก็ได้</span>
+        </label>
+        <div class="layout" id="layoutWrap" hidden>
+          <p class="lyhint" id="lyHint"></p>
+          <div class="canvaswrap"><canvas id="lyCanvas" aria-label="ภาพหลังคาสำหรับวางผังแผง"></canvas></div>
+          <div class="lytools" id="placeTools" hidden>
+            <button class="btn sm solid" type="button" id="lyRot">หมุน 90° (R)</button>
+            <button class="btn sm" type="button" id="lyAngM">− 5°</button>
+            <span class="note" id="lyAngTxt">เอียง 0°</span>
+            <button class="btn sm" type="button" id="lyAngP">+ 5°</button>
+            <label class="note"><input type="checkbox" id="lySnap" checked> เกาะแผงข้างเคียง</label>
+          </div>
+          <div class="lytools">
+            <div class="seg3" id="lyMode">
+              <button type="button" data-m="scale" aria-pressed="true">1 วัดสเกล</button>
+              <button type="button" data-m="group" aria-pressed="false">2 ลากแผงไปวาง</button>
+              <button type="button" data-m="roof" aria-pressed="false">หรือ วาดหลังคา</button>
+              <button type="button" data-m="place" aria-pressed="false">2 วางแผงเอง</button>
+              <button type="button" data-m="edit" aria-pressed="false">3 ลบ/คืนแผง</button>
+            </div>
+            <button class="btn sm" type="button" id="lyClose">ปิดกรอบ</button>
+            <button class="btn sm" type="button" id="lyUndo">ย้อนกลับ</button>
+            <button class="btn sm" type="button" id="lyClearRoof">ล้างกรอบหลังคา</button>
+            <button class="btn sm danger" type="button" id="lyClearAll">ล้างที่วาดทั้งหมด</button>
+            <button class="btn sm" type="button" id="lyReplace">เปลี่ยนภาพ</button>
+          </div>
+          <div class="lytools" id="satNav" hidden>
+            <span class="note">เลื่อนภาพดาวเทียม:</span>
+            <button class="btn sm" type="button" data-d="0,1">↑ เหนือ</button>
+            <button class="btn sm" type="button" data-d="0,-1">↓ ใต้</button>
+            <button class="btn sm" type="button" data-d="-1,0">← ตะวันตก</button>
+            <button class="btn sm" type="button" data-d="1,0">→ ตะวันออก</button>
+            <button class="btn sm" type="button" id="zIn">ซูมเข้า</button>
+            <button class="btn sm" type="button" id="zOut">ซูมออก</button>
+          </div>
+          <div class="lyparams">
+            <div class="field"><label for="lyMeters">ความยาวจริงของเส้นวัด</label><div class="inrow"><input type="number" id="lyMeters" placeholder="เช่น 10" min="0" step="0.1"><span class="unit">ม.</span></div></div>
+            <div class="field"><label for="lyPL">แผงยาว</label><div class="inrow"><input type="number" id="lyPL" value="2.38" step="0.01"><span class="unit">ม.</span></div></div>
+            <div class="field"><label for="lyPW">แผงกว้าง</label><div class="inrow"><input type="number" id="lyPW" value="1.13" step="0.01"><span class="unit">ม.</span></div></div>
+            <div class="field"><label for="lyOrient">วางแผง</label><select id="lyOrient"><option value="p">แนวตั้ง (ยาวตามลาดหลังคา)</option><option value="l">แนวนอน (ยาวตามชายคา)</option></select></div>
+            <div class="field"><label for="lySetback">เว้นจากขอบหลังคา</label><div class="inrow"><input type="number" id="lySetback" value="0.3" min="0" step="0.05"><span class="unit">ม.</span></div></div>
+            <div class="field"><label for="lyPitch">ความชันหลังคา</label><div class="inrow"><input type="number" id="lyPitch" value="15" min="0" max="60" step="1"><span class="unit">องศา</span></div></div>
+            <div class="field"><label for="lyTarget">ขนาดระบบที่ต้องการ</label><div class="inrow"><input type="number" id="lyTarget" placeholder="เต็มหลังคา" min="0" step="0.5"><span class="unit">kWp</span></div><button class="btn sm" type="button" id="lySug">ใช้ขนาดแนะนำ</button></div>
+          </div>
+          <div class="lyresult">
+            <div><div class="n"><span id="lyCount">–</span> <small>แผง</small></div><div class="note">= <b id="lyKwp">–</b> kWp</div></div>
+            <div class="note" id="lyMeta" style="flex:1;min-width:180px"></div>
+            <div style="display:grid;gap:4px;justify-items:end"><button class="btn solid" type="button" id="lyApply" disabled>ดูผลที่จอด้านบน ↑</button><span class="note" id="lyApplied"></span></div>
+          </div>
+        </div>
+        <div class="roofbtns">
+          <a class="btn" id="lnkMaps" href="https://www.google.com/maps/@?api=1&amp;map_action=map&amp;basemap=satellite&amp;zoom=19" target="_blank" rel="noopener">ดูที่นี่ใน Google Maps</a>
+          <a class="btn" id="lnkEarth" href="https://earth.google.com/web/" target="_blank" rel="noopener">เปิด Google Earth 3D</a>
+        </div>
+        <p class="note">ภาพที่วางในกรอบแสดงเฉพาะบนเครื่องนี้ ไม่ถูกอัปโหลดไปที่ไหน</p>
+      </div>
+
+      <div class="panel" id="cashPanel">
+        <div class="row"><h3>แต่ละเดือนเหลือหรือขาด (ปีแรก)</h3><span class="verdict" id="verdict">–</span></div>
+        <div class="tablewrap"><table><tbody id="cashTable"></tbody></table></div>
+        <p class="note" id="cashNote"></p>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi hero" id="heroK"><span class="k" id="kBenefitK">ประหยัด + รายได้ ปีแรก</span><span class="v" id="kBenefit">–</span><span class="s" id="kBenefitS">บาท/ปี</span></div>
+        <div class="kpi"><span class="k" id="kPayK">คืนทุนใน</span><span class="v" id="kPay">–</span><span class="s" id="kPayS">ปี</span></div>
+        <div class="kpi"><span class="k">กำไรสุทธิตลอดสัญญา</span><span class="v" id="kNet">–</span><span class="s" id="kNetS">บาท</span></div>
+        <div class="kpi"><span class="k">ใช้ไฟโซลาร์เอง</span><span class="v" id="kSelf">–</span><span class="s" id="kSelfS">ของไฟที่ผลิต</span></div>
+      </div>
+
+      <div class="warnbox" id="warn" hidden></div>
+
+      <div class="panel">
+        <div class="row"><h3>เทียบ On-grid กับ Hybrid + แบตเตอรี่</h3><span class="note" id="cmpNote"></span></div>
+        <div class="tablewrap"><table>
+          <thead><tr><th></th><th id="thOn">On-grid</th><th id="thHy">Hybrid + แบต</th></tr></thead>
+          <tbody id="cmpTable"></tbody>
+        </table></div>
+        <p class="note">แบตเตอรี่เก็บไฟส่วนเกินตอนกลางวันไว้ใช้ตอนเย็น แทนที่จะขายที่ 2.20 บาท จึงได้มูลค่าเท่าค่าไฟที่ไม่ต้องซื้อ แต่ต้องลงทุนเพิ่มและเปลี่ยนแบตเมื่อหมดอายุ ข้อดีที่ตัวเลขไม่ได้นับคือมีไฟสำรองตอนไฟดับ</p>
+      </div>
+
+      <div class="panel">
+        <div class="row"><h3 id="dayTitle">ไฟฟ้าในหนึ่งวัน (ค่าเฉลี่ย)</h3>
+          <div class="legend"><span><i style="background:var(--grid);opacity:.5"></i>การใช้ไฟของบ้าน</span><span><i style="background:var(--cell)"></i>โซลาร์ใช้เอง</span><span id="lgB1"><i style="background:var(--batt)"></i>แบตจ่ายให้บ้าน</span><span id="lgB2"><i style="background:var(--batt);opacity:.4"></i>ชาร์จแบต</span><span><i style="background:var(--sun)"></i>ขายเข้าระบบ</span></div></div>
+        <svg class="chart" id="dayChart" viewBox="0 0 640 230" role="img" aria-label="กราฟการผลิตและใช้ไฟรายชั่วโมง"></svg>
+        <p class="note" id="dayNote"></p>
+      </div>
+
+      <div class="two">
+        <div class="panel">
+          <h3>ค่าไฟรายเดือน ก่อน/หลัง ติดโซลาร์</h3>
+          <div class="tablewrap"><table>
+            <thead><tr><th></th><th>ก่อน</th><th>หลัง</th></tr></thead>
+            <tbody id="billTable"></tbody>
+          </table></div>
+          <p class="note">คิดตามอัตราก้าวหน้า กฟภ. (บิลตั้งแต่ ก.ย. 2569) + ค่า Ft + VAT 7% ไฟที่ใช้จากโซลาร์และแบตจะไปหักหน่วยแพงขั้นบนสุดก่อน</p>
+        </div>
+        <div class="panel">
+          <h3>ระบบที่ต้องติดตั้ง</h3>
+          <div class="tablewrap"><table><tbody id="sysTable"></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="row"><h3>เงินสะสมตลอดอายุสัญญา</h3><div class="legend"><span><i style="background:var(--cell)"></i>On-grid</span><span><i style="background:var(--batt)"></i>Hybrid + แบต</span></div></div>
+        <svg class="chart" id="cashChart" viewBox="0 0 640 230" role="img" aria-label="กราฟกระแสเงินสดสะสมเทียบสองระบบ"></svg>
+      </div>
+
+      <div class="two">
+        <div class="panel">
+          <h3>เช็คคุณสมบัติก่อนยื่น (กฟภ.)</h3>
+          <ul class="checks">
+            <li>เป็นผู้ใช้ไฟประเภทที่ 1 บ้านอยู่อาศัย ชื่อตรงกับบิล</li>
+            <li>แนบบิลค่าไฟอายุไม่เกิน 3 เดือน ชื่อ ที่อยู่ ประเภทผู้ใช้ไฟต้องเป็นปัจจุบัน</li>
+            <li>อินเวอร์เตอร์ต้องอยู่ในรายการที่ขึ้นทะเบียนกับ กฟภ. (smartlist.pea.co.th)</li>
+            <li>ยื่นออนไลน์ที่ ppim.pea.co.th รับแบบมาก่อนได้ก่อน ประกาศผลภายใน 30 วัน</li>
+            <li>ผ่านการคัดเลือกแล้ว ต้องเซ็นสัญญาภายใน 30 วัน</li>
+            <li>ติดแบตเตอรี่ (BESS) ร่วมได้ ถ้าเป็นไปตามมาตรฐานของการไฟฟ้า</li>
+            <li class="alert" id="capCheck">–</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <div class="row"><h3>สรุปส่งลูกค้า</h3><button class="btn solid" type="button" id="copyBtn">คัดลอกข้อความ</button></div>
+          <pre class="summary" id="summary"></pre>
+        </div>
+      </div>
+
+      <div class="sources">
+        <span>ที่มา: <a href="https://www.thaigov.go.th/th/news/169035" target="_blank" rel="noopener">รัฐบาลไทย 18 ก.ย. 2569</a> · <a href="https://ppim.pea.co.th/app/v1/project/solar/detail/6a3df059ee9f0e286c0a1766" target="_blank" rel="noopener">กฟภ. PPIM</a> · <a href="https://www.pea.co.th/news/corporate-news/2412" target="_blank" rel="noopener">อัตราค่าไฟ กฟภ. ก.ย. 2569</a> · <a href="https://power.larc.nasa.gov/" target="_blank" rel="noopener">ค่าแสงแดด NASA POWER</a></span>
+        <span>ค่าแสงแดดเป็นค่าเฉลี่ยระยะยาวรายจังหวัดจาก NASA POWER (ดาวเทียม) เฉลี่ยถ่วงน้ำหนักจาก 3 จังหวัดที่ใกล้พิกัดที่สุด ผลคำนวณเป็นการประมาณเบื้องต้น ไม่ใช่ผลการออกแบบจริง เงื่อนไขสัญญา 20 ปีรอ กกพ. ออกประกาศปรับปรุง ควรตรวจสอบประกาศล่าสุดก่อนเสนอราคาให้ลูกค้า</span>
+      </div>
+    </section>
+  </div>
+
+  <section class="guide" id="guide" aria-labelledby="guideT">
+    <h2 id="guideT">คู่มือ: แอปคิดอย่างไร</h2>
+    <details id="g1"><summary>คุ้ม / ไม่คุ้ม คิดจากอะไร</summary><div class="gbody">
+      <p>แอปตอบคำถามเดียว: <b>ติดแล้วแต่ละเดือนกระเป๋าตังค์เหลือหรือขาด</b> คิด 4 ขั้น</p>
+      <ol>
+        <li><b>แปลงค่าไฟเป็นหน่วย</b> ย้อนสูตรบิล กฟภ. (อัตราก้าวหน้า ก.ย. 2569 + Ft + ค่าบริการ + VAT 7%) เช่น 2,500 บาท ≈ 580 หน่วย/เดือน</li>
+        <li><b>จำลองทีละชั่วโมงใน 1 วัน</b> แผงผลิตตามค่าแดดรายจังหวัด (NASA POWER) × ประสิทธิภาพระบบ 75% บ้านใช้ไฟตามคำตอบ "กลางวันมีคนอยู่บ้านไหม" ชั่วโมงที่ผลิตได้และบ้านกำลังใช้ = ใช้เอง ส่วนที่เหลือขายเข้าระบบ</li>
+        <li><b>คิดเป็นเงินต่อเดือน</b> บิลที่ลดลง + เงินขายไฟ − ค่างวดธนาคาร ไฟที่ใช้เองหักหน่วยแพงขั้นบนสุดก่อน จึงมีค่าหน่วยละราว 4.4 บาท มากกว่าไฟที่ขาย (2.20 บาท) บ้านที่ใช้ไฟกลางวันเยอะจึงคุ้มกว่า</li>
+        <li><b>ตัดสินคำบนจอ</b> ตามตารางด้านล่าง</li>
+      </ol>
+      <table><thead><tr><th></th><th>คุ้ม</th><th>พอไหว</th><th>ยังไม่คุ้ม</th></tr></thead><tbody>
+        <tr><td>กู้ธนาคาร (เงินเหลือต่อเดือนช่วงผ่อน)</td><td>+300 บาทขึ้นไป</td><td>−200 ถึง +300</td><td>ขาดเกิน 200 บาท</td></tr>
+        <tr><td>จ่ายเงินสด (คืนทุนใน)</td><td>ไม่เกิน 6 ปี</td><td>6–9 ปี</td><td>เกิน 9 ปี</td></tr>
+      </tbody></table>
+      <p>ยอด "รวม 20 ปี" คิดทีละปี หักแผงเสื่อมปีละ 0.5% ค่าดูแลปีละ 1,000 บาทตั้งแต่ปีที่ 8 (7 ปีแรกรวมในราคากลาง 140,000 แล้ว) และเปลี่ยนอินเวอร์เตอร์ 25,000 บาทในปีที่ 12 ไม่ได้คิดค่าไฟขึ้น ถ้าค่าไฟขึ้นจะคุ้มกว่าที่แอปบอก</p>
+      <p class="note">เกณฑ์คุ้ม/พอไหวเป็นเกณฑ์ของแอป ไม่ใช่มาตรฐานทางการ ตัวเลขทุกตัวเปิดดูได้ที่เมนู 4</p>
+    </div></details>
+    <details id="g5"><summary>"ขายได้ไม่เกิน 5 kW" หมายความว่าอะไร ต่อวันหรือเปล่า</summary><div class="gbody">
+      <p><b>ไม่ใช่ต่อวัน</b> 5 kW คือกำลังไฟ ณ ขณะหนึ่ง ไม่ใช่ปริมาณไฟทั้งวัน</p>
+      <ul>
+        <li><b>kW (กิโลวัตต์)</b> คือความแรงของไฟที่ไหลออกไปในแต่ละขณะ เหมือนความเร็วของน้ำที่ไหลจากก๊อก</li>
+        <li><b>kWh (หน่วย)</b> คือปริมาณไฟที่สะสมตามเวลา เหมือนจำนวนลิตรในถัง และเป็นหน่วยที่การไฟฟ้าจ่ายให้หน่วยละ 2.20 บาท</li>
+        <li>เงื่อนไขคือ ณ วินาทีใดก็ตาม ไฟที่ไหลจากบ้านเข้าสายการไฟฟ้าต้องไม่เกิน 5 kW ถ้าไหลเต็ม 5 kW นาน 3 ชั่วโมง ก็ได้ 15 หน่วย ไม่มีเพดานเป็นหน่วยต่อวัน</li>
+      </ul>
+      <p><b>ติด 5 kW:</b> เพดานนี้แทบไม่มีผล เพราะตอนเที่ยงแผงผลิตได้ราว 3.5–4 kW ทั้งวันเฉลี่ยราว 18 หน่วย ใช้เองส่วนหนึ่ง ที่เหลือขายได้หมด</p>
+      <p><b>ติด 10 kW:</b> เพดานมีผลตอนกลางวัน เช่น เที่ยงแผงผลิต 7.5 kW บ้านใช้ 1.5 kW เหลือ 6 kW ขายได้แค่ 5 kW อีก 1 kW เสียเปล่า บ้านที่ใช้ไฟกลางวันน้อยจึงติด 5 kW ก็พอ</p>
+      <p>แอปคิดตามนี้: ชั่วโมงไหนไฟส่วนเกินเกิน 5 kW นับขายได้แค่ 5 ส่วนที่เกินไม่ได้เงิน</p>
+      <p class="note">คำว่า AC หมายถึงฝั่งไฟบ้านหลังอินเวอร์เตอร์ ไม่ใช่ขนาดแผง ติดแผงเกิน 5 kW ได้ถ้าส่วนเกินใช้เองในบ้าน ข่าวเขียนทั้ง "ต่อมิเตอร์" และ "ต่อราย" บ้านที่มีหลายมิเตอร์รอประกาศของการไฟฟ้าหรือ กกพ.</p>
+    </div></details>
+  </section>
+
+  <footer class="foot">
+    <svg aria-hidden="true"><use href="#blIcon"/></svg>
+    <div><div class="foot-name">BOILER <b>LAB</b></div>
+      <div class="foot-tag"><span>&gt;_</span> Imagination limit <em>not found</em></div>
+      <p class="note">แอปนี้ทำโดย Boiler Lab ให้คนที่สนใจโซลาร์ภาคประชาชนใช้ฟรี ตัวเลขเป็นการประมาณเบื้องต้น ไม่ได้เก็บข้อมูลที่กรอก</p></div>
+  </footer>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const fmt=(n,d=0)=>Number(n).toLocaleString('th-TH',{minimumFractionDigits:d,maximumFractionDigits:d});
+let utility='PEA', sysType='ongrid';
+
+// Province capitals + long-term mean daily GHI (kWh/m²/day), NASA POWER climatology ALLSKY_SFC_SW_DWN
+const PROV=[["กรุงเทพมหานคร",13.75,100.50,5.23],["อำนาจเจริญ",15.86,104.63,5.22],["อ่างทอง",14.59,100.45,5.22],["บึงกาฬ",18.36,103.65,4.70],["บุรีรัมย์",14.99,103.10,5.20],["ฉะเชิงเทรา",13.69,101.07,4.96],["ชัยนาท",15.19,100.12,5.21],["ชัยภูมิ",15.81,102.03,5.23],["จันทบุรี",12.61,102.10,4.73],["เชียงใหม่",18.79,98.98,4.80],["เชียงราย",19.91,99.83,4.90],["ชลบุรี",13.36,100.98,5.23],["ชุมพร",10.49,99.18,4.93],["กาฬสินธุ์",16.43,103.51,5.08],["กำแพงเพชร",16.48,99.52,5.02],["กาญจนบุรี",14.02,99.53,5.07],["ขอนแก่น",16.44,102.84,5.06],["กระบี่",8.09,98.91,5.02],["ลำปาง",18.29,99.49,4.94],["ลำพูน",18.58,99.01,4.94],["เลย",17.49,101.72,4.86],["ลพบุรี",14.80,100.65,5.22],["แม่ฮ่องสอน",19.30,97.97,5.04],["มหาสารคาม",16.18,103.30,5.08],["มุกดาหาร",16.54,104.72,5.05],["นครนายก",14.20,101.21,5.01],["นครปฐม",13.82,100.06,5.23],["นครพนม",17.39,104.78,4.87],["นครราชสีมา",14.97,102.10,5.11],["นครสวรรค์",15.70,100.14,5.21],["นครศรีธรรมราช",8.43,99.96,4.79],["น่าน",18.78,100.78,4.87],["นราธิวาส",6.43,101.82,4.96],["หนองบัวลำภู",17.20,102.44,5.00],["หนองคาย",17.88,102.74,5.00],["นนทบุรี",13.86,100.51,5.23],["ปทุมธานี",14.02,100.53,5.22],["ปัตตานี",6.87,101.25,4.96],["พังงา",8.45,98.53,5.02],["พัทลุง",7.62,100.08,5.01],["พะเยา",19.17,99.90,4.90],["เพชรบูรณ์",16.42,101.16,4.90],["เพชรบุรี",13.11,99.94,4.90],["พิจิตร",16.44,100.35,5.13],["พิษณุโลก",16.82,100.26,5.13],["พระนครศรีอยุธยา",14.35,100.57,5.22],["แพร่",18.14,100.14,4.87],["ภูเก็ต",7.88,98.39,5.30],["ปราจีนบุรี",14.05,101.37,5.01],["ประจวบคีรีขันธ์",11.81,99.80,4.82],["ระนอง",9.96,98.64,4.84],["ราชบุรี",13.54,99.82,4.90],["ระยอง",12.68,101.28,5.07],["ร้อยเอ็ด",16.05,103.65,5.08],["สระแก้ว",13.82,102.07,5.04],["สกลนคร",17.16,104.15,4.87],["สมุทรปราการ",13.60,100.60,5.23],["สมุทรสาคร",13.55,100.27,5.23],["สมุทรสงคราม",13.41,100.00,5.23],["สระบุรี",14.53,100.91,5.22],["สตูล",6.62,100.07,5.02],["สิงห์บุรี",14.89,100.40,5.22],["ศรีสะเกษ",15.12,104.32,5.22],["สงขลา",7.19,100.60,5.01],["สุโขทัย",17.01,99.82,5.05],["สุพรรณบุรี",14.47,100.12,5.22],["สุราษฎร์ธานี",9.14,99.33,4.91],["สุรินทร์",14.88,103.49,5.20],["ตาก",16.88,99.13,5.02],["ตรัง",7.56,99.61,5.01],["ตราด",12.24,102.52,4.73],["อุบลราชธานี",15.24,104.85,5.22],["อุดรธานี",17.42,102.79,5.00],["อุทัยธานี",15.38,100.02,5.21],["อุตรดิตถ์",17.62,100.10,4.99],["ยะลา",6.54,101.28,4.96],["ยโสธร",15.79,104.15,5.22]];
+const provSorted=PROV.map((p,i)=>[p[0],i]).sort((a,b)=>a[0].localeCompare(b[0],'th'));
+$('prov').innerHTML='<option value="">— จากพิกัด —</option>'+provSorted.map(([n,i])=>`<option value="${i}">${n}</option>`).join('');
+
+function km(a1,o1,a2,o2){const R=6371,r=Math.PI/180,da=(a2-a1)*r,dO=(o2-o1)*r;const h=Math.sin(da/2)**2+Math.cos(a1*r)*Math.cos(a2*r)*Math.sin(dO/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
+function parseCoords(s){
+  s=(s||'').trim();try{s=decodeURIComponent(s.replace(/\+/g,' '));}catch(e){}
+  // degrees-minutes(-seconds) with hemisphere, e.g. 14°03'57.2"N 101°22'15.5"E or 14°03.953'N
+  const dms=[...s.matchAll(/(\d{1,3})\s*[°º]\s*(\d{1,2}(?:[.,]\d+)?)\s*['′’](?:\s*(\d{1,2}(?:[.,]\d+)?)\s*(?:"|″|”|''))?\s*([NSEWเหนือใต้ตะวันออกตก]*)/gi)];
+  const hemi=(h,i)=>{h=(h||'').toUpperCase();if(/^[NS]|เหนือ|ใต้/.test(h))return{ax:'lat',neg:/^S|ใต้/.test(h)};if(/^[EW]|ตะวัน/.test(h))return{ax:'lon',neg:/^W|ตก/.test(h)};return{ax:i?'lon':'lat',neg:false};};
+  const num=x=>parseFloat(String(x||0).replace(',','.'));
+  if(dms.length>=2){const v=dms.slice(0,2).map((h,i)=>{const d=hemi(h[4],i);let x=num(h[1])+num(h[2])/60+num(h[3])/3600;return{x:d.neg?-x:x,ax:d.ax};});
+    const la=v.find(o=>o.ax==='lat')||v[0],lo=v.find(o=>o.ax==='lon')||v[1];if(la!==lo)return{la:la.x,lo:lo.x};}
+  // decimal degrees with hemisphere letters, e.g. 14.0659° N, 101.3710° E
+  const dh=[...s.matchAll(/(\d{1,3}(?:\.\d+)?)\s*[°º]?\s*([NSEW])\b/gi)];
+  if(dh.length>=2){const a=hemi(dh[0][2],0),b=hemi(dh[1][2],1);if(a.ax!==b.ax){const A=(a.neg?-1:1)*num(dh[0][1]),B=(b.neg?-1:1)*num(dh[1][1]);return a.ax==='lat'?{la:A,lo:B}:{la:B,lo:A};}}
+  let m=s.match(/@(-?\d+\.\d+),\s*(-?\d+\.\d+)/)||s.match(/[?&](?:q|query|ll)=(-?\d+\.\d+),\s*(-?\d+\.\d+)/)||s.match(/(-?\d{1,2}\.\d+)\s*[, ]\s*(-?\d{2,3}\.\d+)/);
+  if(!m)return null;const la=parseFloat(m[1]),lo=parseFloat(m[2]);
+  if(isNaN(la)||isNaN(lo))return null;return {la,lo};
+}
+function locate(la,lo){
+  const d=PROV.map((p,i)=>({i,d:km(la,lo,p[1],p[2])})).sort((a,b)=>a.d-b.d);
+  const near=d.slice(0,3);let ws=0,g=0;
+  for(const n of near){const w=1/Math.max(n.d,5)**2;ws+=w;g+=w*PROV[n.i][3];}
+  return {ghi:g/ws,nearest:near[0]};
+}
+let loc=null;
+function updateLoc(fromProv){
+  const box=$('locbox');
+  let la,lo;
+  if(fromProv&&$('prov').value!==''){const p=PROV[+$('prov').value];la=p[1];lo=p[2];$('coords').value=`${la.toFixed(4)}, ${lo.toFixed(4)}`;}
+  else{if(!$('coords').value.trim()){loc=null;box.className='locbox';box.innerHTML='ยังไม่ได้ใส่พิกัด ตอนนี้ใช้ผลผลิตไฟตั้งต้น <b>'+fmt(parseFloat($('yield').value)||0)+'</b> kWh/kWp/ปี';$('roofCoord').textContent='';$('lnkPick').href=MAPS_HERE;$('lnkMaps').href=MAPS_HERE;$('s2Maps').href=MAPS_HERE;return;}const c=parseCoords($('coords').value);if(!c){box.className='locbox err';box.textContent=/goo\.gl|maps\.app/.test($('coords').value)?'ลิงก์ย่อ (maps.app.goo.gl) ไม่มีตัวเลขพิกัดอยู่ข้างใน ให้เปิดลิงก์แล้วคัดลอกตัวเลขพิกัดมาวางแทน':'อ่านพิกัดไม่ได้ ลองวางแบบ 13.7563, 100.5018';return;}la=c.la;lo=c.lo;$('prov').value='';}
+  if(la<5||la>21||lo<97||lo>106.5){box.className='locbox err';box.textContent='พิกัดนี้อยู่นอกประเทศไทย ตรวจสอบตัวเลขอีกครั้ง';return;}
+  loc=locate(la,lo);
+  setRoofLinks(la,lo);
+  const p=PROV[loc.nearest.i];
+  box.className='locbox';
+  box.innerHTML=`<span>ใกล้ <b>จ.${p[0]}</b> (ห่าง ${fmt(loc.nearest.d)} กม.)</span><span>แสงแดดเฉลี่ย <b>${fmt(loc.ghi,2)}</b> kWh/ตร.ม./วัน</span><span id="yieldLine"></span>`;
+  applyYield();
+}
+function applyYield(){
+  if(!loc)return;
+  const pr=(parseFloat($('pr').value)||75)/100, dir=parseFloat($('dir').value)||1, sh=1-(parseFloat($('shade').value)||0)/100;
+  const y=Math.round(loc.ghi*365*pr*dir*sh/5)*5;
+  $('yield').value=y;
+  const yl=$('yieldLine');if(yl)yl.innerHTML=`ผลผลิตไฟ ≈ <b>${fmt(y)}</b> kWh/kWp/ปี (${fmt(y/365,2)} หน่วย/kWp/วัน)`;
+}
+
+function setRoofLinks(la,lo){
+  const a=la.toFixed(6),o=lo.toFixed(6);
+  $('lnkMaps').href=`https://www.google.com/maps/@?api=1&map_action=map&center=${a},${o}&zoom=20&basemap=satellite`;
+  $('lnkEarth').href=`https://earth.google.com/web/@${a},${o},20a,120d,35y,0h,45t,0r`;
+  $('roofCoord').textContent=`พิกัด ${la.toFixed(5)}, ${lo.toFixed(5)}`;
+  $('lnkPick').href=`https://www.google.com/maps/search/?api=1&query=${a},${o}`;
+  $('s2Maps').href=$('lnkMaps').href;
+}
+function coordHint(msg,cls){const h=$('coordHint');h.textContent=msg;h.className='hint'+(cls?' '+cls:'');}
+function setCoords(text,msg){
+  const c=parseCoords(text);
+  if(!c){coordHint('สิ่งที่คัดลอกไว้ไม่ใช่พิกัด ใน Google Maps คลิกขวาที่บ้าน แล้วคลิกตัวเลขพิกัดบรรทัดบนสุด','err');return false;}
+  $('coords').value=`${c.la.toFixed(6)}, ${c.lo.toFixed(6)}`;
+  $('coords').classList.add('flash');setTimeout(()=>$('coords').classList.remove('flash'),1200);
+  updateLoc(false);render();coordHint(msg||'ใช้พิกัดใหม่แล้ว','ok');if(typeof setGuide==='function')setGuide(-1);autoSat();return true;
+}
+// as soon as the house coordinates are known, pull the satellite image at the closest zoom and bring the user to it
+let lastSatAt='';
+function autoSat(){if(!GMAPS_KEY||$('t2').hidden)return;const c=parseCoords($('coords').value);if(!c)return;const k=c.la.toFixed(5)+','+c.lo.toFixed(5);if(k===lastSatAt)return;lastSatAt=k;
+  $('satZoom').value='21';$('fetchSat').click();}
+let awaitingMaps=false;
+const TOUCH=matchMedia('(pointer:coarse)').matches,PASTE_HOW=TOUCH?'แตะค้างในช่องพิกัด แล้วเลือก "วาง"':'กด Ctrl+V ในช่องพิกัด';
+['lnkPick','lnkMaps'].forEach(id=>$(id).addEventListener('click',()=>{awaitingMaps=true;}));
+// back from Google Maps: point at the coordinates box and make the paste button blink
+function backFromMaps(){
+  if(!awaitingMaps||parseCoords($('coords').value))return;awaitingMaps=false;
+  if(typeof setGuide==='function')setGuide(2);
+  const i=$('coords');i.classList.add('flash');setTimeout(()=>i.classList.remove('flash'),1500);
+  coordHint(`กด "วางพิกัด" หรือ ${PASTE_HOW} เพื่อใส่พิกัดที่คัดลอกมาจาก Google Maps`,'');
+}
+window.addEventListener('focus',backFromMaps);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)backFromMaps();});
+$('pasteCoords').addEventListener('click',async()=>{
+  try{const t=await navigator.clipboard.readText();setCoords(t,'วางพิกัดจาก Google Maps แล้ว');}
+  catch(e){
+    // many phone browsers (and Facebook's) refuse clipboard reads; if the box already holds coordinates, that's fine
+    if(parseCoords($('coords').value)){coordHint('ใส่พิกัดแล้ว','ok');return;}
+    const i=$('coords');i.focus();i.select();coordHint(`เบราว์เซอร์นี้ไม่ให้ปุ่มอ่านคลิปบอร์ด ${PASTE_HOW} แทน`,'err');}
+});
+$('gpsBtn').addEventListener('click',()=>{
+  if(!navigator.geolocation){coordHint('เบราว์เซอร์นี้ไม่รองรับ GPS','err');return;}
+  coordHint('กำลังหาตำแหน่ง…','');
+  navigator.geolocation.getCurrentPosition(
+    pos=>setCoords(`${pos.coords.latitude}, ${pos.coords.longitude}`,`ใช้ตำแหน่งปัจจุบันแล้ว (ความแม่น ±${Math.round(pos.coords.accuracy)} ม.)`),
+    ()=>coordHint('ใช้ตำแหน่งไม่ได้ หน้านี้ไม่ได้รับอนุญาต ใช้ได้เมื่อเปิดไฟล์ในเครื่องด้วย Chrome และกดอนุญาตตำแหน่ง','err'),
+    {enableHighAccuracy:true,timeout:15000});
+});
+// no coordinates yet: Google Maps centres this link on the viewer's own current location
+// a map URL without a centre opens at 0,0 in the Maps app, so default to a Thailand overview
+const MAPS_HERE='https://www.google.com/maps/@?api=1&map_action=map&basemap=satellite&center=13.7367,100.5232&zoom=6';
+let roofURL=null;
+function showRoof(file){
+  if(!file||!/^image\//.test(file.type))return;
+  if(roofURL)URL.revokeObjectURL(roofURL);
+  roofURL=URL.createObjectURL(file);
+  const im=new Image();im.onload=()=>useRoofImage(im,null);im.src=roofURL;
+}
+function useRoofImage(im,sat){
+  // centre the fetched photo on screen; repeat once the panels and result box below it have settled
+  if(sat){const c=()=>{if(!$('t2').hidden&&cv.offsetParent)cv.scrollIntoView({behavior:'smooth',block:'center'});};setTimeout(c,250);setTimeout(c,1000);}
+  LY.img=im;LY.sat=sat;const s=Math.min(1,2000/im.naturalWidth);cv.width=Math.round(im.naturalWidth*s);cv.height=Math.round(im.naturalHeight*s);
+  LY.sl=[];LY.polys=[];LY.cur=[];LY.removed.clear();LY.faces=[];LY.manual=[];LY.pin=null;$('lyApplied').textContent='';
+  $('roofPanel').classList.remove('collapsed');roofTgl();
+  $('drop').hidden=true;$('layoutWrap').hidden=false;$('roofClear').hidden=false;$('satNav').hidden=!sat;
+  if(sat){// scale is known from the zoom level: draw a 10 m scale bar and skip step 1
+    const mpp=satMpp(sat.lat,sat.z)/s,y=44; // top-left, clear of the Google logo and imagery credit at the bottom
+    LY.sl=[{x:24,y},{x:24+10/mpp,y}];$('lyMeters').value=10;
+    if(sat.house){const pc=merc(sat.lat,sat.lng,sat.z),ph=merc(sat.house.lat,sat.house.lng,sat.z);LY.pin={x:cv.width/2+(ph.x-pc.x)*2*s,y:cv.height/2+(ph.y-pc.y)*2*s};}
+    lyCompute();setMode('group');}
+  else{setMode('scale');lyResult();}
+}
+
+// ---- Panel layout tool: scale line, roof polygons (first edge = eave), auto-fill panels ----
+const LY={img:null,mode:'scale',sl:[],polys:[],cur:[],removed:new Set(),faces:[],hover:null,count:0,manual:[],pRot:0,pAng:0};
+const cv=$('lyCanvas'),cx=cv.getContext('2d');
+const DIRS=[[0,'ทิศเหนือ',7],[45,'ทิศตะวันออกเฉียงเหนือ',5],[90,'ทิศตะวันออก',3],[135,'ทิศตะวันออกเฉียงใต้',1],[180,'ทิศใต้',0],[225,'ทิศตะวันตกเฉียงใต้',2],[270,'ทิศตะวันตก',4],[315,'ทิศตะวันตกเฉียงเหนือ',6]];
+const dirOf=b=>DIRS[Math.round(((b%360)+360)%360/45)%8];
+const HINTS={
+  scale:'ขั้นที่ 1: คลิก 2 จุดบนสิ่งที่รู้ความยาวจริง เช่น แนวชายคาที่วัดจาก Google Maps (คลิกขวา > วัดระยะทาง) หรือแถบสเกลมุมล่างขวาของภาพ แล้วใส่ความยาวจริงในช่องด้านล่าง',
+  group:'ขั้นที่ 2: แผงตามจำนวนที่เลือกไว้วางอยู่บนภาพแล้ว ลากกลุ่มแผงไปวางบนหลังคา หรือคลิกตรงหลังคาเพื่อย้ายไปที่นั่น ใช้ปุ่มหมุนให้แนวแผงขนานกับชายคา เพิ่ม/ลดแผงที่ปุ่ม + แผง / − แผง ที่จอด้านบน',
+  roof:'วาดหลังคา: คลิกมุมหลังคาทีละจุด เริ่มจาก 2 จุดตามแนวชายคา (ขอบล่างของด้านที่จะติดแผง) จบด้วยคลิกจุดแรกซ้ำหรือกด "ปิดกรอบ" ติดหลายด้านให้วาดทีละกรอบ',
+  place:'วางแผงเอง: แผงจะติดปลายเมาส์ เลื่อนไปคลิกวางทีละแผง แผงใหม่จะเกาะชิดแผงข้างเคียงเอง กด R หรือปุ่มหมุน 90° เพื่อสลับแนวตั้ง/แนวนอน ถ้าวาดกรอบหลังคาไว้ แผงจะหมุนตามแนวชายคาเอง คลิกแผงที่วางแล้วเพื่อลบ แผงสีแดงคือตำแหน่งที่ทับแผงเดิม วางไม่ได้',
+  edit:'ขั้นที่ 3: คลิกแผงสีน้ำเงินเพื่อเอาออก เช่น ตรงปล่องระบายอากาศ จานดาวเทียม หรือจุดที่มีเงา คลิกกรอบเส้นประ (ที่ว่างบนหลังคา) เพื่อเพิ่มแผงตรงนั้น'};
+function lyNum(id,d){const v=parseFloat($(id).value);return isFinite(v)?v:d;}
+function lyScale(){if(LY.sl.length<2)return null;const m=lyNum('lyMeters',0);const px=Math.hypot(LY.sl[1].x-LY.sl[0].x,LY.sl[1].y-LY.sl[0].y);return m>0&&px>0?m/px:null;}
+function toImg(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*cv.width/r.width,y:(e.clientY-r.top)*cv.height/r.height};}
+function dispK(){const r=cv.getBoundingClientRect();return r.width?cv.width/r.width:1;}
+function setMode(m){if(LY.mode==='group'&&m!=='group'){LY.manual=LY.manual.filter(q=>!q.grp);}LY.mode=m;$('placeTools').hidden=m!=='place'&&m!=='group';if(m==='group'){buildGroup();lyResult();}else if(LY.img)lyCompute();document.querySelectorAll('#lyMode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));$('lyHint').textContent=matchMedia('(pointer:coarse)').matches?HINTS[m].replace(/คลิก/g,'แตะ'):HINTS[m];cv.style.cursor=m==='edit'?'pointer':'crosshair';draw();}
+function inPoly(p,P){let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const a=P[i],b=P[j];if((a.y>p.y)!==(b.y>p.y)&&p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x)c=!c;}return c;}
+function segDist(p,a,b){const dx=b.x-a.x,dy=b.y-a.y,l=dx*dx+dy*dy;let t=l?((p.x-a.x)*dx+(p.y-a.y)*dy)/l:0;t=Math.max(0,Math.min(1,t));return Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy);}
+function segX(a,b,c,d){const o=(p,q,r)=>Math.sign((q.x-p.x)*(r.y-p.y)-(q.y-p.y)*(r.x-p.x));return o(a,b,c)*o(a,b,d)<0&&o(c,d,a)*o(c,d,b)<0;}
+function fillFace(P,sc){
+  const a=P[0],b=P[1],th=Math.atan2(b.y-a.y,b.x-a.x),cs=Math.cos(th),sn=Math.sin(th);
+  const cp=Math.cos(Math.min(60,Math.max(0,lyNum('lyPitch',15)))*Math.PI/180)||1;
+  let L=P.map(p=>{const dx=(p.x-a.x)*sc,dy=(p.y-a.y)*sc;return{x:dx*cs+dy*sn,y:-dx*sn+dy*cs};});
+  const sgn=L.reduce((s,p)=>s+p.y,0)<0?-1:1;
+  L=L.map(p=>({x:p.x,y:p.y*sgn/cp}));
+  const port=$('lyOrient').value==='p',pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13);
+  const du=port?pw:pl,dv=port?pl:pw,gap=0.02,sb=Math.max(0,lyNum('lySetback',0.3));
+  const xs=L.map(p=>p.x),ys=L.map(p=>p.y),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const n=L.length;
+  const ok=(rx,ry)=>{const C=[{x:rx,y:ry},{x:rx+du,y:ry},{x:rx+du,y:ry+dv},{x:rx,y:ry+dv}];
+    for(const c of C){if(!inPoly(c,L))return false;for(let i=0;i<n;i++)if(segDist(c,L[i],L[(i+1)%n])<sb-1e-9)return false;}
+    for(const v of L)if(v.x>rx+1e-6&&v.x<rx+du-1e-6&&v.y>ry+1e-6&&v.y<ry+dv-1e-6)return false;
+    for(let i=0;i<4;i++)for(let j=0;j<n;j++)if(segX(C[i],C[(i+1)%4],L[j],L[(j+1)%n]))return false;
+    return true;};
+  let best=[];const N=6;
+  const off=g=>{let a=1e9,b=-1e9,c=1e9,d=-1e9;for(const[u,v]of g){a=Math.min(a,u);b=Math.max(b,u+du);c=Math.min(c,v);d=Math.max(d,v+dv);}return Math.hypot((a+b)/2-(x0+x1)/2,(c+d)/2-(y0+y1)/2);};
+  if(du>0&&dv>0&&(x1-x0)/(du+gap)*(y1-y0)/(dv+gap)<5000){
+    for(let i=0;i<N;i++)for(let j=0;j<N;j++){const ou=x0+sb+(du+gap)*i/N,ov=y0+sb+(dv+gap)*j/N,got=[];
+      for(let ry=ov;ry+dv<=y1+1e-9;ry+=dv+gap)for(let rx=ou;rx+du<=x1+1e-9;rx+=du+gap)if(ok(rx,ry))got.push([rx,ry]);
+      if(got.length>best.length||(got.length&&got.length===best.length&&off(got)<off(best)))best=got;}}
+  const back=(u,v)=>{const vy=v*cp*sgn,dx=u*cs-vy*sn,dy=u*sn+vy*cs;return{x:a.x+dx/sc,y:a.y+dy/sc};};
+  let area=0;for(let i=0;i<n;i++){const p=L[i],q=L[(i+1)%n];area+=p.x*q.y-q.x*p.y;}
+  const bdx=sgn*sn,bdy=-sgn*cs,bearing=(Math.atan2(bdx,-bdy)*180/Math.PI+360)%360;
+  const umin=Math.min(...best.map(b=>b[0])),vmin=Math.min(...best.map(b=>b[1]));
+  return{panels:best.map(([u,v])=>[back(u,v),back(u+du,v),back(u+du,v+dv),back(u,v+dv)]),rc:best.map(([u,v])=>[Math.round((v-vmin)/(dv+gap)),Math.round((u-umin)/(du+gap))]),area:Math.abs(area)/2,bearing};
+}
+function faceCount(fi){return LY.faces[fi].panels.filter((_,i)=>!LY.removed.has(fi+'-'+i)).length;}
+function lyCompute(){const sc=lyScale();LY.faces=sc?lyPolys().map(P=>fillFace(P,sc)):[];applyLimit();lyResult();draw();}
+// Keep only the wanted number of panels: best-facing roof first (closest to south), then panels nearest that face's centre
+function applyLimit(){
+  LY.removed.clear();const W=parseFloat($('panelW').value)||600,t=parseFloat($('lyTarget').value);
+  if(!(t>0)||!LY.faces.length)return;let left=Math.max(1,Math.round(t*1000/W));
+  const southOff=b=>Math.abs((((b-180)%360)+540)%360-180);
+  const ord=LY.faces.map((f,fi)=>fi).sort((a,b)=>southOff(LY.faces[a].bearing)-southOff(LY.faces[b].bearing)||LY.faces[b].panels.length-LY.faces[a].panels.length);
+  // fill whole rows along the eave: fewest rows, centred rows, panels centred in each row
+  for(const fi of ord){const f=LY.faces[fi],ps=f.panels;if(!ps.length)continue;
+    const rows={};f.rc.forEach(([r,c],i)=>{(rows[r]=rows[r]||[]).push([c,i]);});
+    const rk=Object.keys(rows).map(Number).sort((a,b)=>a-b);rk.forEach(r=>rows[r].sort((a,b)=>a[0]-b[0]));
+    const keep=new Set();
+    if(left>0){const maxC=Math.max(...rk.map(r=>rows[r].length));let n=Math.min(rk.length,Math.ceil(left/maxC)),chosen;
+      for(;n<=rk.length;n++){chosen=rk.slice(0,n);if(chosen.reduce((s,r)=>s+rows[r].length,0)>=left||n===rk.length)break;}
+      let need=Math.min(left,chosen.reduce((s,r)=>s+rows[r].length,0));
+      const byLen=chosen.slice().sort((a,b)=>rows[a].length-rows[b].length);let slots=byLen.length;
+      for(const r of byLen){const a=Math.min(rows[r].length,Math.ceil(need/slots));const st=Math.floor((rows[r].length-a)/2);rows[r].slice(st,st+a).forEach(([,i])=>keep.add(i));need-=a;slots--;}}
+    ps.forEach((_,i)=>{if(!keep.has(i))LY.removed.add(fi+'-'+i);});left=Math.max(0,left-keep.size);}
+}
+function capLine(W){if(!LY.faces.length)return '';const tot=LY.faces.reduce((s,f)=>s+f.panels.length,0);return `หลังคาวางได้สูงสุด ${fmt(tot)} แผง (${fmt(tot*W/1000,2)} kWp)${LY.count<tot?` · ใช้ ${fmt(LY.count)} แผง`:''}<br>`;}
+function lyResult(){
+  if(!LY.img)return;const sc=lyScale(),W=parseFloat($('panelW').value)||600;
+  if(!sc){LY.count=0;$('lyCount').textContent='–';$('lyKwp').textContent='–';$('lyMeta').textContent=LY.sl.length<2?'ยังไม่ได้ตั้งสเกล เริ่มที่ขั้นที่ 1':'ใส่ความยาวจริงของเส้นวัดในช่องด้านบน';$('lyApply').disabled=true;return;}
+  let n=0;const rows=[];
+  LY.faces.forEach((f,fi)=>{const k=faceCount(fi);n+=k;rows.push(`หลังคาด้าน ${fi+1}: ${k} แผง · หัน${dirOf(f.bearing)[1]} · พื้นที่ ${fmt(f.area,1)} ตร.ม.`);});
+  if(LY.manual.length){n+=LY.manual.length;rows.push(LY.mode==='group'?`กลุ่มแผงตามที่เลือก: ${LY.manual.length} แผง · ลากไปวางบนหลังคา`:`วางเองทีละแผง: ${LY.manual.length} แผง`);}
+  LY.count=n;$('lyCount').textContent=fmt(n);$('lyKwp').textContent=fmt(n*W/1000,2);
+  $('lyMeta').innerHTML=(LY.faces.length||LY.manual.length)?capLine(W)+rows.join('<br>')+`<br>สเกล 1 ม. = ${fmt(1/sc,1)} พิกเซล · แผง ${fmt(W)} W`:'ยังไม่ได้วาดกรอบหลังคา ไปที่ขั้นที่ 2';
+  $('lyApply').disabled=!n;
+  // in tab 2 the result goes straight into the screen above, no button press needed
+  if(typeof S2==='object'&&!$('t2').hidden){clearTimeout(LY.autoT);LY.autoT=setTimeout(()=>{if(LY.count)applyLy(false);else if(S2.lyN){S2.lyN=0;renderFit();}},450);}
+}
+function tag(t,x,y,k,bg){cx.font=`600 ${Math.round(13*k)}px "IBM Plex Sans Thai",sans-serif`;const w=cx.measureText(t).width+12*k,h=22*k;cx.fillStyle=bg||'rgba(10,16,30,.78)';cx.fillRect(x-w/2,y-h/2,w,h);cx.fillStyle='#fff';cx.textAlign='center';cx.textBaseline='middle';cx.fillText(t,x,y+k);}
+function path(P,close){cx.beginPath();P.forEach((p,j)=>j?cx.lineTo(p.x,p.y):cx.moveTo(p.x,p.y));if(close)cx.closePath();}
+function dot(p,r,col){cx.beginPath();cx.arc(p.x,p.y,r,0,Math.PI*2);cx.fillStyle=col;cx.fill();}
+function draw(){
+  if(!LY.img)return;const w=cv.width,h=cv.height,k=dispK(),lw=Math.max(1.5,2*k);
+  cx.clearRect(0,0,w,h);cx.drawImage(LY.img,0,0,w,h);
+  LY.faces.forEach((f,fi)=>f.panels.forEach((q,i)=>{path(q,true);
+    if(LY.removed.has(fi+'-'+i)){cx.setLineDash([4*k,4*k]);cx.strokeStyle='rgba(255,255,255,.7)';cx.lineWidth=lw;cx.stroke();cx.setLineDash([]);}
+    else{cx.fillStyle='rgba(20,48,130,.82)';cx.fill();cx.strokeStyle='rgba(255,255,255,.9)';cx.lineWidth=Math.max(1,k);cx.stroke();}}));
+  LY.manual.forEach(m=>{path(m.q,true);cx.fillStyle='rgba(20,48,130,.85)';cx.fill();cx.strokeStyle='#9fe7ff';cx.lineWidth=Math.max(1,k*1.2);cx.stroke();});
+  LY.polys.forEach((P,pi)=>{path(P,true);cx.strokeStyle='#ffd34d';cx.lineWidth=lw;cx.stroke();
+    cx.beginPath();cx.moveTo(P[0].x,P[0].y);cx.lineTo(P[1].x,P[1].y);cx.strokeStyle='#ff8a1f';cx.lineWidth=lw*2;cx.stroke();
+    const f=LY.faces[pi];tag(`ชายคา · ด้าน ${pi+1}${f?` · ${faceCount(pi)} แผง`:''}`,(P[0].x+P[1].x)/2,(P[0].y+P[1].y)/2,k,'rgba(200,90,10,.92)');});
+  if(LY.cur.length){const pts=LY.cur.concat(LY.mode==='roof'&&LY.hover?[LY.hover]:[]);path(pts,false);cx.strokeStyle='#ffd34d';cx.lineWidth=lw;cx.setLineDash([6*k,4*k]);cx.stroke();cx.setLineDash([]);
+    if(LY.cur.length>=2){cx.beginPath();cx.moveTo(LY.cur[0].x,LY.cur[0].y);cx.lineTo(LY.cur[1].x,LY.cur[1].y);cx.strokeStyle='#ff8a1f';cx.lineWidth=lw*2;cx.stroke();}
+    LY.cur.forEach((p,i)=>dot(p,(i?3.5:7)*k,i?'#ffd34d':'#ff8a1f'));}
+  if(LY.sl.length){const pts=LY.sl.length===1&&LY.mode==='scale'&&LY.hover?[LY.sl[0],LY.hover]:LY.sl;
+    if(pts.length===2){path(pts,false);cx.strokeStyle='#38e1ff';cx.lineWidth=lw*1.5;cx.stroke();}
+    LY.sl.forEach(p=>dot(p,4.5*k,'#38e1ff'));
+    if(LY.sl.length===2){const m=lyNum('lyMeters',0);tag(m>0?`${fmt(m,1)} ม.`:'ใส่ความยาวจริง',(LY.sl[0].x+LY.sl[1].x)/2,(LY.sl[0].y+LY.sl[1].y)/2-16*k,k,'rgba(0,120,150,.9)');}}
+  if(LY.pin){cx.beginPath();cx.arc(LY.pin.x,LY.pin.y,9*k,0,Math.PI*2);cx.strokeStyle='#ff3b30';cx.lineWidth=lw*1.5;cx.stroke();dot(LY.pin,2.5*k,'#ff3b30');}
+  if(LY.mode==='place'&&LY.hover){const g=ghostAt(LY.hover);if(g){path(g.q,true);cx.fillStyle=g.ok?'rgba(70,150,255,.55)':'rgba(255,80,60,.55)';cx.fill();cx.setLineDash([5*k,3*k]);cx.strokeStyle='#fff';cx.lineWidth=lw;cx.stroke();cx.setLineDash([]);}}
+}
+// outlines that get panels: closed ones plus the one being drawn once it has 3 corners
+function lyPolys(){return LY.mode==='roof'&&LY.cur.length>=3?[...LY.polys,LY.cur]:LY.polys;}
+function closePoly(){if(LY.cur.length<3)return;LY.polys.push(LY.cur);LY.cur=[];LY.removed.clear();lyCompute();}
+cv.addEventListener('pointerdown',e=>{
+  if(!LY.img)return;e.preventDefault();const p=toImg(e),k=dispK();
+  if(LY.mode==='scale'){if(LY.sl.length>=2)LY.sl=[];LY.sl.push(p);
+    if(LY.sl.length===2){lyCompute();if(lyNum('lyMeters',0)>0){if(!LY.polys.length)setMode('group');}else $('lyMeters').focus();}else draw();return;}
+  if(LY.mode==='roof'){if(LY.cur.length>=3&&Math.hypot(p.x-LY.cur[0].x,p.y-LY.cur[0].y)<14*k){closePoly();return;}LY.cur.push(p);lyCompute();return;}
+  if(LY.mode==='place'||LY.mode==='edit'){const mi=LY.manual.findIndex(m=>inPoly(p,m.q));if(mi>=0){LY.manual.splice(mi,1);lyResult();draw();return;}}
+  if(LY.mode==='place'){const g=ghostAt(p);if(!g){$('lyHint').textContent='ต้องวัดสเกลก่อน (ขั้นที่ 1) แอปจึงรู้ขนาดแผงบนภาพ';return;}if(g.ok){LY.manual.push(g);lyResult();draw();}return;}
+  for(let fi=0;fi<LY.faces.length;fi++){const ps=LY.faces[fi].panels;for(let i=0;i<ps.length;i++)if(inPoly(p,ps[i])){const id=fi+'-'+i;LY.removed.has(id)?LY.removed.delete(id):LY.removed.add(id);lyResult();draw();return;}}
+});
+cv.addEventListener('pointermove',e=>{if(LY.mode==='place'||LY.mode==='roof'&&LY.cur.length||LY.mode==='scale'&&LY.sl.length===1){LY.hover=toImg(e);draw();}});
+cv.addEventListener('pointerleave',()=>{if(LY.hover){LY.hover=null;draw();}});
+document.querySelectorAll('#lyMode button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.m)));
+$('lyClose').addEventListener('click',closePoly);
+$('lyUndo').addEventListener('click',()=>{if(LY.mode==='place'&&LY.manual.length){LY.manual.pop();lyResult();draw();return;}if(LY.cur.length){LY.cur.pop();LY.removed.clear();lyCompute();return;}else if(LY.polys.length){LY.polys.pop();LY.removed.clear();lyCompute();return;}else if(LY.sl.length){LY.sl.pop();lyCompute();return;}draw();});
+$('lyClearRoof').addEventListener('click',()=>{LY.polys=[];LY.cur=[];LY.removed.clear();lyCompute();});
+$('lyReplace').addEventListener('click',()=>$('roofFile').click());
+// ---- manual placement: ghost panel follows the cursor, snaps to neighbours, aligns to the eave of the roof under it ----
+function pDims(){const sc=lyScale();if(!sc)return null;const cp=Math.cos(Math.min(60,Math.max(0,lyNum('lyPitch',15)))*Math.PI/180)||1;
+  const port=($('lyOrient').value==='p')!==(LY.pRot===90),pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),du=port?pw:pl,dv=port?pl:pw,g=0.02;
+  const k=1.05;// drawn 5% larger than the measured size (user request: panels looked too small on the photo)
+  return{w:k*du/sc,h:k*dv*cp/sc,gw:k*(du+g)/sc,gh:k*(dv+g)*cp/sc};}
+function corners(c,a,w,h){const ux=Math.cos(a),uy=Math.sin(a),vx=-uy,vy=ux,hw=w/2,hh=h/2;
+  return[{x:c.x-ux*hw-vx*hh,y:c.y-uy*hw-vy*hh},{x:c.x+ux*hw-vx*hh,y:c.y+uy*hw-vy*hh},{x:c.x+ux*hw+vx*hh,y:c.y+uy*hw+vy*hh},{x:c.x-ux*hw+vx*hh,y:c.y-uy*hw+vy*hh}];}
+// ---- group mode: the planned number of panels sits on the photo as one block the user drags onto the roof ----
+LY.grp=null;
+function planShape(){const pW=parseFloat($('panelW').value)||620,P=typeof S2==='object'&&S2.lay?presetOf(S2.lay):null;
+  const E=typeof window.EFFP==='object'&&window.EFFP&&P&&window.EFFP.id===P.id?window.EFFP:P;
+  if(E)return{rows:E.rows,cols:E.cols,sides:E.sides,counts:E.counts,countsB:E.countsB};
+  const n=typeof S1==='object'?panelsFor(S1.size,pW):8,rows=n<=6?1:n<=12?2:3,base=Math.floor(n/rows),ex=n%rows;
+  return{rows,cols:Math.ceil(n/rows),sides:1,counts:[...Array(rows)].map((_,i)=>base+(i<ex?1:0))};}
+function buildGroup(){const d=pDims();if(!d||!LY.img)return;LY.manual=LY.manual.filter(q=>!q.grp);
+  if(!LY.grp)LY.grp={c:LY.pin?{...LY.pin}:{x:cv.width/2,y:cv.height/2}};
+  const sh=planShape(),a=LY.pAng*Math.PI/180,ux=Math.cos(a),uy=Math.sin(a),vx=-uy,vy=ux,gapSide=1.2/(lyScale()||1);
+  const blockH=sh.rows*d.gh,totalH=sh.sides===2?2*blockH+gapSide:blockH;
+  for(let s2=0;s2<sh.sides;s2++)(s2?sh.countsB:sh.counts).forEach((cnt,r)=>{for(let k=0;k<cnt;k++){
+    const lx=(k-(cnt-1)/2)*d.gw,ly=totalH/2-d.gh/2-r*d.gh-(s2?blockH+gapSide:0);
+    const c={x:LY.grp.c.x+ux*lx+vx*ly,y:LY.grp.c.y+uy*lx+vy*ly};
+    LY.manual.push({c,ang:a,w:d.w,h:d.h,gw:d.gw,gh:d.gh,q:corners(c,a,d.w,d.h),ok:true,grp:true});}});
+  draw();}
+let grpDrag=null;
+cv.addEventListener('pointerdown',e=>{if(LY.mode!=='group'||!LY.img||!LY.grp)return;const p=toImg(e);
+  if(!LY.manual.some(m=>m.grp&&inPoly(p,m.q))){LY.grp.c=p;buildGroup();lyResult();}
+  grpDrag={dx:p.x-LY.grp.c.x,dy:p.y-LY.grp.c.y};try{cv.setPointerCapture(e.pointerId);}catch(_){}});
+cv.addEventListener('pointermove',e=>{if(!grpDrag)return;const p=toImg(e);LY.grp.c={x:p.x-grpDrag.dx,y:p.y-grpDrag.dy};buildGroup();});
+['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t,()=>{if(grpDrag){grpDrag=null;lyResult();}}));
+// rebuild after the rotate / angle handlers further down have updated LY.pRot / LY.pAng
+['lyRot','lyAngM','lyAngP'].forEach(id=>$(id).addEventListener('click',()=>setTimeout(()=>{if(LY.mode==='group'){buildGroup();lyResult();}},0)));
+function ghostAt(p){
+  const d=pDims();if(!d)return null;let ang=LY.pAng*Math.PI/180,face=-1;
+  for(let i=LY.polys.length-1;i>=0;i--){const P=LY.polys[i];if(inPoly(p,P)){ang=Math.atan2(P[1].y-P[0].y,P[1].x-P[0].x)+LY.pAng*Math.PI/180;face=i;break;}}
+  let c=p,w=d.w,h=d.h,gw=d.gw,gh=d.gh;
+  if($('lySnap').checked){let bd=Math.min(w,h)*0.65,hit=null;
+    for(const m of LY.manual){const ux=Math.cos(m.ang),uy=Math.sin(m.ang);
+      for(const[su,sv]of[[1,0],[-1,0],[0,1],[0,-1]]){const cand={x:m.c.x+su*ux*m.gw-sv*uy*m.gh,y:m.c.y+su*uy*m.gw+sv*ux*m.gh};
+        const dd=Math.hypot(cand.x-p.x,cand.y-p.y);if(dd<bd&&!LY.manual.some(o=>Math.hypot(o.c.x-cand.x,o.c.y-cand.y)<Math.min(o.w,o.h)*0.5)){bd=dd;hit={cand,m};}}}
+    if(hit){c=hit.cand;ang=hit.m.ang;w=hit.m.w;h=hit.m.h;gw=hit.m.gw;gh=hit.m.gh;}}
+  const q=corners(c,ang,w,h),qs=corners(c,ang,w*0.96,h*0.96);
+  const ok=!LY.manual.some(m=>Math.hypot(m.c.x-c.x,m.c.y-c.y)<Math.min(w,h)*0.9||qs.some(t=>inPoly(t,m.q))||m.q.some(t=>inPoly(t,qs)));
+  return{c:{x:c.x,y:c.y},ang,w,h,gw,gh,q,ok,face};
+}
+function angTxt(){$('lyAngTxt').textContent=`เอียง ${LY.pAng}° · ${(($('lyOrient').value==='p')!==(LY.pRot===90))?'แนวตั้ง':'แนวนอน'}`;}
+$('lyRot').addEventListener('click',()=>{LY.pRot=LY.pRot?0:90;angTxt();draw();});
+$('lyAngM').addEventListener('click',()=>{LY.pAng-=5;angTxt();draw();});
+$('lyAngP').addEventListener('click',()=>{LY.pAng+=5;angTxt();draw();});
+$('lyOrient').addEventListener('change',angTxt);
+document.addEventListener('keydown',e=>{if(LY.mode!=='place'||!LY.img||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;if(e.key==='r'||e.key==='R'){LY.pRot=LY.pRot?0:90;angTxt();draw();}});
+angTxt();
+// ---- Google Static Maps: works only in the self-hosted copy (Claude-hosted pages block outside images) ----
+const GMAPS_KEY=(window.SOLAR_CONFIG&&window.SOLAR_CONFIG.gmapsKey)||''; // key comes from config.js in the self-hosted copy
+function merc(lat,lng,z){const n=256*Math.pow(2,z),sn=Math.sin(lat*Math.PI/180);return{x:(lng+180)/360*n,y:(0.5-Math.log((1+sn)/(1-sn))/(4*Math.PI))*n};}
+function satMpp(lat,z){return 156543.03392*Math.cos(lat*Math.PI/180)/Math.pow(2,z)/2;} // metres per image pixel at scale=2
+function satMsg(t,err){const m=$('satMsg');m.hidden=!t;m.textContent=t||'';m.style.color=err?'var(--warn)':'';}
+function fetchSat(sat){
+  satMsg('กำลังดึงภาพดาวเทียม…');
+  const im=new Image();
+  im.onload=()=>{satMsg('');useRoofImage(im,sat);};
+  im.onerror=()=>satMsg('ดึงภาพไม่สำเร็จ ตรวจ API key การเปิดใช้ Maps Static API การผูกบัญชีเรียกเก็บเงิน และโดเมนที่อนุญาตให้ key ใช้ได้',true);
+  im.src=`https://maps.googleapis.com/maps/api/staticmap?center=${sat.lat.toFixed(6)},${sat.lng.toFixed(6)}&zoom=${sat.z}&size=640x640&scale=2&format=jpg&maptype=satellite&key=${encodeURIComponent(GMAPS_KEY)}`;
+}
+if(GMAPS_KEY){$('fetchSat').hidden=false;$('satZoom').hidden=false;$('lnkMaps').classList.remove('solid');}
+$('fetchSat').addEventListener('click',()=>{const c=parseCoords($('coords').value);
+  if(!c){coordHint('ใส่พิกัดบ้านก่อน แล้วกดดึงภาพดาวเทียม','err');$('coords').focus();return;}
+  fetchSat({lat:c.la,lng:c.lo,z:+$('satZoom').value,house:{lat:c.la,lng:c.lo}});});
+document.querySelectorAll('#satNav [data-d]').forEach(b=>b.addEventListener('click',()=>{if(!LY.sat)return;
+  const[dx,dy]=b.dataset.d.split(',').map(Number),span=1280*satMpp(LY.sat.lat,LY.sat.z)*0.4;
+  fetchSat({...LY.sat,lat:LY.sat.lat+dy*span/111320,lng:LY.sat.lng+dx*span/(111320*Math.cos(LY.sat.lat*Math.PI/180))});}));
+$('zIn').addEventListener('click',()=>{if(LY.sat&&LY.sat.z<21)fetchSat({...LY.sat,z:LY.sat.z+1});});
+$('zOut').addEventListener('click',()=>{if(LY.sat&&LY.sat.z>16)fetchSat({...LY.sat,z:LY.sat.z-1});});
+$('lyClearAll').addEventListener('click',()=>{if(LY.sat){useRoofImage(LY.img,LY.sat);return;}LY.manual=[];LY.polys=[];LY.cur=[];LY.sl=[];LY.hover=null;LY.removed.clear();$('lyMeters').value='';$('lyApplied').textContent='';lyCompute();setMode('scale');});
+$('lySug').addEventListener('click',()=>{$('lyTarget').value=suggestions(read()).kwpSug;lyCompute();});
+['lyMeters','lyPL','lyPW','lyOrient','lySetback','lyPitch','lyTarget'].forEach(id=>$(id).addEventListener('input',()=>{LY.removed.clear();lyCompute();}));
+$('lyMeters').addEventListener('change',()=>{if(lyScale()&&!LY.polys.length&&LY.mode==='scale')setMode('roof');});
+$('panelW').addEventListener('input',lyCompute);
+window.addEventListener('resize',()=>draw());
+function applyLy(scroll){
+  const W=parseFloat($('panelW').value)||600;$('kwp').value=+(LY.count*W/1000).toFixed(2);
+  let bi=-1,bc=-1;LY.faces.forEach((f,fi)=>{const k=faceCount(fi);if(k>bc){bc=k;bi=fi;}});
+  let msg=`ใส่ ${fmt(+$('kwp').value,2)} kWp (${LY.count} แผง) ในการคำนวณแล้ว`;
+  if(bi>=0&&lyNum('lyPitch',15)>0){const d=dirOf(LY.faces[bi].bearing);$('dir').selectedIndex=d[2];applyYield();msg+=` · ตั้งทิศหน้าแผงเป็น${d[1]}`;}
+  render();
+  // feed the panel count into tab 2's screen in place of a typed width × length
+  S2.lyN=LY.faces.reduce((a,f)=>a+f.panels.length,0)+LY.manual.length;$('s_w').value='';$('s_l').value='';renderFit();
+  $('lyApplied').textContent=msg+' · ผลขึ้นที่จอด้านบนแล้ว';
+  if(scroll&&!$('t2').hidden)setTimeout(()=>document.querySelector('#t2 .answer').scrollIntoView({behavior:'smooth',block:'start'}),400);
+}
+$('lyApply').addEventListener('click',()=>applyLy(true));
+(function(){
+  const drop=$('drop');
+  $('roofFile').addEventListener('change',e=>{showRoof(e.target.files[0]);e.target.value='';});
+  ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+  drop.addEventListener('drop',e=>{const f=e.dataTransfer&&e.dataTransfer.files[0];showRoof(f);});
+  drop.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('roofFile').click();}});
+  document.addEventListener('paste',e=>{
+    const t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA')&&t.type!=='file'){const it=[...(e.clipboardData?.items||[])].find(i=>i.type.startsWith('image/'));if(!it)return;}
+    const it=[...(e.clipboardData?.items||[])].find(i=>i.type.startsWith('image/'));
+    if(it){e.preventDefault();showRoof(it.getAsFile());}
+  });
+  $('roofClear').addEventListener('click',()=>{if(roofURL)URL.revokeObjectURL(roofURL);roofURL=null;LY.img=null;LY.faces=[];LY.polys=[];LY.cur=[];LY.sl=[];$('layoutWrap').hidden=true;$('drop').hidden=false;$('roofClear').hidden=true;$('satNav').hidden=true;LY.sat=null;LY.pin=null;});
+})();
+
+// PEA residential progressive tariff from Sept 2569 bills (baht/kWh, excl. service, Ft, VAT)
+const T111=[[15,2.3488],[25,2.9882],[200,3.0],[400,4.1584],[Infinity,4.3583]];
+const T112=[[200,3.0],[400,4.1584],[Infinity,4.3583]];
+function energyCharge(u,table){let c=0,prev=0;for(const[up,r]of table){if(u<=prev)break;c+=(Math.min(u,up)-prev)*r;prev=up;}return c;}
+function pmt(P,r,y){const i=r/12,n=y*12;return i?P*i/(1-Math.pow(1+i,-n)):P/n;}
+function bill(u,p){const e=energyCharge(u,u<=150?T111:T112),svc=p.svc,ft=u*p.ft;const pre=e+svc+ft;return{e,svc,ft,vat:pre*0.07,total:pre*1.07};}
+
+// Typical-day profiles (24 h)
+function solarShape(){const s=[];for(let h=0;h<24;h++){const x=(h+0.5-6)/12;s.push(x>0&&x<1?Math.sin(Math.PI*x):0);}const t=s.reduce((a,b)=>a+b,0);return s.map(v=>v/t);}
+function loadShape(dayFrac){const w=[];for(let h=0;h<24;h++){
+  if(h>=9&&h<16)w.push(null);else if(h>=17&&h<23)w.push(2.2);else if(h>=6&&h<9||h===16)w.push(1.2);else w.push(0.7);}
+  const nightSum=w.filter(v=>v!==null).reduce((a,b)=>a+b,0);
+  return w.map(v=>v===null?dayFrac/7:(1-dayFrac)*v/nightSum);}
+const SOL=solarShape();
+
+function read(){const g=id=>parseFloat($(id).value)||0;return{
+  kwh:g('kwh'),day:g('day')/100,kwp:g('kwp'),price:g('price'),yield:g('yield'),panelW:g('panelW')||600,
+  sell:g('sell'),years:parseInt($('years').value),cap:g('cap'),ft:g('ft'),svc:g('svc'),fee:g('fee'),
+  deg:g('deg')/100,esc:g('esc')/100,om:g('om'),inv:g('inv'),
+  battKwh:g('battKwh'),battPrice:g('battPrice'),hybExtra:g('hybExtra'),backup:g('backup')||1,battLife:g('battLife')||15,
+  dod:g('dod')/100,rte:g('rte')/100,repl:g('repl')/100,
+  useSub:$('useSub').checked,sub:g('sub'),useLoan:$('useLoan').checked,own:g('own'),rate:g('rate')/100,ly:Math.max(1,Math.round(g('ly')||7))};}
+
+// Hourly typical-day simulation; battery (usable kWh) charges from PV surplus before export, discharges to evening load
+function simulate(p,kwp,usable,degFactor){
+  const loadDay=p.kwh*12/365,pvDay=kwp*p.yield/365*degFactor,L=loadShape(p.day);
+  const pmax=Math.max(p.cap,3), eff=p.rte||0.9;
+  let soc=usable*0.5,out;
+  for(let pass=0;pass<3;pass++){
+    const hours=[];let self=0,dis=0,chg=0,exp=0,curt=0,grid=0;
+    for(let h=0;h<24;h++){
+      const load=loadDay*L[h],pv=pvDay*SOL[h];
+      const s=Math.min(load,pv);let sur=pv-s,def=load-s;
+      const c=usable>0?Math.min(sur,pmax,(usable-soc)/eff):0;soc+=c*eff;sur-=c;
+      const d=usable>0?Math.min(def,pmax,soc):0;soc-=d;def-=d;
+      const ex=Math.min(sur,p.cap);
+      self+=s;dis+=d;chg+=c;exp+=ex;curt+=sur-ex;grid+=def;
+      hours.push({load,pv,s,d,c,ex});
+    }
+    out={hours,loadDay,pvDay,self,dis,chg,exp,curt,grid};
+  }
+  return out;
+}
+
+// standard package (MEA/PEA, 27 Oct 2026): 5 kW 1-phase ≤ 140,000 baht incl. VAT, includes yearly maintenance and panel cleaning for 7 years
+const OM_FREE=7,STD_SET=140000;
+function compute(p,hybrid){
+  // careful mode: 10% less sunshine yield, only 80% of surplus actually sold, inverter fails in year 5 (still paying the loan) and again in year 15
+  const care=!!window.CAREFUL;if(care)p={...p,yield:p.yield*0.9};const sf=care?0.8:1;
+  const usable=hybrid?p.battKwh*p.dod:0;
+  const m=365/12;
+  const sim=simulate(p,p.kwp,usable,1);
+  const offsetM=(sim.self+sim.dis)*m, expM=sim.exp*m, gridM=Math.max(0,p.kwh-offsetM);
+  const b0=bill(p.kwh,p),b1=bill(gridM,p);
+  const battCost=hybrid?p.battKwh*p.battPrice+p.hybExtra:0;
+  const capex=p.kwp*p.price+battCost+p.fee;
+  const sub=p.useSub?Math.min(p.sub,capex):0,loan=p.useLoan?Math.max(0,capex-sub-p.own):0,pay=loan>0?pmt(loan,p.rate,p.ly):0,outlay=capex-sub-loan;
+  let cum=-outlay;const cums=[cum];let payback=null,netAtTerm=0;
+  const N=Math.max(p.years,20);
+  for(let y=1;y<=N;y++){
+    const s=simulate(p,p.kwp,usable,Math.pow(1-p.deg,y-1));
+    const g=Math.max(0,p.kwh-(s.self+s.dis)*m);
+    const save=(bill(p.kwh,p).total-bill(g,p).total)*12*Math.pow(1+p.esc,y-1);
+    const inc=y<=p.years?s.exp*m*12*p.sell*sf:0;
+    let cf=save+inc-(y>OM_FREE?p.om:0)-((care?(y===5||y===15):y===12)?p.inv:0)-(y<=p.ly?pay*12:0);
+    if(hybrid&&y===Math.round(p.battLife)&&y<N)cf-=p.battKwh*p.battPrice*p.repl;
+    const prev=cum;cum+=cf;cums.push(cum);
+    if(payback===null&&cum>=0&&cf>0)payback=(y-1)+(-prev/cf);
+    if(y===p.years)netAtTerm=cum;
+  }
+  const saveY1=(b0.total-b1.total)*12,incY1=expM*12*p.sell*sf;
+  // omM = maintenance per month while paying the loan (included in the standard price for 7 years); omAfter = afterwards
+  return {omM:p.ly<=OM_FREE?0:p.om/12,omAfter:p.om/12,care,sim,offsetM,expM,gridM,b0,b1,capex,battCost,saveY1,incY1,benefit:saveY1+incY1,payback,cums,netAtTerm,usable,sub,loan,pay,outlay};
+}
+
+function niceStep(max){const raw=max/4||1,p=Math.pow(10,Math.floor(Math.log10(raw)));const n=raw/p;return(n<1.5?1:n<3?2:n<7?5:10)*p;}
+
+function drawDay(sim){
+  const W=640,H=230,l=40,r=10,t=14,b=26,iw=W-l-r,ih=H-t-b;
+  const max=Math.max(...sim.hours.map(h=>Math.max(h.load,h.pv)))*1.1||1;
+  const bw=iw/24,y=v=>t+ih-(v/max)*ih;
+  let g='';const step=niceStep(max);
+  for(let v=0;v<=max;v+=step){g+=`<line x1="${l}" x2="${W-r}" y1="${y(v)}" y2="${y(v)}" style="stroke:var(--line)"/><text x="${l-6}" y="${y(v)+4}" text-anchor="end">${fmt(v,step<1?1:0)}</text>`;}
+  const bar=(x,w,v0,v1,st)=>v1-v0>1e-4?`<rect x="${x}" y="${y(v1)}" width="${w}" height="${y(v0)-y(v1)}" rx="2" style="${st}"/>`:'';
+  sim.hours.forEach((h,i)=>{const x=l+i*bw+2,w=bw-4;
+    g+=bar(x,w,0,h.load,'fill:var(--grid);opacity:.3');
+    g+=bar(x,w,0,h.s,'fill:var(--cell)');
+    g+=bar(x,w,h.s,h.s+h.d,'fill:var(--batt)');
+    g+=bar(x,w,h.s,h.s+h.c,'fill:var(--batt);opacity:.4');
+    g+=bar(x,w,h.s+h.c,h.s+h.c+h.ex,'fill:var(--sun)');
+    if(i%3===0)g+=`<text x="${l+i*bw+bw/2}" y="${H-8}" text-anchor="middle">${String(i).padStart(2,'0')}:00</text>`;});
+  g+=`<text x="${l}" y="${t-3}" text-anchor="start">kWh</text>`;
+  $('dayChart').innerHTML=g;
+}
+
+function drawCash(A,B,years,sel){
+  const W=640,H=230,l=62,r=12,t=14,b=26,iw=W-l-r,ih=H-t-b;
+  const a=A.cums.slice(0,years+1),c=B.cums.slice(0,years+1);
+  const all=a.concat(c,[0]);const mn=Math.min(...all),mx=Math.max(...all);const pad=(mx-mn)*0.08||1;
+  const lo=mn-pad,hi=mx+pad;const x=i=>l+i/years*iw,y=v=>t+ih-(v-lo)/(hi-lo)*ih;
+  let g='';const step=niceStep(hi-lo);
+  for(let v=Math.ceil(lo/step)*step;v<=hi;v+=step){g+=`<line x1="${l}" x2="${W-r}" y1="${y(v)}" y2="${y(v)}" style="stroke:var(--line)"/><text x="${l-6}" y="${y(v)+4}" text-anchor="end">${fmt(v/1000)}k</text>`;}
+  g+=`<line x1="${l}" x2="${W-r}" y1="${y(0)}" y2="${y(0)}" style="stroke:var(--muted)"/>`;
+  const line=(d,col,on)=>{const pts=d.map((v,i)=>`${x(i)},${y(v)}`).join(' ');return `<polyline points="${pts}" style="fill:none;stroke:var(${col});stroke-width:${on?3:1.8};opacity:${on?1:.6}"/><circle cx="${x(years)}" cy="${y(d[years])}" r="${on?4.5:3}" style="fill:var(${col})"/>`;};
+  g+=line(a,'--cell',sel==='ongrid')+line(c,'--batt',sel==='hybrid');
+  for(let i=0;i<=years;i+=years>10?5:2)g+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">ปี ${i}</text>`;
+  const R=sel==='hybrid'?B:A;const col=sel==='hybrid'?'--batt':'--cell';
+  if(R.payback!==null&&R.payback<=years){const px=x(R.payback);g+=`<circle cx="${px}" cy="${y(0)}" r="5" style="fill:var(${col})"/><text x="${Math.min(px+8,W-110)}" y="${y(0)-8}" style="fill:var(${col})">คืนทุน ${fmt(R.payback,1)} ปี</text>`;}
+  $('cashChart').innerHTML=g;
+}
+
+function suggestions(p){
+  const s=simulate(p,1,0,1);
+  const dayLoad=s.loadDay*p.day;
+  const kwpSug=Math.max(1,Math.round(dayLoad/(p.yield/365)*1.15*2)/2);
+  // battery: smaller of evening/night load after sunset and PV surplus available at chosen kWp
+  const sKw=simulate(p,p.kwp,0,1);
+  const nightNeed=sKw.hours.reduce((a,h)=>a+(h.load-h.s),0);
+  const surplus=sKw.hours.reduce((a,h)=>a+(h.pv-h.s),0)*(p.rte||0.9);
+  const usable=Math.min(nightNeed,surplus);
+  const battSug=Math.max(2.5,Math.round(usable/(p.dod||0.9)/2.5)*2.5);
+  return {kwpSug,battSug,nightNeed,surplus};
+}
+
+function render(){
+  const p=read();$('dayOut').textContent=Math.round(p.day*100)+'%';
+  document.querySelectorAll('#presets button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.d===Math.round(p.day*100)));
+  $('loanFields').hidden=!p.useLoan;$('sub').disabled=!p.useSub;
+  const hy=sysType==='hybrid';
+  $('battFields').hidden=!hy;$('lgB1').hidden=!hy;$('lgB2').hidden=!hy;
+  const A=compute(p,false),B=compute(p,true),R=hy?B:A;
+  const S=suggestions(p);
+  const b0=R.b0,b1=R.b1;
+  if(document.activeElement!==$('billBaht'))$('billBaht').value=Math.round(b0.total);
+  $('billHint').textContent=`ค่าไฟประมาณ ${fmt(b0.total)} บาท/เดือน (เฉลี่ย ${fmt(b0.total/Math.max(p.kwh,1),2)} บาท/หน่วย)`;
+  $('capexHint').textContent=`งบลงทุนรวม ${fmt(R.capex)} บาท = แผง+ติดตั้ง ${fmt(p.kwp*p.price)}${hy?` + แบต/อินเวอร์เตอร์ไฮบริด ${fmt(R.battCost)}`:''} + ค่าตรวจเชื่อมต่อ ${fmt(p.fee)}`;
+  if(R.sub||R.loan)$('capexHint').textContent+=` · หักเงินสนับสนุน ${fmt(R.sub)} (ตามข่าว)${R.loan?` · กู้ ${fmt(R.loan)} ผ่อน ${fmt(R.pay)} บาท/เดือน`:''} · เงินที่ลงเอง ${fmt(Math.max(0,R.outlay))} บาท`;
+  $('sugText').innerHTML=`ขนาดที่เหมาะกับบ้านนี้ ≈ <b>${fmt(S.kwpSug,1)} kWp</b>${p.useSub&&S.kwpSug<5?' (โครงการกำหนดขั้นต่ำ 5 kW)':''}`;
+  $('battSug').innerHTML=`แบตที่พอดีกับระบบนี้ ≈ <b>${fmt(S.battSug,1)} kWh</b>`;
+
+  $('heroK').classList.toggle('hy',hy);
+  $('kBenefitK').textContent=`ประหยัด + รายได้ ปีแรก (${hy?'Hybrid':'On-grid'})`;
+  $('kBenefit').textContent=fmt(R.benefit);
+  $('kBenefitS').textContent=`ค่าไฟลด ${fmt(R.saveY1)} + ขายไฟ ${fmt(R.incY1)}`;
+  if(R.loan>0&&R.outlay<=0){$('kPayK').textContent='เงินที่ต้องลงเอง';$('kPay').textContent='0';$('kPayS').textContent=`บาท · กู้ ${fmt(R.loan)} ผ่อน ${p.ly} ปี`;}
+  else{$('kPayK').textContent=R.loan>0?'เงินที่ลงเองคืนใน':'คืนทุนใน';$('kPay').textContent=R.payback===null?'เกินอายุสัญญา':fmt(R.payback,1);$('kPayS').textContent=R.outlay>0?`ปี · ลงเงินเอง ${fmt(R.outlay)} บาท`:'ปี';}
+  $('kNet').textContent=fmt(R.netAtTerm);$('kNet').className='v'+(R.netAtTerm>0?' pos':'');
+  $('kNetS').textContent=`บาท เมื่อครบ ${p.years} ปี`;
+  const pvM=R.sim.pvDay*365/12, usedM=(R.sim.self+R.sim.chg)*365/12;
+  $('kSelf').textContent=fmt(pvM?Math.min(usedM/pvM,1)*100:0)+'%';
+  $('kSelfS').textContent=`ใช้เอง${hy?' (รวมผ่านแบต)':''} ${fmt(usedM)} / ผลิต ${fmt(pvM)} หน่วย/เดือน`;
+
+  // monthly cash view: bill saving (not cash) + export income (cash) - loan instalment
+  {const sM=R.saveY1/12,iM=R.incY1/12,pM=R.pay,net=sM+iM-pM,cash=iM-pM;
+   let rows=`<tr><td>ค่าไฟที่ลดลง<small>บิลค่าไฟลดลง ไม่ใช่เงินเข้ามือ</small></td><td class="num pos">+${fmt(sM)}</td></tr><tr><td>เงินขายไฟส่วนเกิน<small>การไฟฟ้าโอนเข้าบัญชี ${fmt(R.expM)} หน่วย × ${fmt(p.sell,2)} บาท</small></td><td class="num pos">+${fmt(iM)}</td></tr>`;
+   if(R.loan>0)rows+=`<tr><td>ค่างวดธนาคาร<small>กู้ ${fmt(R.loan)} บาท ดอกเบี้ย ${fmt(p.rate*100,1)}% · ปีที่ 1–${p.ly}</small></td><td class="num">−${fmt(pM)}</td></tr>`;
+   rows+=`<tr class="total"><td>รวมต่อเดือน</td><td class="num ${net>=0?'pos':''}">${net>=0?'+':'−'}${fmt(Math.abs(net))}</td></tr>`;
+   $('cashTable').innerHTML=rows;
+   const v=$('verdict');
+   if(!R.loan){v.className='verdict ok';v.textContent=`ไม่ได้กู้ · ได้ประโยชน์ ${fmt(sM+iM)} บาท/เดือน`;}
+   else if(net>=0){v.className='verdict ok';v.textContent=`ผ่อนตัวเองได้ · เหลือ ${fmt(net)} บาท/เดือน`;}
+   else{v.className='verdict bad';v.textContent=`ต้องควักเพิ่ม ${fmt(-net)} บาท/เดือน`;}
+   let note='';
+   if(R.loan){note=cash>=0?`เงินขายไฟอย่างเดียวพอจ่ายค่างวด เหลือเงินสด ${fmt(cash)} บาท/เดือน บวกค่าไฟที่ลดลงอีก ${fmt(sM)} บาท`:`เงินขายไฟ ${fmt(iM)} บาท ไม่พอค่างวด ${fmt(pM)} บาท ต้องเติมเงินสดเองเดือนละ ${fmt(-cash)} บาท แต่บิลค่าไฟจะลดลง ${fmt(sM)} บาท`;
+     note+=` · ผ่อนหมดแล้ว (ปีที่ ${p.ly+1} เป็นต้นไป) ได้ประโยชน์ราว ${fmt(sM+iM)} บาท/เดือน`;}
+   note+=(note?' · ':'')+'ยังไม่รวมค่าดูแลรักษาและค่าเปลี่ยนอินเวอร์เตอร์ (คิดไว้ในกราฟเงินสะสมด้านล่าง)';
+   $('cashNote').textContent=note;}
+  // comparison
+  $('thOn').className=hy?'':'sel';$('thHy').className=hy?'sel':'';
+  const better=(a,b,low)=>low?(a<=b?0:1):(a>=b?0:1);
+  const pbA=A.payback??Infinity,pbB=B.payback??Infinity;
+  const cmp=[
+    ['งบลงทุน',fmt(A.capex),fmt(B.capex),better(A.capex,B.capex,true)],
+    ['ค่าไฟหลังติด/เดือน',fmt(A.b1.total),fmt(B.b1.total),better(A.b1.total,B.b1.total,true)],
+    ['รายได้ขายไฟ/เดือน',fmt(A.incY1/12),fmt(B.incY1/12),-1],
+    ['ประโยชน์ปีแรก',fmt(A.benefit),fmt(B.benefit),better(A.benefit,B.benefit)],
+    ['เงินที่ลงเองตอนติดตั้ง',fmt(Math.max(0,A.outlay)),fmt(Math.max(0,B.outlay)),better(A.outlay,B.outlay,true)],
+    ...(A.loan||B.loan?[['เหลือ/ขาดต่อเดือน (ช่วงผ่อน)',fmt(A.benefit/12-A.pay),fmt(B.benefit/12-B.pay),better(A.benefit/12-A.pay,B.benefit/12-B.pay)]]:[['คืนทุน (ปี)',A.payback===null?'–':fmt(A.payback,1),B.payback===null?'–':fmt(B.payback,1),better(pbA,pbB,true)]]),
+    [`กำไรสุทธิ ${p.years} ปี`,fmt(A.netAtTerm),fmt(B.netAtTerm),better(A.netAtTerm,B.netAtTerm)],
+    ['ไฟสำรองตอนไฟดับ','ไม่มี',`≈ ${fmt(B.usable/p.backup,1)} ชม. ที่ ${fmt(p.backup,1)} kW`,1]];
+  $('cmpTable').innerHTML=cmp.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}${r[3]===0?'<span class="tag">ดีกว่า</span>':''}</td><td class="num">${r[2]}${r[3]===1?'<span class="tag">ดีกว่า</span>':''}</td></tr>`).join('');
+  $('cmpNote').textContent=`แบต ${fmt(p.battKwh,1)} kWh · ใช้ได้จริง ${fmt(B.usable,1)} kWh`;
+
+  const rows=[['หน่วยที่ซื้อจากการไฟฟ้า',fmt(p.kwh),fmt(R.gridM)],['ค่าพลังงานไฟฟ้า',fmt(b0.e,2),fmt(b1.e,2)],['ค่าบริการ',fmt(b0.svc,2),fmt(b1.svc,2)],['ค่า Ft',fmt(b0.ft,2),fmt(b1.ft,2)],['VAT 7%',fmt(b0.vat,2),fmt(b1.vat,2)]];
+  $('billTable').innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td></tr>`).join('')+
+    `<tr class="total"><td>ค่าไฟรวม/เดือน</td><td class="num">${fmt(b0.total)}</td><td class="num pos">${fmt(b1.total)}</td></tr>`+
+    `<tr class="total"><td>+ รายได้ขายไฟ/เดือน</td><td class="num"></td><td class="num pos">${fmt(R.incY1/12)}</td></tr>`;
+
+  const panels=panelsFor(p.kwp,p.panelW);
+  const invLo=Math.min(Math.max(p.kwp*0.9,1.5),p.kwp);
+  const sys=[['จำนวนแผง',`${panels} แผง × ${fmt(p.panelW)} W`],['ขนาดจริง',`${fmt(panels*p.panelW/1000,2)} kWp`],['พื้นที่หลังคาโดยประมาณ',`${fmt(panels*2.8,0)} ตร.ม.`],
+    ['อินเวอร์เตอร์',`${fmt(invLo,1)}–${fmt(p.kwp,1)} kW ${hy?'Hybrid':'On-grid'}`]];
+  if(hy)sys.push(['แบตเตอรี่',`${fmt(p.battKwh,1)} kWh (ใช้ได้ ${fmt(B.usable,1)} kWh)`],['แบตจ่ายไฟให้บ้าน',`${fmt(R.sim.dis*365/12)} หน่วย/เดือน`]);
+  sys.push(['ผลผลิตไฟต่อปี',`${fmt(p.yield)} kWh/kWp`],['ผลิตไฟได้',`${fmt(pvM)} หน่วย/เดือน`],['ขายเข้าระบบ',`${fmt(R.expM)} หน่วย/เดือน`],['งบลงทุนรวม',`${fmt(R.capex)} บาท`]);
+  $('sysTable').innerHTML=sys.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td></tr>`).join('');
+
+  const curtM=R.sim.curt*365/12;
+  const capOk=p.kwp<=p.cap*1.2;
+  $('capCheck').textContent=capOk?`ระบบ ${fmt(p.kwp,1)} kWp ขายไฟได้ไม่เกินเพดาน ${fmt(p.cap)} kW ต่อมิเตอร์`:`ระบบใหญ่กว่าเพดานขาย ${fmt(p.cap)} kW ต้องตั้งอินเวอร์เตอร์จำกัดกำลังส่งออก (export limit)`;
+  const warn=[];
+  if(curtM>1)warn.push(`ไฟส่วนเกินราว ${fmt(curtM)} หน่วย/เดือน ขายไม่ได้เพราะเกินเพดาน ${fmt(p.cap)} kW ลองลดขนาดระบบหรือเพิ่มแบตเตอรี่`);
+  if(p.kwp>S.kwpSug*1.6&&!hy)warn.push(`ระบบใหญ่กว่าการใช้ไฟกลางวันของบ้านมาก ไฟส่วนใหญ่จะขายที่ ${fmt(p.sell,2)} บาท ซึ่งต่ำกว่าค่าไฟที่ซื้อ ทำให้คืนทุนช้าลง ลองเทียบกับระบบ Hybrid`);
+  if(hy&&p.battKwh>S.battSug*1.5)warn.push(`แบต ${fmt(p.battKwh,1)} kWh ใหญ่เกินไฟส่วนเกินที่แผงผลิตได้ แบตจะชาร์จไม่เต็มเกือบทุกวัน ลดเหลือราว ${fmt(S.battSug,1)} kWh หรือเพิ่มขนาดแผง`);
+  if(p.kwp>10)warn.push(`โครงการกำหนด 5–10 kW ต่อมิเตอร์ ตอนนี้ตั้งไว้ ${fmt(p.kwp,1)} kWp เกินเพดาน ไม่ได้เงินสนับสนุน`);if(p.useSub&&p.kwp<4.995)warn.push(`โครงการกำหนดขั้นต่ำ 5 kW ตอนนี้ตั้งไว้ ${fmt(p.kwp,1)} kWp ไม่ได้เงินสนับสนุน`);
+  $('warn').hidden=!warn.length;$('warn').innerHTML=warn.join('<br>');
+
+  drawDay(R.sim);
+  drawCash(A,B,p.years,sysType);
+  $('dayTitle').textContent=`ไฟฟ้าในหนึ่งวัน (ค่าเฉลี่ย · ${hy?'Hybrid + แบต':'On-grid'})`;
+  $('dayNote').textContent=`บ้านใช้ไฟ ${fmt(R.sim.loadDay,1)} หน่วย/วัน · โซลาร์ผลิต ${fmt(R.sim.pvDay,1)} · ใช้ตรง ${fmt(R.sim.self,1)}${hy?` · ผ่านแบต ${fmt(R.sim.dis,1)}`:''} · ขายคืน ${fmt(R.sim.exp,1)} · ซื้อจากการไฟฟ้า ${fmt(R.sim.grid,1)} หน่วย/วัน`;
+
+  const place=loc?`จ.${PROV[loc.nearest.i][0]} (ผลผลิตไฟ ${fmt(p.yield)} kWh/kWp/ปี)`:`ผลผลิตไฟ ${fmt(p.yield)} kWh/kWp/ปี`;
+  $('summary').textContent=
+`☀️ สรุปประเมินโซลาร์รูฟท็อป (โครงการโซลาร์ภาคประชาชน)
+• ที่ตั้ง: ${place}
+• การใช้ไฟ: ${fmt(p.kwh)} หน่วย/เดือน (ค่าไฟประมาณ ${fmt(b0.total)} บาท)
+• ระบบเสนอ: ${hy?'Hybrid':'On-grid'} ${fmt(p.kwp,1)} kWp (${panels} แผง)${hy?` + แบตเตอรี่ ${fmt(p.battKwh,1)} kWh`:''}
+• งบลงทุน: ${fmt(R.capex)} บาท (รวมค่าตรวจเชื่อมต่อ ${fmt(p.fee)} บาท)
+${R.sub?`• หักเงินสนับสนุนจากรัฐ: ${fmt(R.sub)} บาท (สูงสุด 50,000 บาทต่อราย ตามเว็บลงทะเบียน)
+`:''}${R.loan?`• กู้ธนาคารรัฐ: ${fmt(R.loan)} บาท ดอกเบี้ย ${fmt(p.rate*100,1)}% ผ่อน ${p.ly} ปี = ${fmt(R.pay)} บาท/เดือน
+• ต่อเดือน: ค่าไฟลด ${fmt(R.saveY1/12)} + ขายไฟ ${fmt(R.incY1/12)} − ค่างวด ${fmt(R.pay)} = ${R.saveY1/12+R.incY1/12-R.pay>=0?'เหลือ':'ขาด'} ${fmt(Math.abs(R.saveY1/12+R.incY1/12-R.pay))} บาท
+`:''}• ค่าไฟหลังติด: ประมาณ ${fmt(b1.total)} บาท/เดือน (ลด ${fmt(b0.total-b1.total)} บาท)
+• ขายไฟส่วนเกิน: ${fmt(R.expM)} หน่วย × ${fmt(p.sell,2)} บาท = ${fmt(R.incY1/12)} บาท/เดือน
+• ประโยชน์ปีแรก: ${fmt(R.benefit)} บาท
+• คืนทุน: ${R.payback===null?'เกินอายุสัญญา':'ประมาณ '+fmt(R.payback,1)+' ปี'}
+• กำไรสุทธิเมื่อครบสัญญา ${p.years} ปี: ${fmt(R.netAtTerm)} บาท${hy?`\n• ไฟสำรองตอนไฟดับ: ประมาณ ${fmt(B.usable/p.backup,1)} ชม. สำหรับโหลดจำเป็น ${fmt(p.backup,1)} kW`:''}
+เทียบอีกแบบ (${hy?'On-grid':'Hybrid + แบต '+fmt(p.battKwh,1)+' kWh'}): งบ ${fmt((hy?A:B).capex)} บาท คืนทุน ${(hy?A:B).payback===null?'เกินอายุสัญญา':fmt((hy?A:B).payback,1)+' ปี'}
+หมายเหตุ: เป็นการประเมินเบื้องต้น ตัวเลขจริงขึ้นกับหน้างาน ทิศหลังคา และเงาบัง`;
+  renderSimple();
+}
+
+function kwhFromBill(baht){const p=read();let lo=0,hi=5000;for(let i=0;i<40;i++){const m=(lo+hi)/2;if(bill(m,p).total<baht)lo=m;else hi=m;}return Math.round(lo);}
+$('billBaht').addEventListener('input',()=>{const b=parseFloat($('billBaht').value);if(b>0)$('kwh').value=kwhFromBill(b);});
+document.querySelectorAll('#presets button').forEach(b=>b.addEventListener('click',()=>{$('day').value=b.dataset.d;render();}));
+function roofTgl(){$('roofToggle').textContent=$('roofPanel').classList.contains('collapsed')?'เปิดเครื่องมือวางแผง':'ย่อเก็บ';}
+$('roofToggle').addEventListener('click',()=>{$('roofPanel').classList.toggle('collapsed');roofTgl();});
+document.querySelectorAll('#utility button').forEach(bt=>bt.addEventListener('click',()=>{
+  utility=bt.dataset.v;document.querySelectorAll('#utility button').forEach(x=>x.setAttribute('aria-pressed',x===bt));render();}));
+document.querySelectorAll('#sysType button').forEach(bt=>bt.addEventListener('click',()=>{
+  sysType=bt.dataset.v;document.querySelectorAll('#sysType button').forEach(x=>x.setAttribute('aria-pressed',x===bt));render();}));
+$('useSug').addEventListener('click',()=>{const p=read(),s=suggestions(p).kwpSug;$('kwp').value=p.useSub?Math.min(10,Math.max(5,s)):s;render();});
+$('useBattSug').addEventListener('click',()=>{$('battKwh').value=suggestions(read()).battSug;render();});
+$('coords').addEventListener('input',()=>{updateLoc(false);render();});
+$('coords').addEventListener('change',()=>{const v=$('coords').value;if(/[°º'′NSEW]/i.test(v)&&!/https?:/.test(v)){const c=parseCoords(v);if(c){$('coords').value=`${c.la.toFixed(6)}, ${c.lo.toFixed(6)}`;coordHint(`แปลงจาก ${v} เป็นทศนิยมให้แล้ว`,'ok');}}});
+$('prov').addEventListener('change',()=>{updateLoc(true);render();});
+['pr','dir','shade'].forEach(id=>$(id).addEventListener('input',()=>{applyYield();}));
+$('form').addEventListener('input',render);
+$('form').addEventListener('change',render);
+$('form').addEventListener('submit',e=>e.preventDefault());
+$('copyBtn').addEventListener('click',()=>{const t=$('summary').textContent;
+  const done=()=>{$('copyBtn').textContent='คัดลอกแล้ว';setTimeout(()=>$('copyBtn').textContent='คัดลอกข้อความ',1600);};
+  const fallback=()=>{const r=document.createRange();r.selectNodeContents($('summary'));const s=getSelection();s.removeAllRanges();s.addRange(r);};
+  try{navigator.clipboard.writeText(t).then(done,fallback);}catch(e){fallback();}});
+// ===== Simple mode: three plain-language questions on top of the detailed calculator =====
+function showTab(t){document.querySelectorAll('.tab').forEach(s=>{s.hidden=s.id!==t;});document.querySelectorAll('#tabs button[data-t]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===t)));if(t==='adv'||t==='t2')requestAnimationFrame(()=>draw());
+  (window._seen=window._seen||{})[t]=1;const gb=document.querySelector(`#tabs [data-t=${t}]`);if(gb)gb.classList.remove('glow');placeNav(t);}
+// the menu follows the output frame of the open tab; tabs without one get it on top
+function placeNav(t){$('guide').before($('tabs'));}
+function glowTab(t,on){const b=document.querySelector(`#tabs [data-t=${t}]`);if(b)b.classList.toggle('glow',!!on&&!(window._seen||{})[t]);}
+document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.next;showTab(t);const s=$(t);requestAnimationFrame(()=>(s.querySelector('.answer')||s).scrollIntoView({behavior:'smooth',block:'start'}));}));
+document.querySelectorAll('[data-guide]').forEach(b=>b.addEventListener('click',()=>{const d=$(b.dataset.guide);d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}));
+// tab 2 satellite section: open it, scroll to it, and start the blinking guide if no coordinates yet
+function openSat(){showTab('t2');$('t2Sat').open=true;requestAnimationFrame(()=>$('t2Sat').scrollIntoView({behavior:'smooth',block:'start'}));}
+$('t2Sat').addEventListener('toggle',()=>{if(!$('t2Sat').open)return;setTimeout(()=>$('t2Sat').scrollIntoView({behavior:'smooth',block:'start'}),60);requestAnimationFrame(()=>draw());if(!LY.img)setTimeout(autoSat,300);if(!$('coords').value.trim()&&guide<0)setGuide(0);});
+$('s2Maps').addEventListener('click',openSat);
+// guided start in tab 4: current location → open Google Maps → paste coordinates, each blinks in turn
+let guide=-1;const GUIDE=['gpsBtn','lnkPick','pasteCoords'];
+function setGuide(i){guide=i;GUIDE.forEach((id,k)=>$(id).classList.toggle('blink',k===i));}
+GUIDE.forEach((id,k)=>$(id).addEventListener('click',()=>{if(guide===k)setGuide(k+1<GUIDE.length?k+1:-1);}));
+$('coords').addEventListener('paste',()=>{if(guide>=0)setGuide(-1);});
+let satT=0;$('coords').addEventListener('input',()=>{if(guide>=0&&parseCoords($('coords').value))setGuide(-1);clearTimeout(satT);satT=setTimeout(autoSat,900);});
+document.querySelectorAll('#tabs button[data-t]').forEach(b=>b.addEventListener('click',()=>{showTab(b.dataset.t);const s=$(b.dataset.t),target=s.querySelector('.answer')||s;requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'}));}));
+// Google Maps buttons with no house coordinates yet: find the phone's position first, then open Maps there
+function mapsAt(la,lo){return `https://www.google.com/maps/@?api=1&map_action=map&basemap=satellite&center=${la.toFixed(6)},${lo.toFixed(6)}&zoom=19`;}
+['lnkPick','lnkMaps'].forEach(id=>$(id).addEventListener('click',e=>{
+  if(parseCoords($('coords').value))return;
+  const a=e.currentTarget,w=window.open('','_blank');
+  if(!w){a.href=MAPS_HERE;return;}
+  e.preventDefault();
+  try{w.document.write('<p style="font:18px sans-serif;padding:24px">กำลังหาตำแหน่งของคุณ…</p>');}catch(_){}
+  const go=u=>{try{w.location.href=u;}catch(_){location.href=u;}};
+  if(!navigator.geolocation){go(MAPS_HERE);return;}
+  navigator.geolocation.getCurrentPosition(pos=>go(mapsAt(pos.coords.latitude,pos.coords.longitude)),()=>go(MAPS_HERE),{enableHighAccuracy:true,timeout:10000,maximumAge:60000});
+}));
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.go==='roof')openSat();else showTab(b.dataset.go);}));
+const S1={pres:40,loan:1,size:5,grant:1},S2={where:'roof',mat:'metal',dir:'s',shade:'none',roof:'shed'};
+function chipGroup(id,obj,key,cb){const g=$(id);const sync=()=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===String(obj[key]))));
+  g.querySelectorAll('button').forEach(b=>{b.type='button';b.addEventListener('click',()=>{const v=b.dataset.v;obj[key]=isNaN(+v)?v:+v;sync();cb();});});sync();}
+// picture pickers: a roof shape redraws the arrangements; an arrangement sets the system size from its panel count
+$('roofPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;S2.roof=b.dataset.v;renderFit();});
+// remember the menu-1 size while an arrangement is chosen, and go back to it when the arrangement is cleared
+$('layPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;S2.lay=S2.lay===b.dataset.v?null:b.dataset.v;simpleSync();});
+$('s_size').addEventListener('click',()=>{S2.lay=null;S1.custom=false;},true);
+$('s_care').addEventListener('change',()=>{S1.care=$('s_care').checked;simpleSync();});
+// +/- one panel: the count becomes the system size
+// cap = panels for a 16 kW, 3-MPPT inverter at DC/AC 1.3 (16 × 1.3 = 20.8 kWp, 33 panels of 620 W); above 10 kW the app warns
+const MAX_KWP=20.8;
+$('s2Count').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const pW=parseFloat($('panelW').value)||620,P=S2.lay?presetOf(S2.lay):null;
+  let cnt=panelsFor(S1.size,pW);cnt=Math.min(panelsFor(MAX_KWP,pW),Math.max(1,cnt+(+b.dataset.d)));
+  if(!S1.custom)S1.baseSize=S1.size;S1.custom=true;S1.size=+(cnt*pW/1000).toFixed(2);simpleSync();});
+function simpleSync(){
+  setTimeout(()=>{$('lyTarget').value=S1.size;if(LY.img&&LY.mode==='group'){buildGroup();lyResult();}else if(LY.img&&LY.faces.length)lyCompute();},0);
+  window.CAREFUL=!!S1.care;$('s_care').checked=!!S1.care;
+  $('s_size').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===S1.size)));
+  const b=parseFloat($('s_bill').value)||0;$('billBaht').value=b;$('kwh').value=kwhFromBill(b);
+  $('day').value=S1.pres;$('useLoan').checked=!!S1.loan;$('useSub').checked=S1.grant!==0;$('kwp').value=S1.size;
+  // a total under ~10,000 baht/kW is almost always a typo (e.g. 15,000 for a whole system); keep the market price and say so
+  const t=parseFloat($('s_total').value),fee=parseFloat($('fee').value)||0,ppk=t>0?(t-fee)/S1.size:0;S1.priceOk=ppk>=10000;
+  $('price').value=S1.priceOk?Math.round(ppk):28000;
+  const th=$('s_totalHint');th.className='hint'+(t>0&&!S1.priceOk?' err':'');
+  th.textContent=t>0&&!S1.priceOk?`ราคานี้ต่ำผิดปกติ (${fmt(Math.max(0,ppk))} บาท/kW) แอปจึงยังใช้ราคากลาง 28,000 บาท/kW (ชุด 5 kW 140,000 บาท) · กรอกราคารวมทั้งระบบ เช่น 140,000`:'ราคารวมทั้งระบบก่อนหักเงินสนับสนุน เช่น 5 kW ราว 135,000 บาท';
+  render();}
+chipGroup('s_pres',S1,'pres',simpleSync);chipGroup('s_loan',S1,'loan',simpleSync);chipGroup('s_size',S1,'size',simpleSync);chipGroup('s_grant',S1,'grant',simpleSync);
+$('sPrice').addEventListener('click',e=>{if(!e.target.closest('button'))return;const d=document.querySelector('#t1 details.more');d.open=true;d.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>$('s_total').focus(),400);});
+$('s_billChips').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{$('s_bill').value=b.dataset.v;simpleSync();}));
+$('s_bill').addEventListener('input',simpleSync);$('s_total').addEventListener('input',simpleSync);
+$('s_prov').innerHTML=$('prov').innerHTML.replace('— จากพิกัด —','ไม่ระบุ');
+$('s_prov').addEventListener('change',()=>{$('prov').value=$('s_prov').value;if($('s_prov').value!=='')updateLoc(true);render();});
+// size the word to the screen width: count Thai base letters, ignore vowel and tone marks
+function fitCrt(el){const n=el.textContent.replace(/[ัิ-ฺ็-๎\s]/g,'').length||1;el.style.fontSize=Math.min(30,140/n)+'cqw';}
+function verdictOf(R){
+  if(R.loan>0){const n=R.benefit/12-R.pay-(R.omM||0);return n>=300?['คุ้ม','v-good']:n>=-200?['พอไหว','v-mid']:['ยังไม่คุ้ม','v-bad'];}
+  const pb=R.payback;return pb!==null&&pb<=6?['คุ้ม','v-good']:pb!==null&&pb<=9?['พอไหว','v-mid']:['ยังไม่คุ้ม','v-bad'];}
+function renderSimple(){
+  const p=read(),R=compute(p,false),[w,c]=verdictOf(R),net=R.benefit/12-R.pay-R.omM;
+  $('s_billChips').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===+$('s_bill').value)));
+  const billIn=parseFloat($('s_bill').value)||0;$('sMeter').hidden=!billIn;$('careBox').hidden=!billIn;if(!billIn)$('sPrice').hidden=true;
+  $('t1').classList.toggle('pre',!billIn);glowTab('t2',billIn>0);$('sNext').hidden=!billIn;
+  if(!billIn){const e=$('sVerdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('sSys').textContent='ยังไม่มีข้อมูล';$('sLine1').innerHTML='กรอก<b>ค่าไฟต่อเดือน</b>เพื่อดูผล';$('sLine2').textContent='';$('sTips').innerHTML='';renderFit();renderQuotes();return;}
+  $('sSys').textContent=`ติดโซลาร์ ${fmt(p.kwp,1)} kW · ${R.loan?'กู้ธนาคารรัฐ':'จ่ายเงินสด'}${R.sub?` · หักเงินสนับสนุน ${fmt(R.sub)} บาท`:' · ไม่มีเงินให้เปล่า'}`;
+  $('sPrice').hidden=false;$('sPrice').innerHTML=`คิดจากราคาติดตั้ง ${fmt(p.price)} บาท/kW ${parseFloat($('s_total').value)>0&&S1.priceOk?'(จากราคาที่กรอก)':'(ราคากลาง)'} · <button type="button" class="linkbtn">แก้ได้</button>`;
+  $('sVerdict').textContent=w;$('sVerdict').className='verdict-big '+c;fitCrt($('sVerdict'));
+  if(R.loan>0)$('sLine1').innerHTML=net>=0?`ทุกเดือน <b>เหลือ ${fmt(net)} บาท</b><br>หลังจ่ายค่างวด ${fmt(R.pay)} บาท นาน ${p.ly} ปี${R.omM?` และค่าดูแล ${fmt(R.omM)} บาท`:' (ค่าดูแล 7 ปีแรกรวมในราคากลางแล้ว)'}`:`ทุกเดือน <b>ต้องควักเพิ่ม ${fmt(-net)} บาท</b><br>ช่วงผ่อน ${p.ly} ปี ค่างวด ${fmt(R.pay)} + ค่าดูแล ${fmt(R.omM)} บาท`;
+  else if(R.outlay<=0)$('sLine1').innerHTML=`ไม่ต้องจ่ายเอง<br><b>เงินสนับสนุนครอบคลุมทั้งหมด</b>`;
+  else $('sLine1').innerHTML=`จ่ายเอง ${fmt(Math.max(0,R.outlay))} บาท${R.sub?` <span style="font-size:.75em;font-weight:500">(ต้องสำรองจ่ายร้านเต็ม ${fmt(R.capex)} ก่อน รัฐโอน ${fmt(R.sub)} เข้าพร้อมเพย์ทีหลัง)</span>`:''}<br><b>${R.payback!==null?`คืนทุนใน ${fmt(R.payback,1)} ปี`:'คืนทุนไม่ทันใน 20 ปี'}</b>`;
+  $('sLine2').textContent=`${R.loan?'ผ่อนหมดแล้ว':'หลังคืนทุน'} ได้ประโยชน์เดือนละราว ${fmt(R.benefit/12-R.omAfter)} บาท (หักค่าดูแลหลังปีที่ 7 แล้ว) · รวม ${p.years} ปี ${R.netAtTerm>=0?'ได้กำไร':'ขาดทุน'} ${fmt(Math.abs(R.netAtTerm))} บาท`;
+  const pvM=R.sim.pvDay*365/12,pct=pvM?Math.min(1,R.sim.self*365/12/pvM):0,lab=pct>=.5?'ดีมาก':pct>=.35?'ปานกลาง':'ต่ำ';
+  $('sMeterFill').style.width=(pct*100).toFixed(0)+'%';$('sMeterFill').style.background=pct>=.5?'var(--forest)':pct>=.35?'#e08a00':'var(--bad)';
+  $('sMeterTxt').textContent=`ใช้ไฟจากแผงเองได้ ${fmt(pct*100)}% (${lab}) · ส่วนที่เหลือขายได้หน่วยละ ${fmt(p.sell,2)} บาท`;
+  const act=[];
+  if(pct<.5){const R2=compute({...p,day:Math.min(.8,p.day+.15)},false),g=(R2.benefit-R.benefit)/12;if(g>20)act.push(`ย้ายงานที่ใช้ไฟมาทำตอนกลางวัน เช่น ซักผ้า ปั๊มน้ำ หม้อหุงข้าว ชาร์จรถ เปิดแอร์ช่วงบ่าย ได้เพิ่มราว ${fmt(g)} บาท/เดือน`);}
+  if(p.price>28500)act.push(`ราคา ${fmt(p.price)} บาทต่อ kW ค่อนข้างสูง ขอใบเสนอราคาเพิ่มอีก 2–3 เจ้า แล้วเทียบในข้อ 3`);
+  if(p.kwp>5&&pct<.35)act.push('บ้านนี้ใช้ไฟกลางวันน้อย ติด 5 kW ก็พอ แผงที่เพิ่มส่วนใหญ่ได้แค่ขายไฟ 2.20 บาท');
+  if(R.care)act.unshift(`คิดแบบระวังอยู่: ปีที่ 5 อาจต้องจ่ายค่าอินเวอร์เตอร์ราว ${fmt(p.inv)} บาท ระหว่างที่ยังผ่อนอยู่ ควรเลือกรุ่นที่รับประกัน 10 ปี`);
+  if(R.loan&&net<0)act.push('ช่วงผ่อนต้องเติมเงินเอง ลองจ่ายเงินสดบางส่วนเพื่อลดยอดกู้ หรือขอผ่อนนานขึ้น');
+  if(p.kwh<200)act.push('บ้านใช้ไฟน้อย ประโยชน์ส่วนใหญ่มาจากการขายไฟ ค่าไฟที่ลดได้จะไม่มาก');
+  if(!act.length)act.push('ตัวเลขดีแล้ว ขั้นต่อไปคือเช็คพื้นที่ในข้อ 2 และเลือกช่างในข้อ 3');
+  $('sTips').innerHTML=act.slice(0,3).concat(['ระวังคนเก็บมัดจำ "จองสิทธิ์" ลงทะเบียนผ่านช่องทางของรัฐเท่านั้น และอย่าโอนเงินก่อนเซ็นสัญญากับผู้ติดตั้ง']).map(t=>`<li>${t}</li>`).join('');
+  renderFit();renderQuotes();
+}
+// ---- question 2: will it fit? ----
+const FIT={roof:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},garage:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},ground:{sb:.5,gx:.02,gy:1.2,tilt:15,area:1.9},float:{sb:1,gx:.4,gy:.6,tilt:12,area:2.1}};
+// ---- tab 2 picture pickers: roof shape and panel arrangement ----
+// panels for a size: round to the nearest whole panel without going over the size (5 kW with 620 W = 8 panels, 4.96 kW)
+// panels for a size; from 5 kW up, never fall below the scheme's 5 kW minimum (5 kW with 620 W panels = 9 panels, 5.58 kW, not 8 = 4.96)
+function panelsFor(kw,w){let n=Math.max(1,Math.floor(kw*1000/w+0.05));if(kw>=4.999&&n*w<5000)n=Math.ceil(5000/w-1e-9);return n;}
+function roofTypes(){return [{id:'shed',label:'เพิงหมาแหงน',two:0},{id:'gable',label:'จั่ว',two:1},{id:'hip',label:'ปั้นหยา',two:1},{id:'butterfly',label:'ผีเสื้อ',two:1},{id:'flat',label:'ดาดฟ้า / แบน',two:0}];}
+// names say the shape: "เรียง N" = one row of N, "เรียง N สองฝั่ง" = a row of N on each side of the ridge, "R แถว × N" = R rows of N on one side
+// arrangements only: the panel count comes from the system size (menu 1 or +/- panel), split evenly between rows
+function splitRows(m,rows){const b=Math.floor(m/rows),e=m%rows;return[...Array(rows)].map((_,i)=>b+(i<e?1:0)).filter(x=>x>0);}
+// two choices per roof; the app adds rows by itself when the area is too short for the row (see autoRows in renderFit)
+// only:'two' = ridged roofs only, only:'one' = single-slope / flat areas only
+function layPresets(){const pW=parseFloat($('panelW').value)||620,n=panelsFor(S1.size,pW);
+  const mk=(id,label,rows,sides,only)=>{const a=sides===2?Math.ceil(n/2):n,counts=splitRows(a,rows),countsB=sides===2?splitRows(n-a,rows):[];return{id,label,rows:counts.length,sides,only,counts,countsB,cols:Math.max(...counts,...countsB),n};};
+  return [mk('r1','เรียงแถวเดียว',1,1),mk('s2','สองฝั่ง',1,2,'two'),mk('r2','2 แถว',2,1,'one')];}
+function presetOf(id){return layPresets().find(p=>p.id===id)||null;}
+function roofOf(){const r=S2.where==='roof'||S2.where==='garage'?(S2.roof||'shed'):'ground';return r;}
+// elevation drawing of a house with each roof shape
+function roofSVG(t){const st='fill:#28495a',wall='<rect x="22" y="40" width="56" height="22" style="fill:#f8fafb;stroke:#28495a;stroke-width:2.5"/><rect x="44" y="48" width="12" height="14" style="fill:#a9bfc9"/>';
+  const R={gable:'<polygon points="12,42 50,12 88,42" style="'+st+'"/>',hip:'<polygon points="12,42 34,18 66,18 88,42" style="'+st+'"/>',
+    shed:'<polygon points="14,24 88,38 88,44 14,30" style="'+st+'"/>',butterfly:'<polygon points="12,22 50,34 88,22 88,28 50,40 12,28" style="'+st+'"/>',
+    flat:'<rect x="16" y="33" width="68" height="7" style="'+st+'"/><rect x="16" y="28" width="4" height="6" style="'+st+'"/><rect x="80" y="28" width="4" height="6" style="'+st+'"/>'}[t];
+  const w=t==='shed'?'<polygon points="22,32 78,42 78,62 22,62" style="fill:#f8fafb;stroke:#28495a;stroke-width:2.5"/><rect x="44" y="48" width="12" height="14" style="fill:#a9bfc9"/>':wall;
+  return `<svg viewBox="0 0 100 70" aria-hidden="true">${w}${R}</svg>`;}
+// plan (top) view of the chosen roof with the panel arrangement drawn on it
+function laySVG(roof,P){const ln='stroke:#28495a;stroke-width:1.6;fill:none';let g='<rect x="8" y="6" width="84" height="58" rx="2" style="fill:#dfe8ec;stroke:#28495a;stroke-width:2"/>';
+  let A={x:12,y:37,w:76,h:24},B={x:12,y:9,w:76,h:24};
+  if(roof==='gable')g+='<path d="M8 35h84" style="'+ln+'"/>';
+  else if(roof==='butterfly')g+='<path d="M8 35h84" style="'+ln+';stroke-dasharray:3 2"/>';
+  else if(roof==='hip'){g+='<path d="M30 35h40M8 6l22 29M92 6l-22 29M8 64l22-29M92 64l-22-29" style="'+ln+'"/>';A={x:24,y:38,w:52,h:22};B={x:24,y:10,w:52,h:22};}
+  else{A={x:12,y:10,w:76,h:50};B=null;if(roof==='flat')g+='<rect x="11" y="9" width="78" height="52" style="'+ln+';stroke-width:1"/>';if(roof==='shed')g+='<path d="M50 12v8M47 17l3 3 3-3" style="'+ln+'"/>';}
+  const grid=(r,counts)=>{const rows=counts.length,cols=Math.max(1,...counts),c=Math.min((r.w-2)/cols,(r.h-2)/(rows*1.55)),pw=c*.9,ph=c*1.55*.9,y0=r.y+(r.h-rows*c*1.55)/2;let s='';
+    for(let i=0;i<rows;i++){const x0=r.x+(r.w-counts[rows-1-i]*c)/2;for(let j=0;j<counts[rows-1-i];j++)s+=`<rect x="${(x0+j*c+c*.05).toFixed(1)}" y="${(y0+i*c*1.55+c*.08).toFixed(1)}" width="${pw.toFixed(1)}" height="${ph.toFixed(1)}" style="fill:#1f4fa3;stroke:#fff;stroke-width:.6"/>`;}return s;};
+  if(P){g+=grid(A,P.counts);if(P.sides===2&&B)g+=grid(B,P.countsB);}
+  return `<svg viewBox="0 0 100 70" aria-hidden="true">${g}</svg>`;}
+let pickKey='';
+function renderPick(){const roofy=S2.where==='roof'||S2.where==='garage',roof=roofOf(),two=roofy&&roofTypes().find(r=>r.id===roof).two,pW=parseFloat($('panelW').value)||620;
+  $('roofRow').hidden=!roofy;
+  {const q=S2.lay&&presetOf(S2.lay);if(S2.lay&&(!q||(q.only==='two'&&!two)||(q.only==='one'&&two)))S2.lay=null;}
+  const key=roof+'|'+two+'|'+panelsFor(S1.size,pW);
+  if(!$('roofPick').childElementCount)$('roofPick').innerHTML=roofTypes().map(r=>`<button type="button" class="opt" data-v="${r.id}">${roofSVG(r.id)}<span>${r.label}</span></button>`).join('');
+  if(key!==pickKey){pickKey=key;const sl=$('layPick').scrollLeft;$('layPick').innerHTML=layPresets().filter(p=>p.only==='two'?two:p.only==='one'?!two:true).map(p=>`<button type="button" class="opt" data-v="${p.id}">${laySVG(roof,p)}<span>${p.label}</span><small></small></button>`).join('');$('layPick').scrollLeft=sl;}
+  const m5=panelsFor(5,pW);$('layMin').textContent=`เงื่อนไขโครงการ 5–10 kW ต่อมิเตอร์ · แผง ${fmt(pW)} W ${m5} แผง = ${fmt(m5*pW/1000,2)} kW${m5*pW<5000?` ถ้าการไฟฟ้านับขนาดจากแผงอาจไม่ถึง 5 kW ใช้ ${panelsFor(5,pW)+1} แผง (${fmt((panelsFor(5,pW)+1)*pW/1000,2)} kW) จะถึงแน่นอน ถามช่างหรือการไฟฟ้าก่อน`:''}`;
+  $('roofPick').querySelectorAll('.opt').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===(S2.roof||'shed'))));
+  $('layPick').querySelectorAll('.opt').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.v===S2.lay));const pr=presetOf(b.dataset.v),sm=b.querySelector('small');sm.textContent=pr.sides===2?`${pr.counts.join('+')} | ${pr.countsB.join('+')}`:pr.counts.join(' + ');});}
+// does the chosen arrangement (rows × cols on one side) physically fit W × L? returns the orientation that fits
+function fitShape(W,L,where,P){const f={...FIT[where]};if(S2.sb>=0)f.sb=S2.sb;const pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),ct=Math.cos(f.tilt*Math.PI/180);
+  const oris=S2.ori==='p'?[[pw,pl]]:S2.ori==='l'?[[pl,pw]]:[[pw,pl],[pl,pw]],dim=(a,b)=>{const bh=b*ct;return{a,bh,gx:f.gx,needW:P.cols*(a+f.gx)-f.gx+2*f.sb,needL:P.rows*bh+(P.rows-1)*0.02+2*f.sb};};
+  for(const[a,b]of oris){const d=dim(a,b);if(d.needW<=W+1e-9&&d.needL<=L+1e-9)return{ok:true,...d};}
+  return{ok:false,...oris.map(([a,b])=>dim(a,b)).sort((x,y)=>x.needW*x.needL-y.needW*y.needL)[0]};}
+// the roof outline and panels drawn on the satellite photo, redrawn as a plain diagram (the photo itself cannot be copied)
+function lyVector(svg,use){const pts=[...lyPolys().flat(),...LY.manual.flatMap(m=>m.q)];if(!pts.length)return false;
+  const xs=pts.map(q=>q.x),ys=pts.map(q=>q.y),x0=Math.min(...xs),y0=Math.min(...ys),w=Math.max(...xs)-x0||1,h=Math.max(...ys)-y0||1,S=Math.min(304/w,240/h),ox=(320-w*S)/2,oy=8,VH=Math.round(h*S+40);
+  const pg=(P,st)=>`<polygon points="${P.map(q=>((q.x-x0)*S+ox).toFixed(1)+','+((q.y-y0)*S+oy).toFixed(1)).join(' ')}" style="${st}"/>`;
+  let g='';lyPolys().forEach(P=>g+=pg(P,'fill:var(--sun-soft);stroke:var(--fr-o);stroke-width:2;stroke-linejoin:round'));
+  const ON='fill:var(--pv);stroke:#fff;stroke-width:.8',OFFS='fill:none;stroke:var(--grid);stroke-width:.8;stroke-dasharray:3 2';
+  LY.faces.forEach((f,fi)=>f.panels.forEach((q,i)=>{g+=pg(q,LY.removed.has(fi+'-'+i)?OFFS:ON);}));
+  LY.manual.forEach(m=>g+=pg(m.q,ON));
+  const sc=lyScale();g+=`<text x="160" y="${VH-12}" text-anchor="middle" style="fill:var(--muted);font-size:12px">ภาพดาวเทียม · ใช้ ${LY.count}/${S2.lyN||LY.count} แผง${sc?` · ราว ${fmt(w*sc,1)} × ${fmt(h*sc,1)} ม.`:''}</text>`;
+  svg.setAttribute('viewBox',`0 0 320 ${VH}`);svg.innerHTML=g;return true;}
+function fitLayout(W,L,where){const f={...FIT[where]};if(S2.sb>=0)f.sb=S2.sb;const pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),ct=Math.cos(f.tilt*Math.PI/180);let best={count:0};
+  const oris=S2.ori==='p'?[[pw,pl]]:S2.ori==='l'?[[pl,pw]]:[[pw,pl],[pl,pw]];
+  // tilted mounts (ground, floating) group panels into tables 1–3 panels deep; the shade gap f.gy is only needed between tables
+  for(const[a,b]of oris)for(const k of (f.tilt>0?[1,2,3]:[1])){const bh=b*ct,px=a+f.gx,ty=k*bh+(k-1)*0.02+f.gy,cols=Math.max(0,Math.floor((W-2*f.sb+f.gx)/px)),tables=Math.max(0,Math.floor((L-2*f.sb+f.gy)/ty)),rows=tables*k;
+    if(cols*rows>best.count)best={count:cols*rows,cols,rows,a,bh,px,k,ty,th:tables*ty-f.gy};}
+  return best;}
+chipGroup('s_where',S2,'where',()=>renderFit());chipGroup('s_mat',S2,'mat',()=>renderFit());chipGroup('s_dir',S2,'dir',()=>renderFit());chipGroup('s_shade',S2,'shade',()=>renderFit());
+// tab 2 layout controls under the drawing: rotate panels, panel size and watt, edge setback
+$('s2Go').append($('s2Maps'),$('s2Maps').nextElementSibling);
+// the satellite section itself sits where the "ดูหลังคาจากดาวเทียม" button was; its heading is the button now
+$('s2Maps').hidden=true;$('s2Maps').nextElementSibling.hidden=true;$('s2Go').append($('t2Sat'));
+$('s2Rot').addEventListener('click',()=>{
+  // panels placed from the satellite photo (no width × length typed): rotate the panel block on the photo instead
+  if(!(parseFloat($('s_w').value)>0&&parseFloat($('s_l').value)>0)&&S2.lyN){$('lyRot').click();return;}
+  const pw=lyNum('lyPW',1.13);S2.ori=S2.ori?(S2.ori==='p'?'l':'p'):(S2.curA===pw?'l':'p');renderFit();});
+[['s2PL','lyPL'],['s2PW','lyPW']].forEach(([a,b])=>$(a).addEventListener('input',()=>{$(b).value=$(a).value;$(b).dispatchEvent(new Event('input'));renderFit();}));
+$('s2Wt').addEventListener('input',()=>{$('panelW').value=$('s2Wt').value;$('panelW').dispatchEvent(new Event('input',{bubbles:true}));});
+$('s2Sb').addEventListener('input',()=>{const v=parseFloat($('s2Sb').value);S2.sb=isFinite(v)?v:undefined;renderFit();});
+['s_w','s_l','s_old'].forEach(id=>$(id).addEventListener('input',()=>{if(id!=='s_old')S2.lyN=0;renderFit();}));
+$('s2Why').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const q=$(b.dataset.q);q.scrollIntoView({behavior:'smooth',block:'center'});q.classList.add('flash');setTimeout(()=>q.classList.remove('flash'),1600);});
+function renderFit(){
+  // W × LT is the whole roof outline; a ridged roof (gable, hip, butterfly) is split into two sides of W × LT/2
+  const W=parseFloat($('s_w').value)||0,LT=parseFloat($('s_l').value)||0,wh=S2.where,twoSide=(wh==='roof'||wh==='garage')&&!!(roofTypes().find(r=>r.id===(S2.roof||'shed'))||{}).two,L=twoSide?LT/2:LT,pW=parseFloat($('panelW').value)||600,roofy=wh==='roof'||wh==='garage';
+  renderPick();let P=S2.lay?presetOf(S2.lay):null;
+  // the chosen layout is the fewest rows; when the area is too short for that row, add rows one at a time until it fits
+  const autoRows=Q=>{if(!Q||!(W>0&&L>0))return Q;const a=Q.sides===2?Math.ceil(Q.n/2):Q.n;
+    for(let rows=Q.rows;rows<=8;rows++){const c=splitRows(a,rows),cb=Q.sides===2?splitRows(Q.n-a,rows):Q.countsB,R={...Q,rows:Math.max(c.length,cb.length),counts:c,countsB:cb,cols:Math.max(...c,...cb)};if(fitShape(W,L,wh,R).ok)return R;}
+    return Q;};
+  P=autoRows(P);
+  let need=P?P.n:panelsFor(S1.size,pW),min5=panelsFor(5,pW),F=fitLayout(W,L,wh),dims=W>0&&L>0,lyN=dims?0:(S2.lyN||0),n=dims?(twoSide&&!(P&&P.sides===1)?2*F.count:F.count):lyN,SF=P&&dims?fitShape(W,L,wh,P):null,needSide=(P&&P.sides===2)||(twoSide&&!P)?Math.ceil(need/2):need,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
+  // ridged roof: when the chosen rows do not fit on one side, move every other row (or half of a single row) to the opposite side
+  let moved=false;
+  if(SF&&!SF.ok&&twoSide&&P.sides===1){const c=P.counts,a=c.length===1?[Math.ceil(c[0]/2)]:c.filter((_,i)=>i%2===0),b=c.length===1?[Math.floor(c[0]/2)]:c.filter((_,i)=>i%2===1),
+    P2={...P,sides:2,counts:a,countsB:b,rows:Math.max(a.length,b.length),cols:Math.max(...a,...b)},SF2=fitShape(W,L,wh,autoRows(P2));
+    if(SF2.ok){P=autoRows(P2);SF=SF2;moved=true;n=2*F.count;needSide=Math.max(a.reduce((x,y)=>x+y,0),b.reduce((x,y)=>x+y,0));}}
+  {const sm=$('layPick').querySelector('.opt[aria-pressed="true"] small');if(sm&&P)sm.textContent=P.sides===2?`${P.counts.join('+')} | ${P.countsB.join('+')}`:P.counts.join(' + ');}
+  // the satellite step clears width × length; keep the two-side split worked out while they were filled in
+  {const keep=!dims&&P&&twoSide&&window.EFFP&&window.EFFP.id===P.id&&window.EFFP.n===P.n;if(!keep)window.EFFP=P;const E=window.EFFP,k=E?JSON.stringify([E.id,E.counts,E.countsB]):'';if(k!==window.EFFK){window.EFFK=k;if(typeof LY==='object'&&LY.mode==='group'&&LY.grp)setTimeout(()=>{buildGroup();lyResult();},0);}}
+  $('q_mat').hidden=!roofy;$('q_dir').hidden=!roofy;
+  $('s_dimHint').textContent=twoSide?`กรอบหลังคาทั้งหมด: ยาวตามแนวชายคา × กว้างรวมสองฝั่ง · แอปแบ่งครึ่ง${LT>0&&W>0?` เป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม.`:''}`:roofy?'กรอบหลังคาที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
+  $('s2Need').textContent=P?`ติด ${fmt(need*pW/1000,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} = ${need} แผง (${fmt(pW)} W) · วางแบบ ${P.label} ${P.sides===2?P.counts.join('+')+' | '+P.countsB.join('+'):P.counts.join(' + ')}`:`ติด ${fmt(need*pW/1000,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
+  $('s2CountTxt').textContent=`${need} แผง · ${fmt(need*pW/1000,2)} kW`;
+  $('s_sizeHint').textContent=S1.custom?`ตอนนี้ใช้ ${fmt(S1.size,2)} kW (${need} แผง) ที่ปรับจำนวนในข้อ 2 · กดขนาดด้านบนเพื่อเปลี่ยน`:`โครงการกำหนด 5–10 kW ต่อมิเตอร์ (แผง ${fmt(pW)} W ${min5} แผง ≈ 5 kW) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!S1.custom);
+  document.querySelector('#t2 .sizeq').classList.toggle('needfill',!dims&&!lyN);
+  glowTab('t3',dims||lyN>0);$('s2Next').hidden=!(dims||lyN>0);
+  [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
+  $('s2Sb').placeholder=FIT[wh].sb;$('s2Params').hidden=!dims&&!lyN;S2.curA=F.a;
+  $('s2RotTxt').textContent=!dims&&lyN?'หมุนกลุ่มแผงบนภาพดาวเทียม':F.count?(F.a===lyNum('lyPW',1.13)?'แผงแนวตั้ง':'แผงแนวนอน')+(S2.ori?'':' · อัตโนมัติ (วางได้มากสุด)'):'';
+  {const why=roofy&&S2.mat==='poly'?['หลังคาเป็นโพลีคาร์บอเนต / ไวนิล','q_mat']:S2.shade==='heavy'?['เลือกว่ามีเงาบังเยอะ / ทั้งวัน','q_shade']:null,w=$('s2Why');w.hidden=!why||(!dims&&!lyN);
+    if(why)w.innerHTML=`เพราะ${why[0]} <button type="button" data-q="${why[1]}">แก้ตรงนี้</button>`;}
+  if(!dims&&!lyN){const e=$('s2Verdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('s2Line').innerHTML='ใส่<b>ขนาดพื้นที่</b>เพื่อดูผล';$('s2Notes').innerHTML='';$('s2Svg').innerHTML='';$('s2Svg').style.display='none';return;}
+  let v,c,line;const notes=[];
+  if(roofy&&S2.mat==='poly'){v='ไม่แนะนำ';c='v-bad';line='หลังคาโพลีคาร์บอเนตหรือไวนิลรับน้ำหนักแผงไม่ได้ ต้องทำโครงใหม่';}
+  else if(S2.shade==='heavy'){v='ไม่แนะนำ';c='v-bad';line='เงาบังทั้งวัน แผงจะผลิตไฟได้น้อยมาก ถ้าตัดแต่งต้นไม้ได้ค่อยพิจารณา';}
+  else if(SF&&!SF.ok){v='พื้นที่ไม่พอ';c='v-bad';line=twoSide?`แบบ <b>${P.label}</b> ต้องใช้หลังคาฝั่งละอย่างน้อย ${fmt(SF.needW,1)} × ${fmt(SF.needL,1)} ม.<br>กรอบทั้งหมดอย่างน้อย ${fmt(SF.needW,1)} × ${fmt(SF.needL*2,1)} ม. (รวมระยะเว้นขอบ)`:`แบบ <b>${P.label}</b> ต้องใช้พื้นที่อย่างน้อย<br>${fmt(SF.needW,1)} × ${fmt(SF.needL,1)} ม. (รวมระยะเว้นขอบ)`;}
+  else if(n<need&&(P||n<min5)){v='พื้นที่ไม่พอ';c='v-bad';line=`วางได้ ${n} แผง ต้องใช้ ${need} แผง${P&&P.sides===2?' (สองฝั่ง)':''}<br>ใช้พื้นที่ราว ${aNeed(need)} ตร.ม.`;}
+  else{const cond=wh!=='roof'||S2.mat==='tile'||$('s_old').checked||S2.shade==='some'||(roofy&&S2.dir==='n');
+    if(n<need){v=`พอแค่ ${fmt(n*pW/1000,1)} kW`;c='v-mid';line=`ติด ${fmt(S1.size,1)} kW ไม่พอ<br>วางได้สูงสุด ${n} แผง (${fmt(n*pW/1000,1)} kW)`;}
+    else{v=cond?'พอ ต้องเช็คก่อน':'พื้นที่พอ';c=cond?'v-mid':'v-good';line=SF?`วางแบบ <b>${P.label}${moved?' (แบ่งสองฝั่ง)':''}</b> ได้ (${need} แผง ${fmt(need*pW/1000,1)} kW)<br>${twoSide?`แบ่งหลังคาเป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุดฝั่งละ ${F.count} แผง`:`พื้นที่ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุด ${F.count} แผง`}`:!dims&&LY.mode==='group'?`วาง <b>${n} แผง</b> (${fmt(n*pW/1000,2)} kW) บนภาพดาวเทียมแล้ว<br>ลากให้อยู่บนหลังคา ถ้าล้นหลังคา = พื้นที่ไม่พอ`:`วางได้ <b>${n} แผง</b>${twoSide&&dims?' (สองฝั่งรวมกัน)':!dims?' จากภาพดาวเทียม':''} (${fmt(n*pW/1000,1)} kW)<br>ใช้จริง ${need} แผง`;}}
+  if(wh==='roof'){if(S2.mat==='metal')notes.push('เมทัลชีทติดง่ายที่สุด ใช้ขายึดแบบหนีบลอน ไม่ต้องเจาะหลังคา');if(S2.mat==='tile')notes.push('กระเบื้องแตกง่าย ต้องใช้ขายึดแบบตะขอและช่างที่ชำนาญ ถ้าทำไม่ดีหลังคาจะรั่ว');if(S2.mat==='concrete')notes.push('ดาดฟ้าคอนกรีตใช้โครงตั้งเอียง ไม่ต้องเจาะ ต้องเว้นระยะไม่ให้แถวบังกันเอง');}
+  if(wh==='garage')notes.push('หลังคาโรงรถส่วนมากโครงเบา ต้องให้ช่างหรือวิศวกรเช็คว่ารับน้ำหนักเพิ่มราว 15 กก./ตร.ม. ได้');
+  if(wh==='ground')notes.push('ต้องทำฐานและโครงเหล็ก ล้อมรั้วกันคนและสัตว์ ยกให้พ้นระดับน้ำท่วม และเดินสายถึงมิเตอร์ ค่าติดตั้งมักสูงกว่าบนหลังคา');
+  if(wh==='float')notes.push('ใช้ทุ่นลอยน้ำเฉพาะ บ่อต้องมีน้ำตลอดปี ค่าใช้จ่ายสูงกว่า ข่าวบอกว่าโครงการรองรับแต่ยังรอรายละเอียด');
+  if(moved)notes.unshift(`ฝั่งเดียววางแบบ ${P.label} ไม่พอ แอปย้ายแผงไปอีกฝั่งของสันหลังคาให้: ฝั่งหนึ่ง ${P.counts.join(' + ')} อีกฝั่ง ${P.countsB.join(' + ')} แผง`);
+  else if(P&&P.sides===2)notes.unshift(`แบบสองฝั่ง: แอปแบ่งกรอบหลังคาครึ่งหนึ่งต่อฝั่ง ฝั่งละ ${needSide} แผง · ${S2.dir==='ew'?'ตะวันออกกับตะวันตกผลิตไฟใกล้เคียงกัน ได้ไฟทั้งเช้าและบ่าย':'ฝั่งที่หันทิศเหนือผลิตไฟได้น้อยลงราว 15–20% ถ้าพื้นที่ฝั่งใต้พอ ใช้แบบ 2 แถวดีกว่า'}`);
+  if(!roofy&&n)notes.push(`วางแผงเอียง ${FIT[wh].tilt}° เป็นโต๊ะละ ${F.k} แผงซ้อน เว้นระยะ ${fmt(FIT[wh].gy,1)} ม. ระหว่างแถวกันเงาบังกัน และเว้นขอบ ${fmt(S2.sb>=0?S2.sb:FIT[wh].sb,1)} ม. ไว้เดินดูแล จึงใช้พื้นที่มากกว่าบนหลังคา`);
+  if(roofy&&S2.dir==='n')notes.push('ด้านทิศเหนือผลิตไฟได้น้อยลงราว 15–20% ถ้ามีด้านอื่นให้เลือกด้านใต้ ตะวันออก หรือตะวันตก');
+  if(roofy&&S2.dir==='ew')notes.push('ทิศตะวันออกหรือตะวันตกผลิตไฟน้อยกว่าทิศใต้ราว 5–10% ยังใช้ได้ดี ทิศตะวันตกช่วยช่วงบ่ายที่เปิดแอร์');
+  if(S2.shade==='some')notes.push('เงาบางช่วงทำให้ผลิตไฟลดลง ให้ช่างวางแผงหลบเงา');
+  if($('s_old').checked)notes.push('แผงอยู่ได้ 25 ปี ควรซ่อมหรือเปลี่ยนหลังคาก่อนติด ถ้ารื้อแผงทีหลังจะเสียค่าใช้จ่ายเพิ่ม');
+  {const kw=need*pW/1000;if(kw<4.995)notes.unshift(`ติด ${fmt(kw,2)} kW ต่ำกว่า 5 kW ไม่เข้าเงื่อนไขรับเงินสนับสนุน (โครงการกำหนด 5–10 kW ต่อมิเตอร์)`);if(kw>10.05)notes.unshift(`ติด ${fmt(kw,2)} kW เกินเพดาน 10 kW ต่อมิเตอร์ของโครงการ ไม่เข้าเงื่อนไขรับเงินสนับสนุน · ไฟส่วนเกินขายเข้าสายได้ไม่เกิน 5 kW ณ เวลาใดๆ ที่เหลือต้องใช้เองในบ้าน แอปคิดตามนี้แล้ว · ระบบขนาดนี้ใช้อินเวอร์เตอร์ราว ${fmt(Math.ceil(kw/1.3),0)}–${fmt(Math.ceil(kw),0)} kW แบ่งแผงเป็นสตริงตามจำนวน MPPT เช่น 3 MPPT = ${splitRows(need,3).join(' / ')} แผง`);if(panelsFor(S1.size,pW)>=panelsFor(MAX_KWP,pW))notes.unshift(`ถึงจำนวนสูงสุดที่แอปให้ตั้ง ${panelsFor(MAX_KWP,pW)} แผง (${fmt(MAX_KWP,1)} kWp) พอสำหรับอินเวอร์เตอร์ 16 kW 3 MPPT`);}
+  if(lyN)notes.unshift(`นับจากแผงที่วางบนภาพดาวเทียม ${lyN} แผง ดูภาพผังได้ในส่วนดาวเทียมด้านล่าง`);
+  if(!notes.length)notes.push('ให้ช่างมาดูหน้างานยืนยันขนาดและโครงสร้างอีกครั้งก่อนเซ็นสัญญา');
+  $('s2Verdict').textContent=v;$('s2Verdict').className='verdict-big '+c;fitCrt($('s2Verdict'));$('s2Line').innerHTML=line;
+  $('s2Notes').innerHTML=notes.map(t=>`<li>${t}</li>`).join('');
+  const svg=$('s2Svg');svg.style.display='';if(!dims){if(lyN&&lyVector(svg,need))return;svg.innerHTML='';svg.style.display='none';return;}
+  // the whole roof outline is drawn at the size the user entered; a ridged roof shows both halves unfolded with the ridge across the middle.
+  // panels that do not fit are drawn in red outside the outline
+  const f0={...FIT[wh]};if(S2.sb>=0)f0.sb=S2.sb;
+  const bad=!!(SF&&!SF.ok),both=!!(P&&P.sides===2)||(twoSide&&!P),FH=twoSide?2*L:L;
+  // fill order without a chosen arrangement: one row at a time from the eave, centre-out; on a ridged roof the next row goes to the opposite side
+  // without a chosen arrangement: use as few rows as needed, rows taken from the eave (alternating sides on a ridged roof),
+  // and share the panels evenly between those rows so the layout stays symmetric (8 on 6-wide rows = 4 + 4)
+  const perRow=F.cols||0,rowSeq=[];for(let ri=0;ri<(F.rows||0);ri++)for(const sd of(twoSide?['A','B']:['A']))rowSeq.push([sd,F.rows-1-ri]);
+  const used=Math.min(need,perRow*rowSeq.length),miss=!SF&&n<need?Math.max(0,need-used):0,onSet=new Set();
+  {const ru=perRow?Math.ceil(used/perRow):0,base=ru?Math.floor(used/ru):0,extra=ru?used%ru:0;
+   rowSeq.slice(0,ru).forEach(([sd,r],i)=>{const cnt=base+(i<extra?1:0),c0=Math.floor((perRow-cnt)/2);for(let c=c0;c<c0+cnt;c++)onSet.add(sd+r+'-'+c);});}
+  let sh=null,mp=null,TOP=0,EW=W,EL;
+  if(bad){sh={a:SF.a,bh:SF.bh,gx:SF.gx,w:P.cols*(SF.a+SF.gx)-SF.gx,h:P.rows*SF.bh+(P.rows-1)*0.02};EW=Math.max(W,f0.sb+sh.w);if(twoSide&&P.sides===2)TOP=Math.max(0,f0.sb+sh.h-L);}
+  const aTop=twoSide?L:0,below=bad?Math.max(0,aTop+f0.sb+sh.h-FH):0;
+  if(miss){const a=F.a||lyNum('lyPW',1.13),bh=F.bh||lyNum('lyPL',2.38)*Math.cos(f0.tilt*Math.PI/180),per=Math.max(1,Math.floor((W+0.02)/(a+0.02)));mp={a,bh,per};}
+  EL=TOP+FH+below+(mp?0.4+Math.ceil(miss/mp.per)*(mp.bh+0.02):0);
+  // size the drawing to the area's own shape so a long, shallow roof fills the frame
+  const S=Math.min(304/EW,240/EL),ox=(320-EW*S)/2,oy=8,VH=Math.round(EL*S+56);svg.setAttribute('viewBox',`0 0 320 ${VH}`);
+  const R=(x,y,w,h,st)=>`<rect x="${(ox+x*S).toFixed(1)}" y="${(oy+y*S).toFixed(1)}" width="${(w*S).toFixed(1)}" height="${(h*S).toFixed(1)}" style="${st}"/>`,BLUE='fill:var(--pv);stroke:#fff;stroke-width:1',RED='fill:rgba(200,68,63,.28);stroke:var(--bad);stroke-width:1.4;stroke-dasharray:4 2',OFF='fill:none;stroke:var(--grid);stroke-width:1;stroke-dasharray:3 2';
+  // y position of a panel row inside side A (below the ridge) or side B (above it, mirrored so overflow grows outward)
+  const yA=y=>TOP+aTop+y,yB=(y,h)=>TOP+L-y-h;
+  let g=R(0,TOP,W,FH,'fill:var(--sun-soft);stroke:var(--fr-o);stroke-width:2');
+  if(twoSide)g+=`<path d="M${ox} ${(oy+(TOP+L)*S).toFixed(1)}h${(W*S).toFixed(1)}" style="stroke:var(--forest);stroke-width:1.6;stroke-dasharray:6 4"/>`;
+  const sides=[['A',1]];if(twoSide&&both)sides.push(['B',1]);
+  if(SF&&SF.ok){const h=P.rows*SF.bh+(P.rows-1)*0.02,y0=(L-h)/2;
+    for(const[sd]of(P.sides===2?sides:[['A']])){const cs=sd==='A'?P.counts:P.countsB;cs.forEach((cnt,ri)=>{const r=P.rows-1-ri,x0=(W-(cnt*(SF.a+SF.gx)-SF.gx))/2,y=y0+r*(SF.bh+0.02);for(let k=0;k<cnt;k++)g+=R(x0+k*(SF.a+SF.gx),sd==='A'?yA(y):yB(y,SF.bh),SF.a,SF.bh,BLUE);});}}
+  else if(bad){for(const[sd]of(P.sides===2&&twoSide?sides:[['A']]))(sd==='A'?P.counts:P.countsB).forEach((cnt,ri)=>{const r=P.rows-1-ri;for(let k=0;k<cnt;k++){const x=f0.sb+k*(sh.a+sh.gx),y=f0.sb+r*(sh.bh+0.02),inside=x+sh.a<=W-f0.sb+1e-6&&y+sh.bh<=L-f0.sb+1e-6;g+=R(x,sd==='A'?yA(y):yB(y,sh.bh),sh.a,sh.bh,inside?BLUE:RED);}});
+    g+=R(0,TOP,W,FH,'fill:none;stroke:var(--forest);stroke-width:2');}
+  else if(n){const f=FIT[wh],tw=F.cols*F.px-f.gx,x0=(W-tw)/2,y0=(L-F.th)/2,rowY=r=>Math.floor(r/F.k)*F.ty+(r%F.k)*(F.bh+0.02),ord=[];
+    rowSeq.forEach(([sd,r])=>{for(let k=0;k<perRow;k++){const y=y0+rowY(r);g+=R(x0+k*F.px,sd==='A'?yA(y):yB(y,F.bh),F.a,F.bh,onSet.has(sd+r+'-'+k)?BLUE:OFF);}});}
+  if(mp)for(let i=0;i<miss;i++)g+=R((i%mp.per)*(mp.a+0.02),TOP+FH+0.4+Math.floor(i/mp.per)*(mp.bh+0.02),mp.a,mp.bh,RED);
+  const cap=bad?`แบบ ${P.label} ล้นกรอบ · สีแดง = ส่วนที่วางไม่ลง`:miss?`วางได้ ${used} แผง · สีแดง = ขาดอีก ${miss} แผง`:`สีน้ำเงิน = แผงที่ใช้ ${SF&&SF.ok?need:used} แผง${P?` · ${P.label}`:''}`;
+  g+=`<text x="160" y="${VH-28}" text-anchor="middle" style="fill:var(--muted);font-size:12px">กรอบ ${fmt(W,1)} × ${fmt(FH,1)} ม.${twoSide?` · เส้นประ = สันหลังคา (ฝั่งละ ${fmt(W,1)} × ${fmt(L,1)})`:''}</text><text x="160" y="${VH-10}" text-anchor="middle" style="fill:${bad||miss?'var(--bad)':'var(--muted)'};font-size:12px;font-weight:600">${cap}</text>`;
+  svg.innerHTML=g;
+}
+// ---- question 3: ask nearby installers for a quote (no server: the user sends the text themselves) ----
+// VENDORS: snapshot of registered installers (MEA list peoplesolar.mea.or.th/vendor): {name, prov, addr, phone, email, url}
+// the app cannot read the MEA page live, so this list is copied in and dated (VENDORS_AT)
+let VENDORS=[],VENDORS_AT='',vendorsTried=false,vShow=8;
+// vendors.json sits next to the hosted page: {at, v:[[src M|P, id, name, office province, district, phone, email, serve '*'|'จังหวัด|จังหวัด']]}
+// MEA area (Bangkok, Nonthaburi, Samut Prakan): MEA-registered installers by office distance; PEA area: PEA-registered installers that serve that province
+function loadVendors(){if(vendorsTried)return;vendorsTried=true;
+  fetch('vendors.json').then(r=>r.ok?r.json():null).then(d=>{if(!d||!d.v)return;VENDORS=d.v.map(([src,id,name,prov,dist,phone,email,serve])=>({src,id,name,prov,dist,phone,email,serve:serve==='*'?'*':serve?serve.split('|'):[]}));
+    const [y,m,dd]=(d.at||'').split('-');VENDORS_AT=y?`${+dd} ${['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][+m]} ${(+y+543)%100}`:'';rfqRender(false);}).catch(()=>{});}
+const MEA_PROV=['กรุงเทพมหานคร','นนทบุรี','สมุทรปราการ'];
+$('rfqProv').innerHTML='<option value="">— เลือกจังหวัด —</option>'+provSorted.map(([n])=>`<option>${n}</option>`).join('');
+let rfqEdited=false;
+document.addEventListener('click',e=>{const a=e.target.closest('a[href*="peoplesolar.pea.co.th"],a[href*="peoplesolar.mea.or.th"]');if(a&&!a.closest('#rfqVendors'))track('register-'+(a.href.includes('pea')?'pea':'mea'));});
+function rfqRender(force){
+  loadVendors();
+  const sel=$('rfqProv');
+  if(!sel.value){const c=parseCoords($('coords').value);if(c){const n=locate(c.la,c.lo).nearest;if(n)sel.value=PROV[n.i][0];}else if($('s_prov').value!=='')sel.value=PROV[+$('s_prov').value][0];}
+  const prov=sel.value,pW=parseFloat($('panelW').value)||620,n=panelsFor(S1.size,pW),kw=n*pW/1000,bill=parseFloat($('s_bill').value)||0;
+  const roofy=S2.where==='roof'||S2.where==='garage',rt=(roofTypes().find(r=>r.id===(S2.roof||'shed'))||{}).label||'';
+  const where={roof:'หลังคาบ้าน',garage:'หลังคาโรงรถ',ground:'พื้นดินว่าง',float:'บ่อน้ำ (ลอยน้ำ)'}[S2.where]||'';
+  const mat={metal:'เมทัลชีท',tile:'กระเบื้อง',concrete:'ดาดฟ้าคอนกรีต',poly:'โพลีคาร์บอเนต'}[S2.mat]||'';
+  const dir={s:'ใต้',ew:'ตะวันออก/ตะวันตก',n:'เหนือ',flat:'แบนราบ'}[S2.dir]||'';
+  const W=parseFloat($('s_w').value),L=parseFloat($('s_l').value),c=parseCoords($('coords').value);
+  const lines=['สวัสดีครับ ขอใบเสนอราคาติดโซลาร์ โครงการโซลาร์ภาคประชาชน',
+    `• พื้นที่: ${[$('rfqArea').value.trim(),prov?'จ.'+prov:''].filter(Boolean).join(' ')||'(ระบุจังหวัด)'}`,
+    bill?`• ค่าไฟเดือนละประมาณ ${fmt(bill)} บาท`:null,
+    `• ขนาดที่ต้องการ: ${fmt(kw,2)} kW (แผง ${fmt(pW)} W ${n} แผง)`,
+    `• ที่ติดตั้ง: ${where}${roofy?` ทรง${rt} ${mat}`:''}${W>0&&L>0?` ขนาด ${fmt(W,1)} × ${fmt(L,1)} ม.`:''}${roofy&&dir?` หันทิศ${dir}`:''}`,
+    `• การจ่าย: ${S1.loan?'กู้ธนาคารรัฐตามโครงการ':'เงินสด'}`,
+    $('rfqCoords').checked&&c?`• พิกัด: ${c.la.toFixed(5)}, ${c.lo.toFixed(5)}`:null,
+    '','รบกวนระบุในใบเสนอราคา:',
+    '1) ราคาชุดมาตรฐาน 5 kW (ราคากลางไม่เกิน 140,000 บาท รวม VAT) และส่วนเพิ่มแยกรายการ',
+    '2) ยี่ห้อ/รุ่น/จำนวน แผง (≥600 W ประสิทธิภาพ ≥21%) และอินเวอร์เตอร์ (ขึ้นทะเบียนกับการไฟฟ้า) พร้อมระยะประกัน',
+    '3) ยืนยันว่าร้านขึ้นทะเบียนกับการไฟฟ้า รับประกันงาน 7 ปี และรวมดูแลล้างแผงปีละครั้ง 7 ปี',
+    '4) ถ้าต้องเสริมหลังคาหรือแก้ระบบไฟเดิม ขอแยกรายการและราคา',
+    '5) วันที่สะดวกเข้าสำรวจหน้างาน','','ขอบคุณครับ'].filter(x=>x!==null);
+  if(force||!rfqEdited)$('rfqText').value=lines.join('\n');
+  const mea=MEA_PROV.includes(prov),pi=PROV.findIndex(x=>x[0]===prov);
+  // registered installers sorted by distance from the chosen province (same province first, then the nearest ones)
+  const near=pi<0?[]:VENDORS.map((v,i)=>({v,i})).filter(({v})=>mea?v.src==='M':v.src==='P'&&(v.serve==='*'||v.serve.includes(prov)))
+    .map(o=>{const q=PROV.find(x=>x[0]===o.v.prov);return{...o,d:q?km(PROV[pi][1],PROV[pi][2],q[1],q[2]):9999};}).sort((a,b)=>a.d-b.d||(b.v.email?1:0)-(a.v.email?1:0));
+  const total=near.length;near.splice(vShow);
+  const esc=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const vlist=near.length?`<b>${mea?`ร้านที่ขึ้นทะเบียนกับ MEA ใกล้ จ.${esc(prov)} ที่สุด`:`ร้านที่ขึ้นทะเบียนกับ PEA รับงานใน จ.${esc(prov)} ${fmt(total)} ร้าน`}</b> <span class="note">เรียงจากสำนักงานที่ใกล้ที่สุด</span>${VENDORS_AT?` <span class="note">(รายชื่อ ณ ${esc(VENDORS_AT)})</span>`:''}<ul class="vlist">${near.map(({v,i,d})=>`<li><label><input type="checkbox" class="vpick" value="${i}"${v.email?'':' disabled'}> <b>${esc(v.name)}</b></label><br><span class="note">สำนักงาน จ.${esc(v.prov)}${d>1?` · ห่างราว ${fmt(Math.round(d/5)*5)} กม.`:' · จังหวัดเดียวกัน'}${v.serve==='*'?' · รับงานทั่วประเทศ':''}${v.dist?` · ${esc(v.dist)}`:''}</span><br>${v.email?`<a class="btn sm" href="#" data-mail="${i}">ส่งอีเมล</a> `:''}${v.phone?v.phone.split(',').map(t=>t.trim()).filter(Boolean).slice(0,2).map(t=>`<a class="btn sm" href="tel:${esc(t.replace(/[^0-9+]/g,''))}">โทร ${esc(t)}</a> `).join(''):''}${v.url?`<a class="btn sm" href="${esc(v.url)}" target="_blank" rel="noopener">เว็บ</a>`:''}</li>`).join('')}</ul>${total>near.length?`<button type="button" class="btn sm" id="rfqMore">แสดงเพิ่ม (${fmt(total-near.length)} ร้าน)</button><br><br>`:''}${near.some(x=>x.v.email)?'<button type="button" class="btn solid" id="rfqMailSel" disabled>ส่งอีเมลถึงร้านที่เลือก</button> <span class="note">ร้านจะไม่เห็นอีเมลของกันและกัน (ส่งแบบ BCC)</span>':''}`:'';
+  $('rfqVendors').innerHTML=!prov?'<span class="note">เลือกจังหวัดเพื่อดูร้านที่ขึ้นทะเบียนใกล้บ้าน</span>':vlist+
+    (mea?'':`<p class="note"><b>PEA Solar</b> (การไฟฟ้าส่วนภูมิภาค) รับติดตั้งเองทั่วประเทศด้วย ดูที่ <a href="https://peasolar.pea.co.th" target="_blank" rel="noopener">peasolar.pea.co.th</a> หรือโทร 1129</p>`)+
+    `<p class="note">${mea?`จ.${prov} อยู่ในพื้นที่ MEA`:`จ.${prov} อยู่ในพื้นที่ PEA`} · ดูรายชื่อทางการและอัปเดตล่าสุดได้ที่ <a href="https://peoplesolar.mea.or.th/vendor" target="_blank" rel="noopener">Vendor List ของ MEA</a> และ <a href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">ระบบของ PEA</a> (หรือโทร 1129) · ส่งข้อความนี้ให้ 2–3 ร้าน แล้วเอาราคาที่ได้มากรอกในตารางเทียบด้านล่าง</p>`;
+}
+$('rfqText').addEventListener('input',()=>{rfqEdited=true;});
+// email the quote request: one shop, or several selected shops in BCC so they do not see each other
+// click counter: Cloudflare Web Analytics counts SPA navigations, so each action is recorded as a short virtual page /solar/go/<action>
+// (pushState then put the real address back; nothing about the user or the shop is sent)
+function track(action){try{const real=location.pathname+location.search+location.hash,base=location.pathname.replace(/[^/]*$/,'');
+  history.pushState(history.state,'',base+'go/'+action);setTimeout(()=>history.replaceState(history.state,'',real),400);}catch(e){}}
+const rfqMail=(to,bcc)=>{const sub='ขอใบเสนอราคาติดโซลาร์ภาคประชาชน',body=$('rfqText').value;
+  location.href=`mailto:${to?encodeURIComponent(to):''}?${bcc?`bcc=${encodeURIComponent(bcc)}&`:''}subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;};
+$('rfqVendors').addEventListener('click',e=>{const a=e.target.closest('[data-mail]');if(a){e.preventDefault();track('email-'+(VENDORS[+a.dataset.mail].src==='M'?'mea':'pea'));setTimeout(()=>rfqMail(VENDORS[+a.dataset.mail].email),450);return;}
+  const t=e.target.closest('a[href^="tel:"]');if(t){track('call');return;}
+  const w=e.target.closest('#rfqVendors a[target=_blank]');if(w){track('vendor-list');return;}
+  if(e.target.id==='rfqMore'){vShow+=8;rfqRender(false);return;}
+  if(e.target.id==='rfqMailSel'){const em=[...document.querySelectorAll('.vpick:checked')].map(c=>VENDORS[+c.value].email).filter(Boolean);if(em.length){track('email-multi-'+em.length);setTimeout(()=>rfqMail('',em.join(',')),450);}}});
+$('rfqVendors').addEventListener('change',e=>{if(e.target.classList.contains('vpick')){const b=$('rfqMailSel');if(b)b.disabled=!document.querySelector('.vpick:checked');}});
+['rfqProv','rfqArea','rfqCoords'].forEach(id=>$(id).addEventListener(id==='rfqArea'?'input':'change',()=>{if(id==='rfqProv')vShow=8;rfqRender(true);}));
+$('rfqCopy').addEventListener('click',()=>{track('copy');const t=$('rfqText').value,b=$('rfqCopy'),ok=()=>{b.textContent='คัดลอกแล้ว ✓';setTimeout(()=>b.textContent='คัดลอกข้อความ',1800);};
+  if(navigator.clipboard)navigator.clipboard.writeText(t).then(ok,()=>{$('rfqText').select();document.execCommand('copy');ok();});else{$('rfqText').select();document.execCommand('copy');ok();}});
+$('rfqLine').addEventListener('click',()=>{track('line');window.open('https://line.me/R/share?text='+encodeURIComponent($('rfqText').value),'_blank','noopener');});
+if(navigator.share){$('rfqShare').hidden=false;$('rfqShare').addEventListener('click',()=>{track('share');navigator.share({text:$('rfqText').value}).catch(()=>{});});}
+document.querySelectorAll('#tabs [data-t="t3"],[data-next="t3"]').forEach(b=>b.addEventListener('click',()=>rfqRender(false)));
+rfqRender(false);
+// ---- question 3: who to install with — compare up to three quotes ----
+const QF=[['name','ชื่อร้าน / บริษัท','text'],['total','ราคารวม (บาท)','number'],['kw','ขนาด (kW)','number'],['panel','แผง (ยี่ห้อ / วัตต์ เช่น 620W)','text'],['inv','อินเวอร์เตอร์ (ยี่ห้อ)','text'],['invW','ประกันอินเวอร์เตอร์ (ปี)','number'],['workW','ประกันงานติดตั้ง (ปี)','number'],['avl','อยู่ในรายชื่อที่ขึ้นทะเบียนกับการไฟฟ้า','checkbox'],['maint','รวมดูแลล้างแผง 7 ปี','checkbox']];
+$('qbody').innerHTML=QF.map(([k,l,t])=>`<tr><td>${l}</td>${[1,2,3].map(n=>`<td>${t==='checkbox'?`<input type="checkbox" id="q${n}_${k}" aria-label="${l} เจ้าที่ ${n}">`:`<input type="${t}" id="q${n}_${k}" aria-label="${l} เจ้าที่ ${n}"${k==='kw'?' value="5" step="0.5"':''}${k==='total'?' step="1000" placeholder="เช่น 140000"':''}>`}</td>`).join('')}</tr>`).join('');
+$('qbody').addEventListener('input',()=>renderQuotes());$('qbody').addEventListener('change',()=>renderQuotes());
+function renderQuotes(){
+  const p=read();let best=0,bs=-Infinity;
+  const out=[1,2,3].map(n=>{const g=k=>$(`q${n}_${k}`),total=parseFloat(g('total').value),kw=parseFloat(g('kw').value)||5;if(!(total>0))return null;
+    const R=compute({...p,kwp:kw,price:Math.max(0,(total-p.fee)/kw)},false),[w,c]=verdictOf(R),fl=[];let net=R.benefit/12-R.pay-R.omM;
+    if(!g('maint').checked){net-=p.om/12;fl.push('ไม่รวมดูแลล้างแผง 7 ปี (ราคากลางต้องรวม)');}if(kw<=5.7&&total>STD_SET)fl.push(`เกินราคากลางชุด 5 kW ${fmt(STD_SET)} บาท ขอให้แยกรายการส่วนเพิ่ม`);
+    if(!g('avl').checked)fl.push('ยังไม่ยืนยันว่าขึ้นทะเบียนกับการไฟฟ้า (ไม่ได้ขึ้นทะเบียน = ไม่ได้เงินสนับสนุน)');{const iw=parseFloat(g('invW').value),ww=parseFloat(g('workW').value),pw=(g('panel').value.match(/(\d{3,4})\s*(?:w|วัตต์)/i)||[])[1];
+      if(!(iw>=10))fl.push(iw>0?`ประกันอินเวอร์เตอร์ ${iw} ปี ต่ำกว่าเกณฑ์ 10 ปี`:'ไม่ระบุประกันอินเวอร์เตอร์ (เกณฑ์ 10 ปี)');
+      if(!(ww>=7))fl.push(ww>0?`ประกันงานติดตั้ง ${ww} ปี ต่ำกว่าเกณฑ์ 7 ปี`:'ไม่ระบุประกันงานติดตั้ง (เกณฑ์ 7 ปี)');
+      if(pw&&+pw<600)fl.push(`แผง ${pw} W ต่ำกว่าเกณฑ์ 600 W`);}if(kw>10)fl.push('เกิน 10 kW ต่อมิเตอร์ ไม่เข้าเงื่อนไข');
+    const sc=(R.loan?net:R.benefit/12-R.outlay/120)-fl.length*500;if(sc>bs){bs=sc;best=n;}
+    return{n,ppk:total/kw,w,c,net,R,fl};});
+  const cell=f=>[1,2,3].map(n=>`<td>${out[n-1]?f(out[n-1]):'<span class="note">–</span>'}</td>`).join('');
+  $('qres').innerHTML=`<tr><td>ราคาต่อ kW</td>${cell(o=>`<b class="num">${fmt(o.ppk)}</b> บาท`)}</tr>`+
+    `<tr><td>คุ้มไหม</td>${cell(o=>`<b class="${o.c}" style="font-size:18px">${o.w}</b><br><span class="note">${o.R.loan?(o.net>=0?`เหลือ ${fmt(o.net)}`:`ขาด ${fmt(-o.net)}`)+' บาท/เดือน':(o.R.payback!==null?`คืนทุน ${fmt(o.R.payback,1)} ปี`:'คืนทุนเกิน 20 ปี')}</span>`)}</tr>`+
+    `<tr><td>ข้อควรระวัง</td>${cell(o=>o.fl.length?o.fl.map(x=>`<span class="flag">${x}</span>`).join(''):'<span class="pos">ครบถ้วน</span>')}</tr>`;
+  const filled=out.filter(Boolean).length;[1,2,3].forEach(n=>{$('qh'+n).innerHTML=`เจ้าที่ ${n}${filled>1&&n===best?' <span class="tag">น่าเลือกที่สุด</span>':''}`;});
+}
+// icons in front of each question (drawn inline: artifact pages cannot load outside images)
+{const I={bill:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',wallet:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/>',panel:'<path d="M4 18l2-12h12l2 12z"/><path d="M5 12h14M9.5 6l-1 12M14.5 6l1 12"/>',pin:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',ruler:'<rect x="2" y="8" width="20" height="8" rx="1"/><path d="M6 8v3M10 8v4M14 8v3M18 8v4"/>',roof:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',tree:'<path d="M12 3c3 0 5 2.5 5 5 1.5.5 2.5 2 2.5 3.5 0 2-1.8 3.5-4 3.5H8.5c-2.2 0-4-1.5-4-3.5 0-1.5 1-3 2.5-3.5 0-2.5 2-5 5-5z"/><path d="M12 15v6"/>'};
+ // tab 2: the size question sits right under the screen, so the screen stays visible above the phone keyboard
+ document.querySelector('#t2 .answer .crt').insertAdjacentElement('afterend',document.querySelector('#t2 .sizeq'));document.querySelector('#t2 .answer .crt').insertAdjacentElement('afterend',$('s2Why'));
+ // the satellite image sits right under the fetch button; its tools follow below
+ {const lw=$('layoutWrap');lw.prepend($('lyHint'));lw.prepend(lw.querySelector('.lyresult'));lw.prepend(lw.querySelector('.canvaswrap'));
+  // rotate and the other drawing tools sit right under the photo
+  lw.querySelector('.canvaswrap').after($('placeTools'),$('lyMode').closest('.lytools'),$('satNav'));
+  // how-to steps sit under the image, where the user is working
+  const st=document.querySelector('#t2Sat .satsteps');lw.after(st);st.insertAdjacentHTML('beforebegin','<p class="satsteps-t">วิธีใช้</p>');}
+ // phones have no Ctrl+V or drag-and-drop: the roof-image box opens the photo picker instead
+ if(matchMedia('(pointer:coarse)').matches)$('dropText').innerHTML='<span class="big">แตะตรงนี้เพื่อเลือกภาพหลังคา</span><br>1) ใน Google Maps เปิดภาพดาวเทียม ซูมให้เห็นหลังคาเต็มจอ แล้วแคปหน้าจอ<br>2) กลับมาแตะตรงนี้ เลือกภาพจากอัลบั้ม / แกลเลอรี<br>ใช้ภาพโดรนหรือภาพที่ลูกค้าส่งมาก็ได้';
+ // location and the roof-layout tool live in tab 2's satellite section (moved here so the elements keep their handlers)
+ $('t2SatBody').append($('coords').closest('.field'),$('roofPanel'));$('roofPanel').classList.remove('collapsed');
+ I.coin='<circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M14.8 9.2c-.4-.9-1.5-1.4-2.8-1.4-1.6 0-2.8.8-2.8 1.9s1.2 1.6 2.8 1.9 2.8.9 2.8 2-1.2 1.9-2.8 1.9c-1.4 0-2.5-.6-2.9-1.5"/>';
+ const order=['sun','wallet','coin','panel','bill','pin','roof','compass','tree','ruler'];
+ document.querySelectorAll('#t1 .q h4, #t2 .q h4').forEach((h,i)=>{if(order[i])h.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 24 24" aria-hidden="true">${I[order[i]]}</svg>`);});}
+// menu 1: the system-size question sits under the bill question in the answer frame
+{const q=$('s_size').closest('.q'),bq=document.querySelector('#t1 .answer .billq');q.classList.add('billq','sizeq1');bq.after(q);}
+placeNav('t1');
+// remember answers on this phone, so coming back from Google Maps (which often reloads the page) lands where the user left
+const STKEY='solarState1';
+// start over: first tap arms the button, second tap within 3 s wipes saved answers and reloads at menu 1
+let noSave=false;
+document.querySelectorAll('[data-reset]').forEach(b=>{const label=b.textContent;let t=0;b.addEventListener('click',()=>{
+  if(!b.classList.contains('armed')){b.classList.add('armed');b.textContent='แตะอีกครั้งเพื่อล้าง';clearTimeout(t);t=setTimeout(()=>{b.classList.remove('armed');b.textContent=label;},3000);return;}
+  noSave=true;try{localStorage.removeItem(STKEY);}catch(e){}
+  location.replace(location.pathname);});});
+function saveState(){if(noSave)return;try{
+  const tab=(document.querySelector('#tabs [aria-selected=true]')||{}).dataset?.t||'t1';
+  localStorage.setItem(STKEY,JSON.stringify({ts:Date.now(),tab,y:scrollY,sat:$('t2Sat').open,maps:awaitingMaps,
+    v:Object.fromEntries(['s_bill','s_total','s_w','s_l','coords','s2Sb'].map(id=>[id,$(id).value])),old:$('s_old').checked,
+    S1:{pres:S1.pres,loan:S1.loan,size:S1.size,grant:S1.grant,baseSize:S1.baseSize,care:S1.care,custom:S1.custom},S2:{where:S2.where,mat:S2.mat,dir:S2.dir,shade:S2.shade,ori:S2.ori,sb:S2.sb,roof:S2.roof,lay:S2.lay}}));}catch(e){}}
+let stT=0;const saveSoon=()=>{clearTimeout(stT);stT=setTimeout(saveState,300);};
+['input','change','click'].forEach(ev=>document.addEventListener(ev,saveSoon,true));
+window.addEventListener('pagehide',saveState);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveState();});
+let restored=null;
+try{const s=JSON.parse(localStorage.getItem(STKEY)||'null');if(s&&Date.now()-s.ts<12*3600e3&&location.hash!=='#demo')restored=s;}catch(e){}
+if(restored){
+  Object.entries(restored.v||{}).forEach(([id,v])=>{if($(id)&&v!=null)$(id).value=v;});$('s_old').checked=!!restored.old;
+  Object.assign(S1,restored.S1||{});Object.assign(S2,restored.S2||{});
+  [['s_pres',S1.pres],['s_loan',S1.loan],['s_size',S1.size],['s_grant',S1.grant],['s_where',S2.where],['s_mat',S2.mat],['s_dir',S2.dir],['s_shade',S2.shade]].forEach(([g,v])=>$(g).querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===String(v)))));
+}
+updateLoc(false);
+simpleSync();
+if(restored){
+  if(restored.sat)$('t2Sat').open=true;
+  if(restored.tab&&restored.tab!=='t1')showTab(restored.tab);
+  awaitingMaps=!!restored.maps;
+  const recent=Date.now()-restored.ts<3600e3;
+  setTimeout(()=>{if(awaitingMaps&&!parseCoords($('coords').value)){$('coords').scrollIntoView({block:'center'});backFromMaps();}else if(recent)scrollTo(0,restored.y||0);},80);
+}
+// demo mode for screen-recording ads: open the page with #demo and the screen cycles the three states
+if(location.hash==='#demo'){let i=0;const seq=[['คุ้ม','v-good'],['--/--','v-idle'],['ไม่คุ้ม','v-bad']];
+  setInterval(()=>{const[t,c]=seq[i++%seq.length],e=$('sVerdict');e.textContent=t;e.className='verdict-big '+c;fitCrt(e);},1600);}
+})();
+</script>
+<script>
+// in-app browser (Facebook / Messenger / IG / Line): offer to open in a real browser so Google Maps, paste and saved answers work
+(function(){const ua=navigator.userAgent||'',inApp=/FBAN|FBAV|FB_IAB|FBIOS|FB4A|Messenger|Instagram|\bLine\//i.test(ua);
+  if(!inApp)return;try{if(sessionStorage.getItem('iabX'))return;}catch(e){}
+  const and=/Android/i.test(ua),ios=/iPhone|iPad|iPod/i.test(ua),line=/\bLine\//i.test(ua),u=location.href.split('#')[0],go=document.getElementById('iabGo');
+  const app=line?'Line':/Instagram/i.test(ua)?'Instagram':/Messenger/i.test(ua)?'Messenger':'Facebook';
+  let msg=`กำลังเปิดในแอป ${app} · <b>เปิดใน Chrome จะใช้ได้ครบกว่า</b> (ปุ่มเปิด Google Maps, วางพิกัด, จำคำตอบ)`;
+  if(line){const x=new URL(u);x.searchParams.set('openExternalBrowser','1');go.href=x.href;go.textContent='เปิดในเบราว์เซอร์';}
+  else if(and){go.href=`intent://${location.host}${location.pathname}${location.search}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(u)};end`;}
+  else if(ios){go.href='x-safari-'+u;go.textContent='เปิดใน Safari';msg+='<br>ถ้าปุ่มไม่ทำงาน: แตะ ⋯ มุมขวาบน › เปิดในเบราว์เซอร์';}
+  else go.style.display='none';
+  document.getElementById('iabMsg').innerHTML=msg;document.getElementById('iab').classList.add('on');
+  document.getElementById('iabCp').onclick=e=>{const b=e.currentTarget,done=()=>{b.textContent='คัดลอกแล้ว ✓';};
+    if(navigator.clipboard)navigator.clipboard.writeText(u).then(done,()=>prompt('คัดลอกลิงก์นี้',u));else prompt('คัดลอกลิงก์นี้',u);};
+  document.getElementById('iabX').onclick=()=>{document.getElementById('iab').classList.remove('on');try{sessionStorage.setItem('iabX','1');}catch(e){}};
+})();
+</script>
