@@ -756,8 +756,8 @@ a.btn{text-decoration:none;display:inline-block}
       <details>
         <summary>สมมติฐานการคำนวณ (แก้ได้)</summary>
         <div class="grid2">
-          <div class="field"><label for="yield">ผลผลิตไฟต่อปี</label><input type="number" id="yield" value="1350" step="10"><span class="hint">kWh/kWp/ปี (คำนวณจากพิกัด แก้เองได้)</span></div>
-          <div class="field"><label for="pr">ประสิทธิภาพระบบ (PR)</label><input type="number" id="pr" value="75" step="1"><span class="hint">% รวมความร้อน สาย อินเวอร์เตอร์</span></div>
+          <div class="field"><label for="yield">ผลผลิตไฟต่อปี</label><input type="number" id="yield" value="1250" step="10"><span class="hint">kWh/kWp/ปี (คำนวณจากพิกัด แก้เองได้)</span></div>
+          <div class="field"><label for="pr">ประสิทธิภาพระบบ (PR)</label><input type="number" id="pr" value="68" step="1"><span class="hint">% รวมความร้อน สาย อินเวอร์เตอร์</span></div>
           <div class="field"><label for="panelW">วัตต์ต่อแผง</label><input type="number" id="panelW" value="620" step="5"><span class="hint">W</span></div>
           <div class="field"><label for="sell">อัตรารับซื้อ</label><input type="number" id="sell" value="2.20" step="0.01"><span class="hint">บาท/หน่วย</span></div>
           <div class="field"><label for="years">ระยะสัญญา</label><select id="years"><option value="20" selected>20 ปี</option><option value="10">10 ปี</option></select></div>
@@ -929,7 +929,7 @@ a.btn{text-decoration:none;display:inline-block}
       <p>แอปตอบคำถามเดียว: <b>ติดแล้วแต่ละเดือนกระเป๋าตังค์เหลือหรือขาด</b> คิด 4 ขั้น</p>
       <ol>
         <li><b>แปลงค่าไฟเป็นหน่วย</b> ย้อนสูตรบิล กฟภ. (อัตราก้าวหน้า ก.ย. 2569 + Ft + ค่าบริการ + VAT 7%) เช่น 2,500 บาท ≈ 580 หน่วย/เดือน</li>
-        <li><b>จำลองทีละชั่วโมงใน 1 วัน</b> แผงผลิตตามค่าแดดรายจังหวัด (NASA POWER) × ประสิทธิภาพระบบ 75% บ้านใช้ไฟตามคำตอบ "กลางวันมีคนอยู่บ้านไหม" ชั่วโมงที่ผลิตได้และบ้านกำลังใช้ = ใช้เอง ส่วนที่เหลือขายเข้าระบบ</li>
+        <li><b>จำลองทีละชั่วโมงใน 1 วัน</b> แผงผลิตตามค่าแดดรายจังหวัด (NASA POWER) × ประสิทธิภาพระบบ 68% (ตามผลวัดจริงบนหลังคาบ้านในไทย ราว 3.4–3.8 หน่วย/kWp/วัน) บ้านใช้ไฟตามคำตอบ "กลางวันมีคนอยู่บ้านไหม" ชั่วโมงที่ผลิตได้และบ้านกำลังใช้ = ใช้เอง ส่วนที่เหลือขายเข้าระบบ</li>
         <li><b>คิดเป็นเงินต่อเดือน</b> บิลที่ลดลง + เงินขายไฟ − ค่างวดธนาคาร ไฟที่ใช้เองหักหน่วยแพงขั้นบนสุดก่อน จึงมีค่าหน่วยละราว 4.4 บาท มากกว่าไฟที่ขาย (2.20 บาท) บ้านที่ใช้ไฟกลางวันเยอะจึงคุ้มกว่า</li>
         <li><b>ตัดสินคำบนจอ</b> ตามตารางด้านล่าง</li>
       </ol>
@@ -1011,7 +1011,7 @@ function updateLoc(fromProv){
 }
 function applyYield(){
   if(!loc)return;
-  const pr=(parseFloat($('pr').value)||75)/100, dir=parseFloat($('dir').value)||1, sh=1-(parseFloat($('shade').value)||0)/100;
+  const pr=(parseFloat($('pr').value)||68)/100, dir=parseFloat($('dir').value)||1, sh=1-(parseFloat($('shade').value)||0)/100;
   const y=Math.round(loc.ghi*365*pr*dir*sh/5)*5;
   $('yield').value=y;
   const yl=$('yieldLine');if(yl)yl.innerHTML=`ผลผลิตไฟ ≈ <b>${fmt(y)}</b> kWh/kWp/ปี (${fmt(y/365,2)} หน่วย/kWp/วัน)`;
