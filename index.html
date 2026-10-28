@@ -1539,9 +1539,9 @@ ${R.sub?`• หักเงินสนับสนุนจากรัฐ: ${
 `:''}• ค่าไฟหลังติด: ประมาณ ${fmt(b1.total)} บาท/เดือน (ลด ${fmt(b0.total-b1.total)} บาท)
 • ขายไฟส่วนเกิน: ${fmt(R.expM)} หน่วย × ${fmt(p.sell,2)} บาท = ${fmt(R.incY1/12)} บาท/เดือน
 • ประโยชน์ปีแรก: ${fmt(R.benefit)} บาท
-• คืนทุน: ${R.payback===null?'เกินอายุสัญญา':'ประมาณ '+fmt(R.payback,1)+' ปี'}
+• คืนทุน: ${R.loan>0&&R.outlay<=0?'ไม่ต้องลงเงินเอง (กู้เต็มจำนวน)':R.payback===null?'เกินอายุสัญญา':'ประมาณ '+fmt(R.payback,1)+' ปี'}
 • กำไรสุทธิเมื่อครบสัญญา ${p.years} ปี: ${fmt(R.netAtTerm)} บาท${hy?`\n• ไฟสำรองตอนไฟดับ: ประมาณ ${fmt(B.usable/p.backup,1)} ชม. สำหรับโหลดจำเป็น ${fmt(p.backup,1)} kW`:''}
-เทียบอีกแบบ (${hy?'On-grid':'Hybrid + แบต '+fmt(p.battKwh,1)+' kWh'}): งบ ${fmt((hy?A:B).capex)} บาท คืนทุน ${(hy?A:B).payback===null?'เกินอายุสัญญา':fmt((hy?A:B).payback,1)+' ปี'}
+เทียบอีกแบบ (${hy?'On-grid':'Hybrid + แบต '+fmt(p.battKwh,1)+' kWh'}): งบ ${fmt((hy?A:B).capex)} บาท ${(hy?A:B).loan>0&&(hy?A:B).outlay<=0?`ไม่ต้องลงเงินเอง (กู้เต็มจำนวน) ค่างวด ${fmt((hy?A:B).pay)} บาท/เดือน`:'คืนทุน '+((hy?A:B).payback===null?'เกินอายุสัญญา':fmt((hy?A:B).payback,1)+' ปี')}
 หมายเหตุ: เป็นการประเมินเบื้องต้น ตัวเลขจริงขึ้นกับหน้างาน ทิศหลังคา และเงาบัง`;
   renderSimple();
 }
