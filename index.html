@@ -765,7 +765,8 @@ a.btn{text-decoration:none;display:inline-block}
           <div class="field"><label for="ft">ค่า Ft</label><input type="number" id="ft" value="0.1623" step="0.0001"><span class="hint">บาท/หน่วย</span></div>
           <div class="field"><label for="svc">ค่าบริการรายเดือน</label><input type="number" id="svc" value="24.62" step="0.01"><span class="hint">บาท (เช็คจากบิล)</span></div>
           <div class="field"><label for="fee">ค่าตรวจเชื่อมต่อ</label><input type="number" id="fee" value="2140" step="10"><span class="hint">บาท รวม VAT</span></div>
-          <div class="field"><label for="deg">แผงเสื่อมต่อปี</label><input type="number" id="deg" value="0.5" step="0.1"><span class="hint">%</span></div>
+          <div class="field"><label for="deg1">แผงเสื่อมปีแรก</label><input type="number" id="deg1" value="1" step="0.1"><span class="hint">% (เกณฑ์โครงการ ≤1%)</span></div>
+          <div class="field"><label for="deg">แผงเสื่อมปีต่อไป</label><input type="number" id="deg" value="0.4" step="0.1"><span class="hint">%/ปี (เกณฑ์ ≤0.4%)</span></div>
           <div class="field"><label for="esc">ค่าไฟขึ้นต่อปี</label><input type="number" id="esc" value="0" step="0.5"><span class="hint">%</span></div>
           <div class="field"><label for="om">ค่าดูแลรักษา</label><input type="number" id="om" value="1000" step="100"><span class="hint">บาท/ปี</span></div>
           <div class="field"><label for="inv">เปลี่ยนอินเวอร์เตอร์ ปีที่ 12</label><input type="number" id="inv" value="25000" step="1000"><span class="hint">บาท</span></div>
@@ -936,7 +937,7 @@ a.btn{text-decoration:none;display:inline-block}
         <tr><td>กู้ธนาคาร (เงินเหลือต่อเดือนช่วงผ่อน)</td><td>+300 บาทขึ้นไป</td><td>−200 ถึง +300</td><td>ขาดเกิน 200 บาท</td></tr>
         <tr><td>จ่ายเงินสด (คืนทุนใน)</td><td>ไม่เกิน 6 ปี</td><td>6–9 ปี</td><td>เกิน 9 ปี</td></tr>
       </tbody></table>
-      <p>ยอด "รวม 20 ปี" คิดทีละปี หักแผงเสื่อมปีละ 0.5% ค่าดูแลปีละ 1,000 บาทตั้งแต่ปีที่ 8 (7 ปีแรกรวมในราคากลาง 140,000 แล้ว) และเปลี่ยนอินเวอร์เตอร์ 25,000 บาทในปีที่ 12 ไม่ได้คิดค่าไฟขึ้น ถ้าค่าไฟขึ้นจะคุ้มกว่าที่แอปบอก</p>
+      <p>ยอด "รวม 20 ปี" คิดทีละปี หักแผงเสื่อมปีแรก 1% ปีต่อไปปีละ 0.4% (เกณฑ์โครงการ) คิดกำลังจากจำนวนแผงจริง (เช่น 5 kW = แผง 620 W 9 แผง = 5.58 kWp) ค่าดูแลปีละ 1,000 บาทตั้งแต่ปีที่ 8 (7 ปีแรกรวมในราคากลาง 140,000 แล้ว) และเปลี่ยนอินเวอร์เตอร์ 25,000 บาทในปีที่ 12 ไม่ได้คิดค่าไฟขึ้น ถ้าค่าไฟขึ้นจะคุ้มกว่าที่แอปบอก</p>
       <p class="note">เกณฑ์คุ้ม/พอไหวเป็นเกณฑ์ของแอป ไม่ใช่มาตรฐานทางการ ตัวเลขทุกตัวเปิดดูได้ที่เมนู 4</p>
     </div></details>
     <details id="g5"><summary>"ขายได้ไม่เกิน 5 kW" หมายความว่าอะไร ต่อวันหรือเปล่า</summary><div class="gbody">
@@ -1332,7 +1333,7 @@ const SOL=solarShape();
 function read(){const g=id=>parseFloat($(id).value)||0;return{
   kwh:g('kwh'),day:g('day')/100,kwp:g('kwp'),price:g('price'),yield:g('yield'),panelW:g('panelW')||600,
   sell:g('sell'),years:parseInt($('years').value),cap:g('cap'),ft:g('ft'),svc:g('svc'),fee:g('fee'),
-  deg:g('deg')/100,esc:g('esc')/100,om:g('om'),inv:g('inv'),
+  deg:g('deg')/100,deg1:g('deg1')/100,esc:g('esc')/100,om:g('om'),inv:g('inv'),
   battKwh:g('battKwh'),battPrice:g('battPrice'),hybExtra:g('hybExtra'),backup:g('backup')||1,battLife:g('battLife')||15,
   dod:g('dod')/100,rte:g('rte')/100,repl:g('repl')/100,
   useSub:$('useSub').checked,sub:g('sub'),useLoan:$('useLoan').checked,own:g('own'),rate:g('rate')/100,ly:Math.max(1,Math.round(g('ly')||7))};}
@@ -1374,7 +1375,7 @@ function compute(p,hybrid){
   let cum=-outlay;const cums=[cum];let payback=null,netAtTerm=0;
   const N=Math.max(p.years,20);
   for(let y=1;y<=N;y++){
-    const s=simulate(p,p.kwp,usable,Math.pow(1-p.deg,y-1));
+    const s=simulate(p,p.kwp,usable,(y<2?1:(1-p.deg1)*Math.pow(1-p.deg,y-2)));
     const g=Math.max(0,p.kwh-(s.self+s.dis)*m);
     const save=(bill(p.kwh,p).total-bill(g,p).total)*12*Math.pow(1+p.esc,y-1);
     const inc=y<=p.years?s.exp*m*12*p.sell*sf:0;
@@ -1619,10 +1620,10 @@ function simpleSync(){
   window.CAREFUL=!!S1.care;$('s_care').checked=!!S1.care;
   $('s_size').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===S1.size)));
   const b=parseFloat($('s_bill').value)||0;$('billBaht').value=b;$('kwh').value=kwhFromBill(b);
-  $('day').value=S1.pres;$('useLoan').checked=!!S1.loan;$('useSub').checked=S1.grant!==0;$('kwp').value=S1.size;
+  $('day').value=S1.pres;$('useLoan').checked=!!S1.loan;$('useSub').checked=S1.grant!==0;const pWv=parseFloat($('panelW').value)||620,kwpReal=+(panelsFor(S1.size,pWv)*pWv/1000).toFixed(2);$('kwp').value=kwpReal;
   // a total under ~10,000 baht/kW is almost always a typo (e.g. 15,000 for a whole system); keep the market price and say so
   const t=parseFloat($('s_total').value),fee=parseFloat($('fee').value)||0,ppk=t>0?(t-fee)/S1.size:0;S1.priceOk=ppk>=10000;
-  $('price').value=S1.priceOk?Math.round(ppk):28000;
+  $('price').value=Math.round((S1.priceOk?ppk:28000)*S1.size/kwpReal);
   const th=$('s_totalHint');th.className='hint'+(t>0&&!S1.priceOk?' err':'');
   th.textContent=t>0&&!S1.priceOk?`ราคานี้ต่ำผิดปกติ (${fmt(Math.max(0,ppk))} บาท/kW) แอปจึงยังใช้ราคากลาง 28,000 บาท/kW (ชุด 5 kW 140,000 บาท) · กรอกราคารวมทั้งระบบ เช่น 140,000`:'ราคารวมทั้งระบบก่อนหักเงินสนับสนุน เช่น 5 kW ราว 135,000 บาท';
   render();}
@@ -1643,8 +1644,8 @@ function renderSimple(){
   const billIn=parseFloat($('s_bill').value)||0;$('sMeter').hidden=!billIn;$('careBox').hidden=!billIn;if(!billIn)$('sPrice').hidden=true;
   $('t1').classList.toggle('pre',!billIn);glowTab('t2',billIn>0);$('sNext').hidden=!billIn;
   if(!billIn){const e=$('sVerdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('sSys').textContent='ยังไม่มีข้อมูล';$('sLine1').innerHTML='กรอก<b>ค่าไฟต่อเดือน</b>เพื่อดูผล';$('sLine2').textContent='';$('sTips').innerHTML='';renderFit();renderQuotes();return;}
-  $('sSys').textContent=`ติดโซลาร์ ${fmt(p.kwp,1)} kW · ${R.loan?'กู้ธนาคารรัฐ':'จ่ายเงินสด'}${R.sub?` · หักเงินสนับสนุน ${fmt(R.sub)} บาท`:' · ไม่มีเงินให้เปล่า'}`;
-  $('sPrice').hidden=false;$('sPrice').innerHTML=`คิดจากราคาติดตั้ง ${fmt(p.price)} บาท/kW ${parseFloat($('s_total').value)>0&&S1.priceOk?'(จากราคาที่กรอก)':'(ราคากลาง)'} · <button type="button" class="linkbtn">แก้ได้</button>`;
+  $('sSys').textContent=`ติดโซลาร์ ${fmt(S1.size,1)} kW${Math.abs(p.kwp-S1.size)>0.05?` (แผง ${fmt(p.kwp,2)} kWp)`:''} · ${R.loan?'กู้ธนาคารรัฐ':'จ่ายเงินสด'}${R.sub?` · หักเงินสนับสนุน ${fmt(R.sub)} บาท`:' · ไม่มีเงินให้เปล่า'}`;
+  $('sPrice').hidden=false;$('sPrice').innerHTML=`คิดจากราคาติดตั้ง ${fmt(p.price*p.kwp/S1.size)} บาท/kW ${parseFloat($('s_total').value)>0&&S1.priceOk?'(จากราคาที่กรอก)':'(ราคากลาง)'} · <button type="button" class="linkbtn">แก้ได้</button>`;
   $('sVerdict').textContent=w;$('sVerdict').className='verdict-big '+c;fitCrt($('sVerdict'));
   if(R.loan>0)$('sLine1').innerHTML=net>=0?`ทุกเดือน <b>เหลือ ${fmt(net)} บาท</b><br>หลังจ่ายค่างวด ${fmt(R.pay)} บาท นาน ${p.ly} ปี${R.omM?` และค่าดูแล ${fmt(R.omM)} บาท`:' (ค่าดูแล 7 ปีแรกรวมในราคากลางแล้ว)'}`:`ทุกเดือน <b>ต้องควักเพิ่ม ${fmt(-net)} บาท</b><br>ช่วงผ่อน ${p.ly} ปี ค่างวด ${fmt(R.pay)} + ค่าดูแล ${fmt(R.omM)} บาท`;
   else if(R.outlay<=0)$('sLine1').innerHTML=`ไม่ต้องจ่ายเอง<br><b>เงินสนับสนุนครอบคลุมทั้งหมด</b>`;
@@ -1655,7 +1656,7 @@ function renderSimple(){
   $('sMeterTxt').textContent=`ใช้ไฟจากแผงเองได้ ${fmt(pct*100)}% (${lab}) · ส่วนที่เหลือขายได้หน่วยละ ${fmt(p.sell,2)} บาท`;
   const act=[];
   if(pct<.5){const R2=compute({...p,day:Math.min(.8,p.day+.15)},false),g=(R2.benefit-R.benefit)/12;if(g>20)act.push(`ย้ายงานที่ใช้ไฟมาทำตอนกลางวัน เช่น ซักผ้า ปั๊มน้ำ หม้อหุงข้าว ชาร์จรถ เปิดแอร์ช่วงบ่าย ได้เพิ่มราว ${fmt(g)} บาท/เดือน`);}
-  if(p.price>28500)act.push(`ราคา ${fmt(p.price)} บาทต่อ kW ค่อนข้างสูง ขอใบเสนอราคาเพิ่มอีก 2–3 เจ้า แล้วเทียบในข้อ 4`);
+  if(p.price*p.kwp/S1.size>28500)act.push(`ราคา ${fmt(p.price*p.kwp/S1.size)} บาทต่อ kW ค่อนข้างสูง ขอใบเสนอราคาเพิ่มอีก 2–3 เจ้า แล้วเทียบในข้อ 4`);
   if(p.kwp>5&&pct<.35)act.push('บ้านนี้ใช้ไฟกลางวันน้อย ติด 5 kW ก็พอ แผงที่เพิ่มส่วนใหญ่ได้แค่ขายไฟ 2.20 บาท');
   if(R.care)act.unshift(`คิดแบบระวังอยู่: ปีที่ 5 อาจต้องจ่ายค่าอินเวอร์เตอร์ราว ${fmt(p.inv)} บาท ระหว่างที่ยังผ่อนอยู่ ควรเลือกรุ่นที่รับประกัน 10 ปี`);
   if(R.loan&&net<0)act.push('ช่วงผ่อนต้องเติมเงินเอง ลองจ่ายเงินสดบางส่วนเพื่อลดยอดกู้ หรือขอผ่อนนานขึ้น');

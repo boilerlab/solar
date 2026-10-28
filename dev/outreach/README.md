@@ -11,7 +11,7 @@
    - **ตีกลับ (bounce)** → status `bounced`
    - คำถามจากร้าน → status `question` ไม่ต้องตอบเอง ให้สรุปให้ครูโบ้ม
 3. ถ้าอีเมลตีกลับเกิน 20% ของที่ส่งเมื่อวาน หรือมีคำเตือนสแปมจาก Google → หยุดส่งวันนั้น แจ้งครูโบ้ม
-4. รัน `python3 dev/outreach/render.py N` ได้รายการร้านถัดไป (ข้ามร้านที่อยู่ใน log.json แล้ว) ส่งทีละฉบับด้วย Gmail send_message ใส่ทั้ง `htmlBody` (= html) และ `body` (= ข้อความธรรมดา) แล้วบันทึกลง `log.json` → `sent[i] = {date, thread, name, to, status:'sent'}` ทันทีหลังส่งแต่ละฉบับ
+4. รัน `python3 dev/outreach/render.py N` ได้รายการร้านถัดไป (ข้ามร้านที่อยู่ใน log.json แล้ว) ส่งทีละฉบับด้วย Gmail send_message ใส่ทั้ง `htmlBody` (= html) และ `body` (= ข้อความธรรมดา) แล้วบันทึกลง `log.json` → `sent[อีเมลแรก] = {date, thread, name, to, status:'sent'}` ทันทีหลังส่งแต่ละฉบับ
 5. Commit log.json แล้ว push (`boilerlab/solar` main)
 6. รายงานสั้น: ส่งกี่ร้าน, ตอบกี่ร้าน, ราคาที่รออนุมัติ, คำถามจากร้าน
 **ห้ามแก้ packages.json เอง** ครูโบ้มต้องอนุมัติก่อน

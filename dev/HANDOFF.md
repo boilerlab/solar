@@ -131,7 +131,9 @@
 - ตารางเทียบใบเสนอราคา: ไม่มีคอลัมน์ชื่อช่อง ใช้ placeholder / label หลัง checkbox (`QS`)
 - ส่งอีเมลขอราคา: `dev/outreach/` (queue 739 บริษัท เรียงคะแนน, email.html, render.py, log.json) · scheduled task รายวัน 08:43 จาก boilerlabofficial@gmail.com (29–30 ต.ค. 20 ร้าน แล้ว 30/วัน) · ส่งแล้ว 10 ร้าน 28 ต.ค.
 - ข่าว 28 ต.ค.: บางบริษัทประกาศไม่ร่วม (WAY SOLAR, Comsys, BNME, Solar Hub, BigOne) เพราะภาระ BG/ประกัน 7 ปี · ครูโบ้มเน้น "ใครได้ติด คุ้ม"
-- รายชื่อร้าน PEA ในแอป (378) น้อยกว่าเว็บ PEA จริงมาก (ปราจีนบุรีจังหวัดเดียว 544) ควรดึงใหม่
+- รายชื่อร้านอัปเดต 28 ต.ค. 69 บ่าย: MEA 665 + PEA 695 (raw ใน dev/vendors-raw/*-2026-10-28.json) · PEA ดึงจาก API ใน console ของ peoplesolar.pea.co.th แล้ว download blob · MEA fetch /vendor?s=<seed>&page=1..34 + DOMParser · ไฟล์ดาวน์โหลดเข้า Downloads เป็น .tmp ต้อง copy เอง
+- คิวอีเมลสร้างใหม่ 826 บริษัท · log.json ใช้อีเมลแรกเป็น key
+- ข้อ 1 คิดผลผลิตที่ kWp จริง (panelsFor×W) ราคาต่อ kW ปรับให้ราคาชุดเท่าเดิม · แผงเสื่อม deg1=1% ปีแรก deg=0.4%/ปี
 
 ## 6.0 งานค้าง / ไอเดียถัดไป
 1. ✅ **ใส่ข้อมูลจากร่างคู่มือประชาชน (เล่ม 1) แล้ว** (28 ต.ค. 69, commit 54ee4f0) ในข้อ 3:
