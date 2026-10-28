@@ -1,1 +1,99 @@
-{"sent":{},"pending":[]}
+{
+ "sent": {
+  "0": {
+   "date": "2026-10-28",
+   "thread": "1a1816643d3c78a7",
+   "name": "บริษัท บลิส อินเทลลิเจนซ์ จำกัด (มหาชน)",
+   "to": [
+    "nirutv@blissintelligence.co.th"
+   ],
+   "status": "sent"
+  },
+  "1": {
+   "date": "2026-10-28",
+   "thread": "1a1816682754b96c",
+   "name": "บริษัท บูรพา เทคนิคอล เอ็นจิเนียริ่ง จำกัด (มหาชน)",
+   "to": [
+    "nutsinee.ka@eastern-groups.com"
+   ],
+   "status": "sent"
+  },
+  "2": {
+   "date": "2026-10-28",
+   "thread": "1a18166c207b8fdb",
+   "name": "บริษัท อินฟราเซท จำกัด (มหาชน)",
+   "to": [
+    "chanyar@infraset.co.th"
+   ],
+   "status": "sent"
+  },
+  "3": {
+   "date": "2026-10-28",
+   "thread": "1a181670386673d6",
+   "name": "บริษัท โซลาร์ตรอน จำกัด (มหาชน)",
+   "to": [
+    "amporn_t@solartron.co.th",
+    "atcharatip_k@solartron.co.th"
+   ],
+   "status": "sent"
+  },
+  "4": {
+   "date": "2026-10-28",
+   "thread": "1a1816743a4933eb",
+   "name": "บริษัท แมสเทค ลิ้งค์ จำกัด (มหาชน)",
+   "to": [
+    "info@massteclink.com",
+    "thanaporn@massteclink.co.th"
+   ],
+   "status": "sent"
+  },
+  "5": {
+   "date": "2026-10-28",
+   "thread": "1a181678c21a6d04",
+   "name": "บริษัท สยามอีสต์ โซลูชั่น จำกัด (มหาชน)",
+   "to": [
+    "info@siameastsolusions.com",
+    "panadda.pho@siameastsolutions.com"
+   ],
+   "status": "sent"
+  },
+  "6": {
+   "date": "2026-10-28",
+   "thread": "1a18167ce5d6a0d9",
+   "name": "บริษัท สิทรอน เพาเวอร์ จำกัด (มหาชน)",
+   "to": [
+    "sitron22@sitronpower.com",
+    "sirikan@sitronpower.com"
+   ],
+   "status": "sent"
+  },
+  "7": {
+   "date": "2026-10-28",
+   "thread": "1a181680f2fe1651",
+   "name": "บริษัท ไลท์แมกซ์ (ประเทศไทย) จำกัด",
+   "to": [
+    "sales_gov@lightmax.co.th"
+   ],
+   "status": "sent"
+  },
+  "8": {
+   "date": "2026-10-28",
+   "thread": "1a181684f00172fd",
+   "name": "บริษัท คอมพลีท โซลูชั่น (1977) จำกัด",
+   "to": [
+    "sn@completesolution-th.com"
+   ],
+   "status": "sent"
+  },
+  "9": {
+   "date": "2026-10-28",
+   "thread": "1a181688d44a4b6e",
+   "name": "บริษัท ลักซิก้า เทคโนโลยี จำกัด",
+   "to": [
+    "marketing2@luxika.com"
+   ],
+   "status": "sent"
+  }
+ },
+ "pending": []
+}
