@@ -1,0 +1,28 @@
+{
+  "at": "2026-11-05",
+  "about": "ตัวอย่างสำหรับทดสอบเท่านั้น ร้านและตัวเลขสมมติ ห้ามขึ้นเว็บ",
+  "p": [
+    {
+      "src": "P", "vid": "EXAMPLE-1", "name": "ร้านตัวอย่าง A (สมมติ)",
+      "kw": 5, "phase": 1, "kwp": 5.58, "price": 138000, "vat": true,
+      "panel": {"brand": "ยี่ห้อ X", "model": "X-620", "w": 620, "n": 9, "eff": 22.6, "warr": 12},
+      "inv": {"brand": "ยี่ห้อ Y", "model": "Y-5K", "kw": 5, "warr": 10},
+      "warr": {"work": 7, "fire": 7, "clean": 7},
+      "std": true, "bg": true, "survey": 0,
+      "serve": ["ปราจีนบุรี", "ฉะเชิงเทรา"],
+      "includes": "ขออนุญาตเชื่อมต่อ, กันไหลย้อน, เบรกเกอร์ DC/AC, SPD",
+      "excludes": "เสริมโครงหลังคา, เปลี่ยนตู้ไฟเดิม",
+      "pay": "3 งวด 30/60/10",
+      "date": "2026-11-03", "via": "อีเมล", "note": ""
+    },
+    {
+      "src": "P", "vid": "EXAMPLE-2", "name": "ร้านตัวอย่าง B (สมมติ)",
+      "kw": 10, "phase": 1, "kwp": 9.92, "price": 245000, "vat": true,
+      "panel": {"brand": "ยี่ห้อ Z", "w": 620, "n": 16, "warr": 12},
+      "inv": {"brand": "ยี่ห้อ Y", "kw": 10, "warr": 5},
+      "warr": {"work": 7, "fire": 7, "clean": 7},
+      "std": true, "bg": false, "survey": 1000, "serve": "*",
+      "date": "2026-11-04", "via": "LINE"
+    }
+  ]
+}
