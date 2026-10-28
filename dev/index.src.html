@@ -31,7 +31,7 @@
 .path li::before{content:counter(st);display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--line);color:#fff;font-size:11px;font-weight:700}
 .path li.done{background:var(--cell);border-color:var(--cell);color:#fff}.path li.done::before{content:"✓";background:#fff;color:var(--cell)}
 .path li.now{border:2px solid #f28c18;color:var(--forest);font-weight:700;background:var(--surface)}.path li.now::before{background:#f28c18}
-.rights{grid-column:1/-1}.rights .regbox{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.rights{align-content:start}#t1 .qs{grid-column:1/-1}.rights .regbox{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .regbox .btn.hot{animation:btnBlink 1s ease-in-out infinite;border:2px solid #f28c18}
 .pkgbar{display:flex;flex-wrap:wrap;gap:10px;align-items:end}.pkgbar label{display:grid;gap:4px;font-size:13px}
 .pkglist{display:grid;gap:10px}.pkg{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:6px;background:var(--bg);font-size:14px}
@@ -387,23 +387,6 @@ a.btn{text-decoration:none;display:inline-block}
   </nav>
 
   <section class="tab simple pre" id="t1">
-    <div class="panel qs">
-      <p class="qs-t">ตอบเพิ่ม ให้ผลตรงกับบ้านคุณ</p>
-      <div class="q"><h4>กลางวันมีคนอยู่บ้านไหม</h4>
-        <div class="chips" id="s_pres"><button data-v="25">ไม่มี ไปทำงานทั้งวัน</button><button data-v="40">อยู่บ้างบางวัน</button><button data-v="55">อยู่บ้านทั้งวัน</button><button data-v="70">เปิดร้าน / ทำกิจการกลางวัน</button></div></div>
-      <div class="q"><h4>จะจ่ายอย่างไร</h4>
-        <div class="chips" id="s_loan"><button data-v="1">กู้ธนาคารรัฐ (ดอกเบี้ย 2.5%)</button><button data-v="0">จ่ายเงินสด</button></div></div>
-      <div class="q"><h4>เงิน 50,000 บาทจากรัฐเป็นแบบไหน</h4>
-        <div class="chips" id="s_grant"><button data-v="1">ให้เปล่า (หักจากราคา)</button><button data-v="0">เป็นเงินกู้ (ไม่มีส่วนลด)</button></div>
-        <span class="hint">เงินสนับสนุนสูงสุด 50,000 บาทต่อราย (ให้เปล่า) · <b>จ่ายสด:</b> จ่ายร้านเต็มก่อน แล้วรัฐโอน 50,000 เข้าพร้อมเพย์ที่ผูกเลขบัตรประชาชน รัฐเบิกจ่ายภายใน 31 ธ.ค. 70 (ร่างคู่มือ) จึงอาจต้องรอนานหลายเดือนหลังติดตั้ง · <b>กู้:</b> ธนาคารจ่ายร้าน 50,000 เข้าธนาคารตรง ผ่อนแค่ส่วนที่เหลือผ่านบิลค่าไฟ ไม่เช็คเครดิตบูโร</span></div>
-      <div class="q"><h4>ขนาดที่จะติด</h4>
-        <div class="chips" id="s_size"><button data-v="5">5 kW</button><button data-v="7.5">7.5 kW</button><button data-v="10">10 kW</button></div>
-        <span class="hint" id="s_sizeHint">ข่าวบอกติดได้ไม่เกิน 10 kW บ้านส่วนใหญ่ 5 kW ก็พอ</span></div>
-      <details class="more"><summary>ข้อมูลเพิ่ม (ไม่บังคับ)</summary>
-        <div class="q" style="margin-top:12px"><label for="s_prov">จังหวัด (ใช้ค่าแสงแดดของพื้นที่)</label><select id="s_prov"></select></div>
-        <div class="q" style="margin-top:12px"><label for="s_total">ราคาที่ช่างเสนอ (รวมทั้งหมด)</label><div class="inrow"><input type="number" id="s_total" placeholder="ไม่ทราบ ใช้ราคากลาง" step="1000"><span class="unit">บาท</span></div><span class="hint" id="s_totalHint">ราคารวมทั้งระบบก่อนหักเงินสนับสนุน เช่น 5 kW ราว 135,000 บาท</span></div>
-      </details>
-    </div>
     <div class="panel answer">
       <span class="stamp" aria-label="ข้อมูล ณ 27 ต.ค. 69">ข้อมูล<br>ณ 27 ต.ค.<br>69</span>
       <div class="crt"><div class="verdict-big v-idle" id="sVerdict">--/--</div></div>
@@ -443,6 +426,23 @@ a.btn{text-decoration:none;display:inline-block}
         <div class="chips" data-rstat><button type="button" data-v="0">ยังไม่ลงทะเบียน</button><button type="button" data-v="2">ลงทะเบียนแล้ว ได้สิทธิ์แล้ว</button></div>
         <span class="hint">แอปจำไว้ในเครื่องนี้ ได้สิทธิ์แล้วกลับมาเปิดอีกครั้ง จะพาไปเลือกร้านต่อ</span></div>
       <button type="button" class="nextbtn" id="rNext" data-next="t3" hidden><span class="tn">3</span>ได้สิทธิ์แล้ว ไปเลือกร้าน →</button>
+    </div>
+    <div class="panel qs">
+      <p class="qs-t">ตอบเพิ่ม ให้ผลตรงกับบ้านคุณ</p>
+      <div class="q"><h4>กลางวันมีคนอยู่บ้านไหม</h4>
+        <div class="chips" id="s_pres"><button data-v="25">ไม่มี ไปทำงานทั้งวัน</button><button data-v="40">อยู่บ้างบางวัน</button><button data-v="55">อยู่บ้านทั้งวัน</button><button data-v="70">เปิดร้าน / ทำกิจการกลางวัน</button></div></div>
+      <div class="q"><h4>จะจ่ายอย่างไร</h4>
+        <div class="chips" id="s_loan"><button data-v="1">กู้ธนาคารรัฐ (ดอกเบี้ย 2.5%)</button><button data-v="0">จ่ายเงินสด</button></div></div>
+      <div class="q"><h4>เงิน 50,000 บาทจากรัฐเป็นแบบไหน</h4>
+        <div class="chips" id="s_grant"><button data-v="1">ให้เปล่า (หักจากราคา)</button><button data-v="0">เป็นเงินกู้ (ไม่มีส่วนลด)</button></div>
+        <span class="hint">เงินสนับสนุนสูงสุด 50,000 บาทต่อราย (ให้เปล่า) · <b>จ่ายสด:</b> จ่ายร้านเต็มก่อน แล้วรัฐโอน 50,000 เข้าพร้อมเพย์ที่ผูกเลขบัตรประชาชน รัฐเบิกจ่ายภายใน 31 ธ.ค. 70 (ร่างคู่มือ) จึงอาจต้องรอนานหลายเดือนหลังติดตั้ง · <b>กู้:</b> ธนาคารจ่ายร้าน 50,000 เข้าธนาคารตรง ผ่อนแค่ส่วนที่เหลือผ่านบิลค่าไฟ ไม่เช็คเครดิตบูโร</span></div>
+      <div class="q"><h4>ขนาดที่จะติด</h4>
+        <div class="chips" id="s_size"><button data-v="5">5 kW</button><button data-v="7.5">7.5 kW</button><button data-v="10">10 kW</button></div>
+        <span class="hint" id="s_sizeHint">ข่าวบอกติดได้ไม่เกิน 10 kW บ้านส่วนใหญ่ 5 kW ก็พอ</span></div>
+      <details class="more"><summary>ข้อมูลเพิ่ม (ไม่บังคับ)</summary>
+        <div class="q" style="margin-top:12px"><label for="s_prov">จังหวัด (ใช้ค่าแสงแดดของพื้นที่)</label><select id="s_prov"></select></div>
+        <div class="q" style="margin-top:12px"><label for="s_total">ราคาที่ช่างเสนอ (รวมทั้งหมด)</label><div class="inrow"><input type="number" id="s_total" placeholder="ไม่ทราบ ใช้ราคากลาง" step="1000"><span class="unit">บาท</span></div><span class="hint" id="s_totalHint">ราคารวมทั้งระบบก่อนหักเงินสนับสนุน เช่น 5 kW ราว 135,000 บาท</span></div>
+      </details>
     </div>
   </section>
 
