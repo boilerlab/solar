@@ -56,7 +56,7 @@
 .path li::before{content:counter(st);display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--line);color:#fff;font-size:11px;font-weight:700}
 .path li.done{background:var(--cell);border-color:var(--cell);color:#fff}.path li.done::before{content:"✓";background:#fff;color:var(--cell)}
 .path li.now{border:2px solid #f28c18;color:var(--forest);font-weight:700;background:var(--surface)}.path li.now::before{background:#f28c18}
-.rights{align-content:start}#t1 .qs{grid-column:1/-1}.rights .regbox{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.rights{align-content:start;max-width:760px;margin:0 auto;width:100%}.rights .regbox{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .regbox .btn.hot{animation:btnBlink 1s ease-in-out infinite;border:2px solid #f28c18}
 .pkgbar{display:flex;flex-wrap:wrap;gap:10px;align-items:end}.pkgbar label{display:grid;gap:4px;font-size:13px}
 .pkglist{display:grid;gap:10px}.pkg{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:6px;background:var(--bg);font-size:14px}
@@ -161,7 +161,11 @@ th.sel{color:var(--ink);font-weight:600}
 .sources a{color:var(--cell)}
 pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;margin:0;max-height:280px;overflow:auto}
 .row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.tabs{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.tabs{display:flex;flex-wrap:wrap;gap:10px;align-items:center;position:sticky;top:0;z-index:30;background:var(--bg);padding:8px 0;margin:-8px 0}
+@media (max-width:880px){.tabs,#tabs{justify-content:flex-start!important;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:8px}.tabs::-webkit-scrollbar{display:none}.tabs button{flex:none;font-size:15px;padding:8px 12px}.tabs .resetbtn.wide{flex:none}}
+.tab .panel,.tab .answer,.tab details,#rfq,#qtPanel,#pkgPanel{scroll-margin-top:70px}
+.tabs .resetbtn.wide{display:none}
+.nextrow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.nextbtn.alt{border-color:var(--cell);animation:none}
 .tabs button{font:inherit;font-family:var(--f-display);font-size:17px;font-weight:600;padding:10px 18px;border-radius:12px;border:2px solid var(--fr-o);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;gap:8px;align-items:center}
 .tabs button[aria-selected=true]{background:var(--forest);border-color:var(--forest);color:#fff}
 .tabs .tn{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--yel);color:var(--forest);font-size:14px}
@@ -411,9 +415,10 @@ a.btn{text-decoration:none;display:inline-block}
 
   <nav class="tabs" id="tabs" aria-label="คำถาม">
     <button type="button" data-t="t1" aria-selected="true"><span class="tn">1</span>คุ้มไหม?</button>
-    <button type="button" data-t="t2" aria-selected="false"><span class="tn">2</span>พื้นที่พอไหม?</button>
-    <button type="button" data-t="t3" aria-selected="false"><span class="tn">3</span>เลือกร้าน</button>
-    <button type="button" data-t="adv" aria-selected="false"><span class="tn">4</span>ตัวเลขละเอียด / สำหรับช่าง</button>
+    <button type="button" data-t="tReg" aria-selected="false"><span class="tn">2</span>ลงทะเบียน</button>
+    <button type="button" data-t="t2" aria-selected="false"><span class="tn">3</span>พื้นที่พอไหม?</button>
+    <button type="button" data-t="t3" aria-selected="false"><span class="tn">4</span>เลือกร้าน</button>
+    <button type="button" data-t="adv" aria-selected="false"><span class="tn">5</span>ตัวเลขละเอียด / ช่าง</button>
     <button type="button" class="resetbtn wide" data-reset>↺ เริ่มใหม่ ล้างทุกคำตอบ</button>
   </nav>
 
@@ -431,9 +436,28 @@ a.btn{text-decoration:none;display:inline-block}
       <p class="note" id="sLine2"></p>
       <div class="meter" id="sMeter"><span class="note" id="sMeterTxt"></span><div class="bar"><div class="fill" id="sMeterFill"></div></div></div>
       <ul class="tips" id="sTips"></ul>
-      <button type="button" class="nextbtn" id="sNext" data-next="t2" hidden><span class="tn">2</span>ไปข้อ 2 พื้นที่พอไหม →</button>
+      <div class="nextrow" id="sNext" hidden><button type="button" class="nextbtn" data-next="tReg"><span class="tn">2</span>ลงทะเบียนรับสิทธิ์ →</button><button type="button" class="nextbtn alt" data-next="t2"><span class="tn">3</span>พื้นที่พอไหม →</button></div>
     </div>
-    <div class="rcol">
+    <div class="panel qs">
+      <p class="qs-t">ตอบเพิ่ม ให้ผลตรงกับบ้านคุณ</p>
+      <div class="q"><h4>กลางวันมีคนอยู่บ้านไหม</h4>
+        <div class="chips" id="s_pres"><button data-v="25">ไม่มี ไปทำงานทั้งวัน</button><button data-v="40">อยู่บ้างบางวัน</button><button data-v="55">อยู่บ้านทั้งวัน</button><button data-v="70">เปิดร้าน / ทำกิจการกลางวัน</button></div></div>
+      <div class="q"><h4>จะจ่ายอย่างไร</h4>
+        <div class="chips" id="s_loan"><button data-v="1">กู้ธนาคารรัฐ (ดอกเบี้ย 2.5%)</button><button data-v="0">จ่ายเงินสด</button></div></div>
+      <div class="q"><h4>เงิน 50,000 บาทจากรัฐเป็นแบบไหน</h4>
+        <div class="chips" id="s_grant"><button data-v="1">ให้เปล่า (หักจากราคา)</button><button data-v="0">เป็นเงินกู้ (ไม่มีส่วนลด)</button></div>
+        <span class="hint">เงินสนับสนุนสูงสุด 50,000 บาทต่อราย (ให้เปล่า) · <b>จ่ายสด:</b> จ่ายร้านเต็มก่อน แล้วรัฐโอน 50,000 เข้าพร้อมเพย์ที่ผูกเลขบัตรประชาชน รัฐเบิกจ่ายภายใน 31 ธ.ค. 70 (ร่างคู่มือ) จึงอาจต้องรอนานหลายเดือนหลังติดตั้ง · <b>กู้:</b> ธนาคารจ่ายร้าน 50,000 เข้าธนาคารตรง ผ่อนแค่ส่วนที่เหลือผ่านบิลค่าไฟ ไม่เช็คเครดิตบูโร</span></div>
+      <div class="q"><h4>ขนาดที่จะติด</h4>
+        <div class="chips" id="s_size"><button data-v="5">5 kW</button><button data-v="7.5">7.5 kW</button><button data-v="10">10 kW</button></div>
+        <span class="hint" id="s_sizeHint">ข่าวบอกติดได้ไม่เกิน 10 kW บ้านส่วนใหญ่ 5 kW ก็พอ</span></div>
+      <details class="more"><summary>ข้อมูลเพิ่ม (ไม่บังคับ)</summary>
+        <div class="q" style="margin-top:12px"><label for="s_prov">จังหวัด (ใช้ค่าแสงแดดของพื้นที่)</label><select id="s_prov"></select></div>
+        <div class="q" style="margin-top:12px"><label for="s_total">ราคาที่ช่างเสนอ (รวมทั้งหมด)</label><div class="inrow"><input type="number" id="s_total" placeholder="ไม่ทราบ ใช้ราคากลาง" step="1000"><span class="unit">บาท</span></div><span class="hint" id="s_totalHint">ราคารวมทั้งระบบก่อนหักเงินสนับสนุน เช่น 5 kW ราว 135,000 บาท</span></div>
+      </details>
+    </div>
+  </section>
+
+  <section class="tab" id="tReg" hidden>
     <div class="panel rights" id="rights">
       <div class="row"><h3>ลงทะเบียนรับสิทธิ์ 50,000</h3><span class="note">ลงทะเบียนได้ถึง 31 ม.ค. 70 · จัดสิทธิ์ตามลำดับเวลา · ใช้เวลาราว 10–15 นาที</span></div>
       <ol class="path" data-path></ol>
@@ -456,30 +480,12 @@ a.btn{text-decoration:none;display:inline-block}
       <div class="q"><h4>ลงทะเบียนแล้วหรือยัง</h4>
         <div class="chips" data-rstat><button type="button" data-v="0">ยังไม่ลงทะเบียน</button><button type="button" data-v="2">ลงทะเบียนแล้ว ได้สิทธิ์แล้ว</button></div>
         <span class="hint">แอปจำไว้ในเครื่องนี้ ได้สิทธิ์แล้วกลับมาเปิดอีกครั้ง จะพาไปเลือกร้านต่อ</span></div>
-      <button type="button" class="nextbtn" id="rNext" data-next="t3" hidden><span class="tn">3</span>ได้สิทธิ์แล้ว ไปเลือกร้าน →</button>
-    </div>
-    </div>
-    <div class="panel qs">
-      <p class="qs-t">ตอบเพิ่ม ให้ผลตรงกับบ้านคุณ</p>
-      <div class="q"><h4>กลางวันมีคนอยู่บ้านไหม</h4>
-        <div class="chips" id="s_pres"><button data-v="25">ไม่มี ไปทำงานทั้งวัน</button><button data-v="40">อยู่บ้างบางวัน</button><button data-v="55">อยู่บ้านทั้งวัน</button><button data-v="70">เปิดร้าน / ทำกิจการกลางวัน</button></div></div>
-      <div class="q"><h4>จะจ่ายอย่างไร</h4>
-        <div class="chips" id="s_loan"><button data-v="1">กู้ธนาคารรัฐ (ดอกเบี้ย 2.5%)</button><button data-v="0">จ่ายเงินสด</button></div></div>
-      <div class="q"><h4>เงิน 50,000 บาทจากรัฐเป็นแบบไหน</h4>
-        <div class="chips" id="s_grant"><button data-v="1">ให้เปล่า (หักจากราคา)</button><button data-v="0">เป็นเงินกู้ (ไม่มีส่วนลด)</button></div>
-        <span class="hint">เงินสนับสนุนสูงสุด 50,000 บาทต่อราย (ให้เปล่า) · <b>จ่ายสด:</b> จ่ายร้านเต็มก่อน แล้วรัฐโอน 50,000 เข้าพร้อมเพย์ที่ผูกเลขบัตรประชาชน รัฐเบิกจ่ายภายใน 31 ธ.ค. 70 (ร่างคู่มือ) จึงอาจต้องรอนานหลายเดือนหลังติดตั้ง · <b>กู้:</b> ธนาคารจ่ายร้าน 50,000 เข้าธนาคารตรง ผ่อนแค่ส่วนที่เหลือผ่านบิลค่าไฟ ไม่เช็คเครดิตบูโร</span></div>
-      <div class="q"><h4>ขนาดที่จะติด</h4>
-        <div class="chips" id="s_size"><button data-v="5">5 kW</button><button data-v="7.5">7.5 kW</button><button data-v="10">10 kW</button></div>
-        <span class="hint" id="s_sizeHint">ข่าวบอกติดได้ไม่เกิน 10 kW บ้านส่วนใหญ่ 5 kW ก็พอ</span></div>
-      <details class="more"><summary>ข้อมูลเพิ่ม (ไม่บังคับ)</summary>
-        <div class="q" style="margin-top:12px"><label for="s_prov">จังหวัด (ใช้ค่าแสงแดดของพื้นที่)</label><select id="s_prov"></select></div>
-        <div class="q" style="margin-top:12px"><label for="s_total">ราคาที่ช่างเสนอ (รวมทั้งหมด)</label><div class="inrow"><input type="number" id="s_total" placeholder="ไม่ทราบ ใช้ราคากลาง" step="1000"><span class="unit">บาท</span></div><span class="hint" id="s_totalHint">ราคารวมทั้งระบบก่อนหักเงินสนับสนุน เช่น 5 kW ราว 135,000 บาท</span></div>
-      </details>
+      <button type="button" class="nextbtn" id="rNext" data-next="t3" hidden><span class="tn">4</span>ได้สิทธิ์แล้ว ไปเลือกร้าน →</button>
     </div>
   </section>
 
   <section class="tab simple" id="t2" hidden>
-    <div class="pageh"><h2>เช็คว่าพื้นที่พอวางแผงไหม</h2><p>หลังคา โรงรถ พื้นดิน หรือบ่อน้ำ วางแผงได้กี่แผ่น · หน้านี้ไม่ใช่การเช็คสิทธิ์เข้าโครงการ ดูคุณสมบัติในข้อ 3</p></div>
+    <div class="pageh"><h2>เช็คว่าพื้นที่พอวางแผงไหม</h2><p>หลังคา โรงรถ พื้นดิน หรือบ่อน้ำ วางแผงได้กี่แผ่น · หน้านี้ไม่ใช่การเช็คสิทธิ์เข้าโครงการ ดูวิธีลงทะเบียนในข้อ 2</p></div>
     <div class="panel qs">
       <div class="q"><h4>จะติดตรงไหน</h4>
         <div class="chips" id="s_where"><button data-v="roof">หลังคาบ้าน</button><button data-v="garage">หลังคาโรงรถ</button><button data-v="ground">พื้นดินว่าง</button><button data-v="float">บ่อน้ำ (ลอยน้ำ)</button></div></div>
@@ -506,7 +512,7 @@ a.btn{text-decoration:none;display:inline-block}
       </div>
       <p class="note">หมายถึงพื้นที่พอ ยังไม่ใช่สิทธิ์เข้าโครงการ</p>
       <p class="line" id="s2Line"></p>
-      <button type="button" class="nextbtn" id="s2Next" data-next="t3" hidden><span class="tn">3</span>ไปข้อ 3 เลือกร้าน →</button>
+      <button type="button" class="nextbtn" id="s2Next" data-next="t3" hidden><span class="tn">4</span>ไปข้อ 4 เลือกร้าน →</button>
       <svg id="s2Svg" class="fitsvg" viewBox="0 0 320 210" role="img" aria-label="ภาพจำลองการวางแผงบนพื้นที่"></svg>
       <div class="pcount" id="s2Count"><button type="button" class="btn" data-d="-1" aria-label="ลดแผง 1 แผ่น">− แผง</button><span id="s2CountTxt"></span><button type="button" class="btn" data-d="1" aria-label="เพิ่มแผง 1 แผ่น">+ แผง</button></div>
       <div class="fitp" id="s2Params" hidden>
@@ -532,7 +538,7 @@ a.btn{text-decoration:none;display:inline-block}
       <ol class="path" data-path></ol>
       <div id="gateNo">
         <p class="line">ลงทะเบียนให้ได้สิทธิ์ก่อน แล้วค่อยกลับมาเลือกร้าน</p>
-        <p class="note">ยังไม่ควรเซ็นสัญญาหรือจ่ายเงินให้ร้านก่อนได้สิทธิ์ · ดู<button type="button" class="linkbtn" data-go-rights>วิธีลงทะเบียนในข้อ 1</button></p>
+        <p class="note">ยังไม่ควรเซ็นสัญญาหรือจ่ายเงินให้ร้านก่อนได้สิทธิ์ · ดู<button type="button" class="linkbtn" data-go-rights>วิธีลงทะเบียนในข้อ 2</button></p>
         <div class="regbox">
           <a class="btn solid" data-reg="pea" href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">ลงทะเบียน PEA (ต่างจังหวัด) ↗</a>
           <a class="btn solid" data-reg="mea" href="https://peoplesolar.mea.or.th" target="_blank" rel="noopener">ลงทะเบียน MEA (กทม. นนทบุรี สมุทรปราการ) ↗</a>
@@ -563,7 +569,7 @@ a.btn{text-decoration:none;display:inline-block}
         </ul>
       </div>
     <div class="panel afterR" id="rfq">
-      <div class="row"><h3>ขอใบเสนอราคาจากร้านใกล้บ้าน</h3><span class="note">แอปเขียนข้อความขอราคาจากข้อมูลบ้านในข้อ 1–2 ให้ คุณส่งเองทาง LINE หรือแชทของร้าน แอปไม่ได้ส่งหรือเก็บข้อมูลของคุณ</span></div>
+      <div class="row"><h3>ขอใบเสนอราคาจากร้านใกล้บ้าน</h3><span class="note">แอปเขียนข้อความขอราคาจากข้อมูลบ้านในข้อ 1 และ 3 ให้ คุณส่งเองทาง LINE หรือแชทของร้าน แอปไม่ได้ส่งหรือเก็บข้อมูลของคุณ</span></div>
       <div class="rfqgrid">
         <label>จังหวัด<select id="rfqProv"></select></label>
         <label>อำเภอ / ตำบล (ไม่บังคับ)<input type="text" id="rfqArea" placeholder="เช่น อ.เมือง ต.ในเมือง"></label>
@@ -648,7 +654,7 @@ a.btn{text-decoration:none;display:inline-block}
 
       <div class="group" style="border-top:0;padding-top:0">
         <span class="group-t">ที่ตั้งและหลังคา</span>
-        <p class="note">พิกัดบ้านและภาพดาวเทียมอยู่ในข้อ 2 · <button type="button" class="linkbtn" data-go="roof">แก้ตำแหน่งที่ข้อ 2</button></p>
+        <p class="note">พิกัดบ้านและภาพดาวเทียมอยู่ในข้อ 3 · <button type="button" class="linkbtn" data-go="roof">แก้ตำแหน่งที่ข้อ 3</button></p>
         <div class="field">
           <label for="coords">พิกัดจาก Google Maps</label>
           <input type="text" id="coords" value="" placeholder="เช่น 14.9799, 102.0978 หรือวางลิงก์ Google Maps">
@@ -1565,7 +1571,7 @@ $('copyBtn').addEventListener('click',()=>{const t=$('summary').textContent;
 function showTab(t){document.querySelectorAll('.tab').forEach(s=>{s.hidden=s.id!==t;});document.querySelectorAll('#tabs button[data-t]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===t)));if(t==='adv'||t==='t2')requestAnimationFrame(()=>draw());
   (window._seen=window._seen||{})[t]=1;const gb=document.querySelector(`#tabs [data-t=${t}]`);if(gb)gb.classList.remove('glow');placeNav(t);}
 // the menu follows the output frame of the open tab; tabs without one get it on top
-function placeNav(t){$('guide').before($('tabs'));}
+function placeNav(t){const h=document.querySelector('header'),n=$('tabs');if(h&&n.previousElementSibling!==h)h.after(n);const b=n.querySelector(`[data-t=${t}]`);if(b&&n.scrollWidth>n.clientWidth)n.scrollLeft=Math.max(0,b.offsetLeft-n.offsetLeft-24);}
 function glowTab(t,on){const b=document.querySelector(`#tabs [data-t=${t}]`);if(b)b.classList.toggle('glow',!!on&&!(window._seen||{})[t]);}
 document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.next;showTab(t);const s=$(t);requestAnimationFrame(()=>(s.querySelector('.answer')||s).scrollIntoView({behavior:'smooth',block:'start'}));}));
 document.querySelectorAll('[data-guide]').forEach(b=>b.addEventListener('click',()=>{const d=$(b.dataset.guide);d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}));
@@ -1649,12 +1655,12 @@ function renderSimple(){
   $('sMeterTxt').textContent=`ใช้ไฟจากแผงเองได้ ${fmt(pct*100)}% (${lab}) · ส่วนที่เหลือขายได้หน่วยละ ${fmt(p.sell,2)} บาท`;
   const act=[];
   if(pct<.5){const R2=compute({...p,day:Math.min(.8,p.day+.15)},false),g=(R2.benefit-R.benefit)/12;if(g>20)act.push(`ย้ายงานที่ใช้ไฟมาทำตอนกลางวัน เช่น ซักผ้า ปั๊มน้ำ หม้อหุงข้าว ชาร์จรถ เปิดแอร์ช่วงบ่าย ได้เพิ่มราว ${fmt(g)} บาท/เดือน`);}
-  if(p.price>28500)act.push(`ราคา ${fmt(p.price)} บาทต่อ kW ค่อนข้างสูง ขอใบเสนอราคาเพิ่มอีก 2–3 เจ้า แล้วเทียบในข้อ 3`);
+  if(p.price>28500)act.push(`ราคา ${fmt(p.price)} บาทต่อ kW ค่อนข้างสูง ขอใบเสนอราคาเพิ่มอีก 2–3 เจ้า แล้วเทียบในข้อ 4`);
   if(p.kwp>5&&pct<.35)act.push('บ้านนี้ใช้ไฟกลางวันน้อย ติด 5 kW ก็พอ แผงที่เพิ่มส่วนใหญ่ได้แค่ขายไฟ 2.20 บาท');
   if(R.care)act.unshift(`คิดแบบระวังอยู่: ปีที่ 5 อาจต้องจ่ายค่าอินเวอร์เตอร์ราว ${fmt(p.inv)} บาท ระหว่างที่ยังผ่อนอยู่ ควรเลือกรุ่นที่รับประกัน 10 ปี`);
   if(R.loan&&net<0)act.push('ช่วงผ่อนต้องเติมเงินเอง ลองจ่ายเงินสดบางส่วนเพื่อลดยอดกู้ หรือขอผ่อนนานขึ้น');
   if(p.kwh<200)act.push('บ้านใช้ไฟน้อย ประโยชน์ส่วนใหญ่มาจากการขายไฟ ค่าไฟที่ลดได้จะไม่มาก');
-  if(!act.length)act.push('ตัวเลขดีแล้ว ขั้นต่อไปคือเช็คพื้นที่ในข้อ 2 และเลือกช่างในข้อ 3');
+  if(!act.length)act.push('ตัวเลขดีแล้ว ขั้นต่อไปคือลงทะเบียนรับสิทธิ์ในข้อ 2 เช็คพื้นที่ในข้อ 3 และเลือกช่างในข้อ 4');
   $('sTips').innerHTML=act.slice(0,3).concat(['ระวังคนเก็บมัดจำ "จองสิทธิ์" ลงทะเบียนผ่านช่องทางของรัฐเท่านั้น และอย่าโอนเงินก่อนเซ็นสัญญากับผู้ติดตั้ง']).map(t=>`<li>${t}</li>`).join('');
   renderFit();renderQuotes();
 }
@@ -1760,7 +1766,7 @@ function renderFit(){
   $('s_dimHint').textContent=twoSide?`กรอบหลังคาทั้งหมด: ยาวตามแนวชายคา × กว้างรวมสองฝั่ง · แอปแบ่งครึ่ง${LT>0&&W>0?` เป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม.`:''}`:roofy?'กรอบหลังคาที่จะติด: ยาวตามแนวชายคา × ยาวตามลาดหลังคา':wh==='ground'?'ความยาว × ความกว้างของพื้นที่ว่าง':'ความยาว × ความกว้างของผิวน้ำในบ่อ';
   $('s2Need').textContent=P?`ติด ${fmt(need*pW/1000,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} = ${need} แผง (${fmt(pW)} W) · วางแบบ ${P.label} ${P.sides===2?P.counts.join('+')+' | '+P.countsB.join('+'):P.counts.join(' + ')}`:`ติด ${fmt(need*pW/1000,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
   $('s2CountTxt').textContent=`${need} แผง · ${fmt(need*pW/1000,2)} kW`;
-  $('s_sizeHint').textContent=S1.custom?`ตอนนี้ใช้ ${fmt(S1.size,2)} kW (${need} แผง) ที่ปรับจำนวนในข้อ 2 · กดขนาดด้านบนเพื่อเปลี่ยน`:`โครงการกำหนด 5–10 kW ต่อมิเตอร์ (แผง ${fmt(pW)} W ${min5} แผง ≈ 5 kW) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!S1.custom);
+  $('s_sizeHint').textContent=S1.custom?`ตอนนี้ใช้ ${fmt(S1.size,2)} kW (${need} แผง) ที่ปรับจำนวนในข้อ 3 · กดขนาดด้านบนเพื่อเปลี่ยน`:`โครงการกำหนด 5–10 kW ต่อมิเตอร์ (แผง ${fmt(pW)} W ${min5} แผง ≈ 5 kW) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!S1.custom);
   document.querySelector('#t2 .sizeq').classList.toggle('needfill',!dims&&!lyN);
   glowTab('t3',dims||lyN>0);$('s2Next').hidden=!(dims||lyN>0);
   [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
@@ -1921,11 +1927,11 @@ function renderRights(){
   document.querySelectorAll('#t3 .afterR').forEach(e=>e.hidden=!open);
   $('gateStat').textContent=RT.stat===2?'ได้สิทธิ์แล้ว · เลือกร้านและขอใบเสนอราคาได้เลย':'ยังไม่ได้ลงทะเบียน';
   $('peekBtn').hidden=peek;
-  const tb=document.querySelector('#tabs [data-t="t3"]');if(tb)tb.innerHTML=`<span class="tn">3</span>${RT.stat===2?'เลือกร้าน':'เลือกร้าน (หลังได้สิทธิ์)'}`;
+  const tb=document.querySelector('#tabs [data-t="t3"]');if(tb)tb.innerHTML='<span class="tn">4</span>เลือกร้าน';
 }
 document.querySelectorAll('[data-rstat]').forEach(g=>g.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;RT.stat=+b.dataset.v;saveRT();track('rights-'+RT.stat);renderRights();if(RT.stat===2&&g.closest('#gate'))$('pkgPanel').scrollIntoView({behavior:'smooth',block:'start'});}));
 $('peekBtn').addEventListener('click',()=>{peek=true;renderRights();$('pkgPanel').scrollIntoView({behavior:'smooth',block:'start'});});
-document.querySelectorAll('[data-go-rights]').forEach(b=>b.addEventListener('click',()=>{showTab('t1');requestAnimationFrame(()=>$('rights').scrollIntoView({behavior:'smooth',block:'start'}));}));
+document.querySelectorAll('[data-go-rights]').forEach(b=>b.addEventListener('click',()=>{showTab('tReg');requestAnimationFrame(()=>$('rights').scrollIntoView({behavior:'smooth',block:'start'}));}));
 // ---- standard package prices that registered shops sent in (packages.json; empty until shops reply)
 let PKGS=null,PKGS_AT='',pkgKw=0;
 function loadPkgs(){if(PKGS)return;PKGS=[];fetch('packages.json').then(r=>r.ok?r.json():null).then(d=>{if(!d||!Array.isArray(d.p))return;PKGS=d.p;PKGS_AT=thDate(d.at);pkgRender();}).catch(()=>{});}
