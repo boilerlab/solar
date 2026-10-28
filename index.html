@@ -312,7 +312,7 @@ button.chip{font:inherit;font-size:13px;cursor:pointer}
 @keyframes moneyGlow{50%{text-shadow:0 0 6px #fff,0 0 18px #fff,0 0 32px rgba(255,255,255,.9)}}
 @media (prefers-reduced-motion:reduce){#sLine1>b:first-of-type{animation:none}}
 .rcol{display:grid;gap:24px;align-content:start;min-width:0}
-.nextcard{justify-items:center;text-align:center;gap:10px;padding:16px 20px}
+
 .meter{width:100%;max-width:440px;display:grid;gap:6px}
 .meter .bar{height:14px;border-radius:7px;background:var(--line);overflow:hidden} .meter .fill{height:100%;width:0;transition:width .3s}
 .tips{list-style:none;margin:0;padding:0;display:grid;gap:8px;text-align:left;width:100%}
@@ -431,13 +431,9 @@ a.btn{text-decoration:none;display:inline-block}
       <p class="note" id="sLine2"></p>
       <div class="meter" id="sMeter"><span class="note" id="sMeterTxt"></span><div class="bar"><div class="fill" id="sMeterFill"></div></div></div>
       <ul class="tips" id="sTips"></ul>
-      <p class="note">ประมาณการจากเงื่อนไข ณ 27 ต.ค. 69 (เงินสนับสนุน 50,000 บาท · รับซื้อไฟ 2.20 บาท 20 ปี) · เปิดลงทะเบียนแล้ว · <button type="button" class="linkbtn" data-guide="g1">คิดอย่างไร</button> · <button type="button" class="linkbtn" data-go="adv">ดูตัวเลขละเอียด</button></p>
+      <button type="button" class="nextbtn" id="sNext" data-next="t2" hidden><span class="tn">2</span>ไปข้อ 2 พื้นที่พอไหม →</button>
     </div>
     <div class="rcol">
-    <div class="panel nextcard" id="sNextCard" hidden>
-      <p class="note">ขั้นต่อไป: เช็คว่าหลังคาบ้านพอวางแผงไหม</p>
-      <button type="button" class="nextbtn" id="sNext" data-next="t2"><span class="tn">2</span>ไปข้อ 2 พื้นที่พอไหม →</button>
-    </div>
     <div class="panel rights" id="rights">
       <div class="row"><h3>ลงทะเบียนรับสิทธิ์ 50,000</h3><span class="note">ลงทะเบียนได้ถึง 31 ม.ค. 70 · จัดสิทธิ์ตามลำดับเวลา · ใช้เวลาราว 10–15 นาที</span></div>
       <ol class="path" data-path></ol>
@@ -1639,7 +1635,7 @@ function renderSimple(){
   const p=read(),R=compute(p,false),[w,c]=verdictOf(R),net=R.benefit/12-R.pay-R.omM;
   $('s_billChips').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===+$('s_bill').value)));
   const billIn=parseFloat($('s_bill').value)||0;$('sMeter').hidden=!billIn;$('careBox').hidden=!billIn;if(!billIn)$('sPrice').hidden=true;
-  $('t1').classList.toggle('pre',!billIn);glowTab('t2',billIn>0);$('sNextCard').hidden=!billIn;
+  $('t1').classList.toggle('pre',!billIn);glowTab('t2',billIn>0);$('sNext').hidden=!billIn;
   if(!billIn){const e=$('sVerdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('sSys').textContent='ยังไม่มีข้อมูล';$('sLine1').innerHTML='กรอก<b>ค่าไฟต่อเดือน</b>เพื่อดูผล';$('sLine2').textContent='';$('sTips').innerHTML='';renderFit();renderQuotes();return;}
   $('sSys').textContent=`ติดโซลาร์ ${fmt(p.kwp,1)} kW · ${R.loan?'กู้ธนาคารรัฐ':'จ่ายเงินสด'}${R.sub?` · หักเงินสนับสนุน ${fmt(R.sub)} บาท`:' · ไม่มีเงินให้เปล่า'}`;
   $('sPrice').hidden=false;$('sPrice').innerHTML=`คิดจากราคาติดตั้ง ${fmt(p.price)} บาท/kW ${parseFloat($('s_total').value)>0&&S1.priceOk?'(จากราคาที่กรอก)':'(ราคากลาง)'} · <button type="button" class="linkbtn">แก้ได้</button>`;
