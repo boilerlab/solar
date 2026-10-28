@@ -2009,7 +2009,7 @@ function renderQuotes(){
  const order=['sun','wallet','coin','panel','bill','pin','roof','compass','tree','ruler'];
  document.querySelectorAll('#t1 .q h4, #t2 .q h4').forEach((h,i)=>{if(order[i])h.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 24 24" aria-hidden="true">${I[order[i]]}</svg>`);});}
 // menu 1: the system-size question sits under the bill question in the answer frame
-{const q=$('s_size').closest('.q'),bq=document.querySelector('#t1 .answer .billq');q.classList.add('billq','sizeq1');bq.after(q);}
+{const q=$('s_size').closest('.q'),bq=document.querySelector('#t1 .answer .billq');q.classList.add('billq','sizeq1');bq.after(q);q.after($('sLine1'));}
 placeNav('t1');
 // remember answers on this phone, so coming back from Google Maps (which often reloads the page) lands where the user left
 const STKEY='solarState1';
