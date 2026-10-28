@@ -31,8 +31,6 @@
 .path li::before{content:counter(st);display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--line);color:#fff;font-size:11px;font-weight:700}
 .path li.done{background:var(--cell);border-color:var(--cell);color:#fff}.path li.done::before{content:"✓";background:#fff;color:var(--cell)}
 .path li.now{border:2px solid #f28c18;color:var(--forest);font-weight:700;background:var(--surface)}.path li.now::before{background:#f28c18}
-.elig{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14.5px}.elig label{display:flex;gap:10px;align-items:flex-start;cursor:pointer;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
-.elig input{width:20px;height:20px;flex:none;margin:1px 0 0;accent-color:var(--cell)}.elig label:has(input:checked){border-color:var(--cell);background:var(--surface)}
 .rights{grid-column:1/-1}.rights .regbox{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .regbox .btn.hot{animation:btnBlink 1s ease-in-out infinite;border:2px solid #f28c18}
 .pkgbar{display:flex;flex-wrap:wrap;gap:10px;align-items:end}.pkgbar label{display:grid;gap:4px;font-size:13px}
@@ -423,27 +421,27 @@ a.btn{text-decoration:none;display:inline-block}
       <p class="note">ประมาณการจากเงื่อนไข ณ 27 ต.ค. 69 (เงินสนับสนุน 50,000 บาท · รับซื้อไฟ 2.20 บาท 20 ปี) · เปิดลงทะเบียนแล้ว · <button type="button" class="linkbtn" data-guide="g1">คิดอย่างไร</button> · <button type="button" class="linkbtn" data-go="adv">ดูตัวเลขละเอียด</button></p>
     </div>
     <div class="panel rights" id="rights">
-      <div class="row"><h3>เช็คสิทธิ์และลงทะเบียน</h3><span class="note">ลงทะเบียนได้ถึง 31 ม.ค. 70 · จัดสิทธิ์ตามลำดับเวลา</span></div>
+      <div class="row"><h3>ลงทะเบียนรับสิทธิ์ 50,000</h3><span class="note">ลงทะเบียนได้ถึง 31 ม.ค. 70 · จัดสิทธิ์ตามลำดับเวลา · ใช้เวลาราว 10–15 นาที</span></div>
       <ol class="path" data-path></ol>
-      <p class="qs-t">ติ๊กข้อที่ตรงกับคุณ</p>
-      <ul class="elig" id="elig">
-        <li><label><input type="checkbox" data-k="th"><span>คนไทย บุคคลธรรมดา</span></label></li>
-        <li><label><input type="checkbox" data-k="m1"><span>บ้านอยู่อาศัย มิเตอร์ประเภท 1 <span class="note">(ดูในบิลค่าไฟ)</span></span></label></li>
-        <li><label><input type="checkbox" data-k="nm"><span>ชื่อในบิลค่าไฟตรงกับบัตรประชาชน <span class="note">(ไม่ตรง ให้แก้กับการไฟฟ้าก่อน)</span></span></label></li>
-        <li><label><input type="checkbox" data-k="once"><span>ยังไม่เคยใช้สิทธิ์นี้ และจะไม่ใช้ลดหย่อนภาษีค่าติดโซลาร์ (พ.ร.ฎ. 805)</span></label></li>
-        <li><label><input type="checkbox" data-k="pp"><span>มีพร้อมเพย์ที่ผูกกับ<b>เลขบัตรประชาชน</b> <span class="note">(ผูกเพิ่มได้ในแอปธนาคาร)</span></span></label></li>
-        <li><label><input type="checkbox" data-k="kw"><span>จะติดระบบใหม่ 5–10 kWp <span class="note">(ต่อเติมระบบเดิมได้ ถ้าส่วนที่เพิ่มอยู่ในช่วงนี้)</span></span></label></li>
-      </ul>
-      <p class="line" id="eligRes"></p>
-      <p class="note">มีบัตรสวัสดิการแห่งรัฐก็สมัครได้ แต่ต้องสละส่วนลดค่าไฟจากบัตร 20 ปี · ไม่ต้องเป็นเจ้าของบ้าน แต่ชื่อต้องตรงกับเจ้าของมิเตอร์ (ร่างคู่มือประชาชน 27 ต.ค. 69)</p>
       <div class="regbox" id="regBtns">
         <a class="btn solid" data-reg="pea" href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">ลงทะเบียน PEA (ต่างจังหวัด) ↗</a>
         <a class="btn solid" data-reg="mea" href="https://peoplesolar.mea.or.th" target="_blank" rel="noopener">ลงทะเบียน MEA (กทม. นนทบุรี สมุทรปราการ) ↗</a>
       </div>
-      <p class="note">เตรียม: แอป ThaID หรือบัตรประชาชน · บิลค่าไฟใบล่าสุด (เลขผู้ใช้ไฟ CA และเลขเครื่องวัด) · เบอร์มือถือหรืออีเมล · ไม่สะดวกออนไลน์ ยื่นแบบฟอร์มที่สำนักงานการไฟฟ้าใกล้บ้านได้ · ถาม PEA 1129 · MEA 1130 · เก็บเลขคำขอไว้ติดตามผล</p>
-      <div class="q"><h4>ตอนนี้คุณอยู่ขั้นไหน</h4>
-        <div class="chips" data-rstat><button type="button" data-v="0">ยังไม่ลงทะเบียน</button><button type="button" data-v="1">ลงทะเบียนแล้ว รอผล</button><button type="button" data-v="2">ได้สิทธิ์แล้ว</button></div>
-        <span class="hint">แอปจำขั้นนี้ไว้ในเครื่องนี้ ได้สิทธิ์แล้วกลับมาเปิดอีกครั้ง จะพาไปเลือกร้านต่อ</span></div>
+      <p class="note"><b>เตรียมไว้ก่อน:</b> แอป ThaID (หรือบัตรประชาชน) · บิลค่าไฟใบล่าสุดของบ้านที่จะติด · มือถือรับ OTP · ชื่อในบิลต้องตรงกับบัตรประชาชน · ไม่สะดวกออนไลน์ ยื่นแบบฟอร์มที่สำนักงานการไฟฟ้าใกล้บ้านได้ · ถาม PEA 1129 · MEA 1130</p>
+      <details class="more"><summary>ขั้นตอนในเว็บ PEA (6 ขั้น จากที่ลองลงทะเบียนจริง 28 ต.ค. 69)</summary>
+        <ol class="steps" style="margin-top:10px">
+          <li><b>ยืนยันตัวตน</b> ด้วยแอป ThaID (แนะนำ) หรือกรอกข้อมูลบัตรประชาชน ติ๊กยอมรับเงื่อนไขและนโยบายข้อมูลส่วนบุคคล</li>
+          <li><b>ข้อมูลผู้ใช้ไฟฟ้า</b> กรอก <b>หมายเลขผู้ใช้ไฟฟ้า (CA)</b> 12 หลัก ช่อง "CA/Ref. No. 1" ในบิล และ <b>รหัสเครื่องวัด (PEA No.)</b> ช่องซ้ายสุดแถวล่าง แล้วรับรองว่าเป็นบ้านอยู่อาศัย ไม่ใช่มิเตอร์ชั่วคราวหรือมิเตอร์คอนโด</li>
+          <li><b>ยินยอมเงื่อนไข</b> ไม่ขอส่วนลดค่าไฟบัตรสวัสดิการ (315 บาท/เดือน) 20 ปี และไม่ใช้ลดหย่อนภาษีค่าติดโซลาร์ (พ.ร.ฎ. 805) แล้วกดตรวจสอบสิทธิ์</li>
+          <li><b>ช่องทางติดต่อ</b> เบอร์มือถือ (รับ OTP ทาง SMS) หรืออีเมล ใช้รับแจ้งผลตลอดโครงการ</li>
+          <li><b>ตรวจทานแล้วกด "ยืนยันรับสิทธิ์"</b> ผ่านแล้ว <b>ได้สิทธิ์ทันที</b> ดูได้ที่เมนู "สิทธิของฉัน"</li>
+          <li><b>เช็คความพร้อม</b> รูปแบบติดตั้ง ประเภทหลังคา และผู้ให้บริการ เลือก <b>"ยังไม่ตัดสินใจ"</b> ได้ ไม่ผูกมัด ไปยืนยันอีกครั้งตอนขอเชื่อมต่อ</li>
+        </ol>
+        <p class="note">หลังได้สิทธิ์ ในเว็บ PEA มีเมนู "สถานะและสิ่งที่ต้องทำ" "ผู้ให้บริการของฉัน" และ "เอกสารสำหรับขอสินเชื่อ" (ดาวน์โหลดไปยื่นธนาคาร) · ขั้นตอนเว็บ MEA อาจต่างจากนี้</p>
+      </details>
+      <div class="q"><h4>ลงทะเบียนแล้วหรือยัง</h4>
+        <div class="chips" data-rstat><button type="button" data-v="0">ยังไม่ลงทะเบียน</button><button type="button" data-v="2">ลงทะเบียนแล้ว ได้สิทธิ์แล้ว</button></div>
+        <span class="hint">แอปจำไว้ในเครื่องนี้ ได้สิทธิ์แล้วกลับมาเปิดอีกครั้ง จะพาไปเลือกร้านต่อ</span></div>
       <button type="button" class="nextbtn" id="rNext" data-next="t3" hidden><span class="tn">3</span>ได้สิทธิ์แล้ว ไปเลือกร้าน →</button>
     </div>
   </section>
@@ -502,12 +500,12 @@ a.btn{text-decoration:none;display:inline-block}
       <ol class="path" data-path></ol>
       <div id="gateNo">
         <p class="line">ลงทะเบียนให้ได้สิทธิ์ก่อน แล้วค่อยกลับมาเลือกร้าน</p>
-        <p class="note">ยังไม่ควรเซ็นสัญญาหรือจ่ายเงินให้ร้านก่อนได้สิทธิ์ · เช็คคุณสมบัติได้ที่ <button type="button" class="linkbtn" data-go-rights>ข้อ 1 เช็คสิทธิ์</button></p>
+        <p class="note">ยังไม่ควรเซ็นสัญญาหรือจ่ายเงินให้ร้านก่อนได้สิทธิ์ · ดู<button type="button" class="linkbtn" data-go-rights>วิธีลงทะเบียนในข้อ 1</button></p>
         <div class="regbox">
           <a class="btn solid" data-reg="pea" href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">ลงทะเบียน PEA (ต่างจังหวัด) ↗</a>
           <a class="btn solid" data-reg="mea" href="https://peoplesolar.mea.or.th" target="_blank" rel="noopener">ลงทะเบียน MEA (กทม. นนทบุรี สมุทรปราการ) ↗</a>
         </div>
-        <div class="chips" data-rstat><button type="button" data-v="0">ยังไม่ลงทะเบียน</button><button type="button" data-v="1">ลงทะเบียนแล้ว รอผล</button><button type="button" data-v="2">ได้สิทธิ์แล้ว</button></div>
+        <div class="chips" data-rstat><button type="button" data-v="0">ยังไม่ลงทะเบียน</button><button type="button" data-v="2">ลงทะเบียนแล้ว ได้สิทธิ์แล้ว</button></div>
         <p class="note"><button type="button" class="linkbtn" id="peekBtn">ขอดูร้านและราคาไปก่อน</button></p>
       </div>
     </div>
@@ -1871,34 +1869,28 @@ $('rfqLine').addEventListener('click',()=>{track('line');window.open('https://li
 if(navigator.share){$('rfqShare').hidden=false;$('rfqShare').addEventListener('click',()=>{track('share');navigator.share({text:$('rfqText').value}).catch(()=>{});});}
 document.querySelectorAll('#tabs [data-t="t3"],[data-next="t3"]').forEach(b=>b.addEventListener('click',()=>{rfqRender(false);if(!$('pkgProv').value)$('pkgProv').value=homeProv();pkgRender();renderRights();}));
 rfqRender(false);
-// ---- route: check eligibility -> register -> got the right -> choose a shop -> quotes (kept on this phone without expiry, so people can come back weeks later)
-const RKEY='solarRights';let RT={stat:0,el:{}},peek=false;
-try{const r=JSON.parse(localStorage.getItem(RKEY)||'null');if(r)RT={stat:+r.stat||0,el:r.el||{}};}catch(e){}
+// ---- route: register -> got the right -> choose a shop -> quotes (kept on this phone without expiry, so people can come back weeks later)
+const RKEY='solarRights';let RT={stat:0},peek=false;
+try{const r=JSON.parse(localStorage.getItem(RKEY)||'null');if(r)RT={stat:+r.stat?2:0};}catch(e){}
 const saveRT=()=>{try{localStorage.setItem(RKEY,JSON.stringify(RT));}catch(e){}};
-const PATH=['เช็คสิทธิ์','ลงทะเบียน','ได้สิทธิ์','เลือกร้าน','ใบเสนอราคา','ทำสัญญามาตรฐาน','ติดตั้ง/เชื่อมต่อ','รับ 50,000'];
+const PATH=['ลงทะเบียน','ได้สิทธิ์','เลือกร้าน','ใบเสนอราคา','ทำสัญญามาตรฐาน','ติดตั้ง/เชื่อมต่อ','รับ 50,000'];
 const thDate=iso=>{const [y,m,d]=(iso||'').split('-');return y?`${+d} ${['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][+m]} ${(+y+543)%100}`:'';};
 function homeProv(){const v=$('rfqProv').value;if(v)return v;const c=parseCoords($('coords').value);if(c){const n=locate(c.la,c.lo).nearest;if(n)return PROV[n.i][0];}return $('s_prov').value!==''?PROV[+$('s_prov').value][0]:'';}
 function quotesFilled(){return [1,2,3].some(n=>parseFloat(($(`q${n}_total`)||{}).value)>0);}
 function renderRights(){
-  const box=[...document.querySelectorAll('#elig input')],ok=box.filter(b=>b.checked).length,all=ok===box.length;
-  box.forEach(b=>{b.checked=!!RT.el[b.dataset.k];});
-  const miss=box.filter(b=>!b.checked).map(b=>b.dataset.k);
-  $('eligRes').innerHTML=!miss.length?'<b class="pos">ผ่านเบื้องต้น ลงทะเบียนได้เลย</b> <span class="note">การไฟฟ้าเป็นผู้ตรวจสิทธิ์จริง</span>':
-    miss.length===box.length?'':`ยังไม่ได้ติ๊ก ${miss.length} ข้อ${miss.includes('pp')?' · <b>พร้อมเพย์ต้องผูกเลขบัตรประชาชน</b> ไม่งั้นรับเงิน 50,000 ไม่ได้':''}${miss.includes('nm')?' · ชื่อไม่ตรง ให้ติดต่อการไฟฟ้าแก้ชื่อก่อนลงทะเบียน':''}`;
   const prov=homeProv(),mea=prov?MEA_PROV.includes(prov):null;
   document.querySelectorAll('[data-reg]').forEach(a=>{a.classList.toggle('hot',RT.stat===0&&mea!==null&&(a.dataset.reg==='mea')===mea);});
   document.querySelectorAll('[data-rstat]').forEach(g=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===RT.stat))));
-  const allEl=!miss.length,now=RT.stat===2?(quotesFilled()?4:3):RT.stat===1?2:allEl?1:0;
-  document.querySelectorAll('[data-path]').forEach(ol=>{ol.innerHTML=PATH.map((t,i)=>`<li class="${i<now?'done':i===now?'now':''}">${t}${i===2&&RT.stat===1?' (รอผล)':''}</li>`).join('');const c=ol.querySelector('.now');if(c)ol.scrollLeft=Math.max(0,c.offsetLeft-ol.offsetLeft-40);});
+  const now=RT.stat===2?(quotesFilled()?3:2):0;
+  document.querySelectorAll('[data-path]').forEach(ol=>{ol.innerHTML=PATH.map((t,i)=>`<li class="${i<now?'done':i===now?'now':''}">${t}</li>`).join('');const c=ol.querySelector('.now');if(c)ol.scrollLeft=Math.max(0,c.offsetLeft-ol.offsetLeft-40);});
   glowTab('t3',RT.stat===2);
   $('rNext').hidden=RT.stat!==2;
   const open=RT.stat===2||peek;$('gateNo').hidden=RT.stat===2;
   document.querySelectorAll('#t3 .afterR').forEach(e=>e.hidden=!open);
-  $('gateStat').textContent=RT.stat===2?'ได้สิทธิ์แล้ว · เลือกร้านและขอใบเสนอราคาได้เลย':RT.stat===1?'ลงทะเบียนแล้ว รอผลตรวจสิทธิ์':'ยังไม่ได้ลงทะเบียน';
+  $('gateStat').textContent=RT.stat===2?'ได้สิทธิ์แล้ว · เลือกร้านและขอใบเสนอราคาได้เลย':'ยังไม่ได้ลงทะเบียน';
   $('peekBtn').hidden=peek;
   const tb=document.querySelector('#tabs [data-t="t3"]');if(tb)tb.innerHTML=`<span class="tn">3</span>${RT.stat===2?'เลือกร้าน':'เลือกร้าน (หลังได้สิทธิ์)'}`;
 }
-$('elig').addEventListener('change',e=>{const k=e.target.dataset.k;if(!k)return;RT.el[k]=e.target.checked;saveRT();renderRights();});
 document.querySelectorAll('[data-rstat]').forEach(g=>g.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;RT.stat=+b.dataset.v;saveRT();track('rights-'+RT.stat);renderRights();if(RT.stat===2&&g.closest('#gate'))$('pkgPanel').scrollIntoView({behavior:'smooth',block:'start'});}));
 $('peekBtn').addEventListener('click',()=>{peek=true;renderRights();$('pkgPanel').scrollIntoView({behavior:'smooth',block:'start'});});
 document.querySelectorAll('[data-go-rights]').forEach(b=>b.addEventListener('click',()=>{showTab('t1');requestAnimationFrame(()=>$('rights').scrollIntoView({behavior:'smooth',block:'start'}));}));
