@@ -139,7 +139,7 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .tabs{display:flex;flex-wrap:wrap;gap:10px;align-items:center;position:sticky;top:0;z-index:30;background:var(--bg);padding:8px 0;margin:-8px 0}
 @media (max-width:880px){.tabs,#tabs{justify-content:flex-start!important;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:8px}.tabs::-webkit-scrollbar{display:none}.tabs button{flex:none;font-size:15px;padding:8px 12px}.tabs .resetbtn.wide{flex:none}}
 .tab .panel,.tab .answer,.tab details,#rfq,#qtPanel,#pkgPanel{scroll-margin-top:70px}
-.tabs .resetbtn.wide{font-family:var(--f-body);font-size:14px;font-weight:600;padding:8px 14px;border-radius:12px;border:1.5px dashed var(--forest);background:var(--surface);color:var(--forest)}.tabs .resetbtn.wide.armed{background:var(--bad);border-color:var(--bad);color:#fff;border-style:solid}
+.tabs .resetbtn.wide{font-family:var(--f-display);font-size:17px;font-weight:600;padding:10px 18px;border-radius:12px;border:2px solid #e3a2a2;background:#fbe9e9;color:#a33a3a;align-self:stretch}.tabs .resetbtn.wide:hover{background:#f7dada}@media (max-width:880px){.tabs .resetbtn.wide{font-size:15px;padding:8px 12px}}
 .nextrow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.nextbtn.alt{border-color:var(--cell);animation:none}
 .tabs button{font:inherit;font-family:var(--f-display);font-size:17px;font-weight:600;padding:10px 18px;border-radius:12px;border:2px solid var(--fr-o);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;gap:8px;align-items:center}
 .tabs button[aria-selected=true]{background:var(--forest);border-color:var(--forest);color:#fff}
@@ -1992,10 +1992,9 @@ placeNav('t1');
 const STKEY='solarState1';
 // start over: first tap arms the button, second tap within 3 s wipes saved answers and reloads at menu 1
 let noSave=false;
-document.querySelectorAll('[data-reset]').forEach(b=>{const label=b.textContent;let t=0;b.addEventListener('click',()=>{
-  if(!b.classList.contains('armed')){b.classList.add('armed');b.textContent='แตะอีกครั้งเพื่อล้าง';clearTimeout(t);t=setTimeout(()=>{b.classList.remove('armed');b.textContent=label;},3000);return;}
+document.querySelectorAll('[data-reset]').forEach(b=>b.addEventListener('click',()=>{
   noSave=true;try{localStorage.removeItem(STKEY);localStorage.removeItem('solarRights');}catch(e){}
-  location.replace(location.pathname);});});
+  location.replace(location.pathname);}));
 function saveState(){if(noSave)return;try{
   const tab=(document.querySelector('#tabs [aria-selected=true]')||{}).dataset?.t||'t1';
   localStorage.setItem(STKEY,JSON.stringify({ts:Date.now(),tab,y:scrollY,sat:$('t2Sat').open,maps:awaitingMaps,
