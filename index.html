@@ -1771,7 +1771,7 @@ function renderFit(){
   $('s2CountTxt').textContent=`${need} แผง · ${fmt(need*pW/1000,2)} kW`;
   $('s_sizeHint').textContent=S1.custom?`ตอนนี้ใช้ ${fmt(S1.size,2)} kW (${need} แผง) ที่ปรับจำนวนในข้อ 3 · กดขนาดด้านบนเพื่อเปลี่ยน`:`โครงการกำหนด 5–10 kW ต่อมิเตอร์ (แผง ${fmt(pW)} W ${min5} แผง ≈ 5 kW) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!S1.custom);
   document.querySelector('#t2 .sizeq').classList.toggle('needfill',!dims&&!lyN);
-  glowTab('t3',dims||lyN>0);$('s2Next').hidden=!(dims||lyN>0);
+  glowTab('t3',dims);$('s2Next').hidden=!(dims||lyN>0);$('s2Next').style.animation=dims?'':'none';
   [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
   $('s2Sb').placeholder=FIT[wh].sb;$('s2Params').hidden=!dims&&!lyN;S2.curA=F.a;
   $('s2RotTxt').textContent=!dims&&lyN?'หมุนกลุ่มแผงบนภาพดาวเทียม':F.count?(F.a===lyNum('lyPW',1.13)?'แผงแนวตั้ง':'แผงแนวนอน')+(S2.ori?'':' · อัตโนมัติ (วางได้มากสุด)'):'';
