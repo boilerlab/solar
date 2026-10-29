@@ -164,7 +164,7 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .tabs{display:flex;flex-wrap:wrap;gap:10px;align-items:center;position:sticky;top:0;z-index:30;background:var(--bg);padding:8px 0;margin:-8px 0}
 @media (max-width:880px){.tabs,#tabs{justify-content:flex-start!important;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:8px}.tabs::-webkit-scrollbar{display:none}.tabs button{flex:none;font-size:15px;padding:8px 12px}.tabs .resetbtn.wide{flex:none}}
 .tab .panel,.tab .answer,.tab details,#rfq,#qtPanel,#pkgPanel{scroll-margin-top:70px}
-.tabs .resetbtn.wide{display:none}
+.tabs .resetbtn.wide{font-family:var(--f-body);font-size:14px;font-weight:600;padding:8px 14px;border-radius:12px;border:1.5px dashed var(--forest);background:var(--surface);color:var(--forest)}.tabs .resetbtn.wide.armed{background:var(--bad);border-color:var(--bad);color:#fff;border-style:solid}
 .nextrow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.nextbtn.alt{border-color:var(--cell);animation:none}
 .tabs button{font:inherit;font-family:var(--f-display);font-size:17px;font-weight:600;padding:10px 18px;border-radius:12px;border:2px solid var(--fr-o);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;gap:8px;align-items:center}
 .tabs button[aria-selected=true]{background:var(--forest);border-color:var(--forest);color:#fff}
@@ -399,7 +399,6 @@ a.btn{text-decoration:none;display:inline-block}
       <text x="212" y="136" text-anchor="middle" style="font:800 22px Kanit,sans-serif;fill:var(--forest)">฿</text>
       <path d="M176 104l10-6M176 122h-8M180 88l6-8" style="stroke:var(--sun);stroke-width:3;stroke-linecap:round"/>
     </svg>
-    <button type="button" class="resetbtn" data-reset>↺ เริ่มใหม่</button>
     <h1>ติด<span>โซลาร์ภาคประชาชน</span> คุ้มไหม?</h1>
     <div class="terms">
       <span class="chip">รับซื้อไฟส่วนเกิน <b>2.20</b> บาท/หน่วย</span>
@@ -419,7 +418,7 @@ a.btn{text-decoration:none;display:inline-block}
     <button type="button" data-t="t2" aria-selected="false"><span class="tn">3</span>พื้นที่พอไหม?</button>
     <button type="button" data-t="t3" aria-selected="false"><span class="tn">4</span>เลือกร้าน</button>
     <button type="button" data-t="adv" aria-selected="false"><span class="tn">5</span>ตัวเลขละเอียด / ช่าง</button>
-    <button type="button" class="resetbtn wide" data-reset>↺ เริ่มใหม่ ล้างทุกคำตอบ</button>
+    <button type="button" class="resetbtn wide" data-reset title="ล้างทุกคำตอบ">↺ เริ่มใหม่</button>
   </nav>
 
   <section class="tab simple pre" id="t1">
