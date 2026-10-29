@@ -1604,7 +1604,7 @@ function chipGroup(id,obj,key,cb){const g=$(id);const sync=()=>g.querySelectorAl
 $('roofPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;S2.roof=b.dataset.v;renderFit();});
 // remember the menu-1 size while an arrangement is chosen, and go back to it when the arrangement is cleared
 // a layout that names the panel direction (2 rows standing / lying) also sets it for the area check and the satellite block
-function applyLayOri(){const P=S2.lay&&presetOf(S2.lay);if(!P||!P.ori)return;S2.ori=P.ori;LY.pRot=(($('lyOrient').value==='p')===(P.ori==='p'))?0:90;angTxt();if(LY.mode==='group'&&LY.img){buildGroup();lyResult();}}
+function applyLayOri(){const P=S2.lay&&presetOf(S2.lay);if(P&&!P.ori&&(S2.ori==='p'||S2.ori==='l')&&S2.oriBy==='lay'){S2.ori=null;S2.oriBy=null;}if(!P||!P.ori)return;S2.oriBy='lay';S2.ori=P.ori;LY.pRot=(($('lyOrient').value==='p')===(P.ori==='p'))?0:90;angTxt();if(LY.mode==='group'&&LY.img){buildGroup();lyResult();}}
 $('layPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;S2.lay=S2.lay===b.dataset.v?null:b.dataset.v;applyLayOri();simpleSync();});
 $('s_size').addEventListener('click',()=>{S2.lay=null;S1.custom=false;},true);
 $('s_care').addEventListener('change',()=>{S1.care=$('s_care').checked;simpleSync();});
@@ -1748,7 +1748,7 @@ $('s2Rot').addEventListener('click',()=>{
   // panels placed from the satellite photo (no width × length typed): rotate the panel block on the photo instead
   if(!(parseFloat($('s_w').value)>0&&parseFloat($('s_l').value)>0)&&S2.lyN){$('lyRot').click();return;}
   {const P=S2.lay&&presetOf(S2.lay);if(P&&P.ori){S2.lay=P.ori==='p'?'r2l':'r2';applyLayOri();simpleSync();return;}}
-  const pw=lyNum('lyPW',1.13);S2.ori=S2.ori?(S2.ori==='p'?'l':'p'):(S2.curA===pw?'l':'p');renderFit();});
+  const pw=lyNum('lyPW',1.13);S2.oriBy='manual';S2.ori=S2.ori?(S2.ori==='p'?'l':'p'):(S2.curA===pw?'l':'p');renderFit();});
 [['s2PL','lyPL'],['s2PW','lyPW']].forEach(([a,b])=>$(a).addEventListener('input',()=>{$(b).value=$(a).value;$(b).dispatchEvent(new Event('input'));renderFit();}));
 $('s2Wt').addEventListener('input',()=>{$('panelW').value=$('s2Wt').value;$('panelW').dispatchEvent(new Event('input',{bubbles:true}));});
 $('s2Sb').addEventListener('input',()=>{const v=parseFloat($('s2Sb').value);S2.sb=isFinite(v)?v:undefined;renderFit();});
@@ -1767,6 +1767,9 @@ function renderFit(){
   const fixedRows=!!(P&&['r1','r2','r2l'].includes(P.id)),altP=fixedRows&&W>0&&L>0?autoRows(P):null;
   if(!fixedRows)P=autoRows(P);
   let need=P?P.n:panelsFor(S1.size,pW),min5=panelsFor(5,pW),F=fitLayout(W,L,wh),dims=W>0&&L>0,lyN=dims?0:(S2.lyN||0),n=dims?(twoSide&&!(P&&P.sides===1)?2*F.count:F.count):lyN,SF=P&&dims?fitShape(W,L,wh,P):null,needSide=(P&&P.sides===2)||(twoSide&&!P)?Math.ceil(need/2):need,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
+  // the chosen rows do not fit: work out the arrangement that does (same panel direction, more rows) and use it, saying so
+  let adj=null;if(fixedRows&&SF&&!SF.ok&&!twoSide&&altP&&altP.rows!==P.rows){const s2=fitShape(W,L,wh,altP);if(s2.ok){adj={label:P.label,needW:SF.needW};P=altP;SF=s2;
+    const oth=presetOf(P.ori==='l'?'r2':P.ori==='p'?'r2l':'');if(oth){const o=S2.ori;S2.ori=oth.ori;if(fitShape(W,L,wh,oth).ok)adj.other=oth.label;S2.ori=o;}}}
   // ridged roof: when the chosen rows do not fit on one side, move every other row (or half of a single row) to the opposite side
   let moved=false;
   if(SF&&!SF.ok&&twoSide&&P.sides===1){const c=P.counts,a=c.length===1?[Math.ceil(c[0]/2)]:c.filter((_,i)=>i%2===0),b=c.length===1?[Math.floor(c[0]/2)]:c.filter((_,i)=>i%2===1),
@@ -1791,7 +1794,6 @@ function renderFit(){
   let v,c,line;const notes=[];
   if(roofy&&S2.mat==='poly'){v='ไม่แนะนำ';c='v-bad';line='หลังคาโพลีคาร์บอเนตหรือไวนิลรับน้ำหนักแผงไม่ได้ ต้องทำโครงใหม่';}
   else if(S2.shade==='heavy'){v='ไม่แนะนำ';c='v-bad';line='เงาบังทั้งวัน แผงจะผลิตไฟได้น้อยมาก ถ้าตัดแต่งต้นไม้ได้ค่อยพิจารณา';}
-  else if(SF&&!SF.ok&&altP&&altP.rows!==P.rows&&fitShape(W,L,wh,altP).ok){v=`ต้องวาง ${altP.rows} แถว`;c='v-mid';line=`แบบ <b>${P.label}</b> ยาวไม่พอ ต้องยาวอย่างน้อย ${fmt(SF.needW,1)} ม.<br>ถ้าวาง ${altP.rows} แถว (${altP.counts.join(' + ')}) พื้นที่ ${fmt(W,1)} × ${fmt(L,1)} ม. พอ`;}
   else if(SF&&!SF.ok){v='พื้นที่ไม่พอ';c='v-bad';line=twoSide?`แบบ <b>${P.label}</b> ต้องใช้หลังคาฝั่งละอย่างน้อย ${fmt(SF.needW,1)} × ${fmt(SF.needL,1)} ม.<br>กรอบทั้งหมดอย่างน้อย ${fmt(SF.needW,1)} × ${fmt(SF.needL*2,1)} ม. (รวมระยะเว้นขอบ)`:`แบบ <b>${P.label}</b> ต้องใช้พื้นที่อย่างน้อย<br>${fmt(SF.needW,1)} × ${fmt(SF.needL,1)} ม. (รวมระยะเว้นขอบ)`;}
   else if(n<need&&(P||n<min5)){v='พื้นที่ไม่พอ';c='v-bad';line=`วางได้ ${n} แผง ต้องใช้ ${need} แผง${P&&P.sides===2?' (สองฝั่ง)':''}<br>ใช้พื้นที่ราว ${aNeed(need)} ตร.ม.`;}
   else{const cond=wh!=='roof'||S2.mat==='tile'||$('s_old').checked||S2.shade==='some'||(roofy&&S2.dir==='n');
@@ -1813,6 +1815,7 @@ function renderFit(){
   if(!notes.length)notes.push('ให้ช่างมาดูหน้างานยืนยันขนาดและโครงสร้างอีกครั้งก่อนเซ็นสัญญา');
   // satellite placement only: the app cannot see where the roof edge is, so it never says "fits" by itself
   if(!dims&&lyN&&c!=='v-bad'){v='เช็คบนภาพ';c='v-mid';line=`วาง <b>${lyN} แผง</b> (${fmt(lyN*pW/1000,2)} kW) บนภาพดาวเทียมแล้ว แต่แอปยังไม่รู้ขนาดหลังคา<br>ลากแผงให้อยู่บนหลังคา ถ้าอยู่ในหลังคาได้หมด = พอ ถ้าล้น = ไม่พอ · หรือใส่<b>ขนาดพื้นที่</b>ให้แอปคำนวณ`;}
+  if(adj&&c!=='v-bad')line=`แอปจัดเป็น <b>${P.rows} แถว (${P.counts.join(' + ')})</b> ${Math.abs(SF.a-lyNum('lyPW',1.13))<1e-6?'แผงตั้ง':'แผงนอน'} วางได้ครบ ${need} แผง<br>แบบ ${adj.label} ยาวไม่พอ ต้องยาวอย่างน้อย ${fmt(adj.needW,1)} ม.${adj.other?` · หรือเลือก <b>${adj.other}</b> ก็วางได้`:''}`;
   $('s2Verdict').textContent=v;$('s2Verdict').className='verdict-big '+c;fitCrt($('s2Verdict'));$('s2Line').innerHTML=line;
   $('s2Notes').innerHTML=notes.map(t=>`<li>${t}</li>`).join('');
   const svg=$('s2Svg');svg.style.display='';if(!dims){if(lyN&&lyVector(svg,need))return;svg.innerHTML='';svg.style.display='none';return;}
@@ -1847,7 +1850,7 @@ function renderFit(){
   else if(n){const f=FIT[wh],tw=F.cols*F.px-f.gx,x0=(W-tw)/2,y0=(L-F.th)/2,rowY=r=>Math.floor(r/F.k)*F.ty+(r%F.k)*(F.bh+0.02),ord=[];
     rowSeq.forEach(([sd,r])=>{for(let k=0;k<perRow;k++){const y=y0+rowY(r);g+=R(x0+k*F.px,sd==='A'?yA(y):yB(y,F.bh),F.a,F.bh,onSet.has(sd+r+'-'+k)?BLUE:OFF);}});}
   if(mp)for(let i=0;i<miss;i++)g+=R((i%mp.per)*(mp.a+0.02),TOP+FH+0.4+Math.floor(i/mp.per)*(mp.bh+0.02),mp.a,mp.bh,RED);
-  const cap=bad?`แบบ ${P.label} ล้นกรอบ · สีแดง = ส่วนที่วางไม่ลง`:miss?`วางได้ ${used} แผง · สีแดง = ขาดอีก ${miss} แผง`:`สีน้ำเงิน = แผงที่ใช้ ${SF&&SF.ok?need:used} แผง${P?` · ${P.label}`:''}`;
+  const cap=bad?`แบบ ${P.label} ล้นกรอบ · สีแดง = ส่วนที่วางไม่ลง`:miss?`วางได้ ${used} แผง · สีแดง = ขาดอีก ${miss} แผง`:`สีน้ำเงิน = แผงที่ใช้ ${SF&&SF.ok?need:used} แผง${P?(adj?` · จัดเป็น ${P.rows} แถว (${P.counts.join(' + ')})`:` · ${P.label}`):''}`;
   g+=`<text x="160" y="${VH-28}" text-anchor="middle" style="fill:var(--muted);font-size:12px">กรอบ ${fmt(W,1)} × ${fmt(FH,1)} ม.${twoSide?` · เส้นประ = สันหลังคา (ฝั่งละ ${fmt(W,1)} × ${fmt(L,1)})`:''}</text><text x="160" y="${VH-10}" text-anchor="middle" style="fill:${bad||miss?'var(--bad)':'var(--muted)'};font-size:12px;font-weight:600">${cap}</text>`;
   svg.innerHTML=g;
 }
