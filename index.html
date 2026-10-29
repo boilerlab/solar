@@ -1808,6 +1808,8 @@ function renderFit(){
     if(ok){S2.autoNote=`แบบ ${P.label} วางไม่ลง แอปเปลี่ยนเป็น <b>${oth.label}</b> ให้`;S2.lay=oth.id;applyLayOri();return renderFit();}}
   let adj=null;if(fixedRows&&SF&&!SF.ok&&!twoSide&&altP&&altP.rows!==P.rows){const s2=fitShape(W,L,wh,altP);if(s2.ok){adj={label:P.label,needW:SF.needW};P=altP;SF=s2;
     const oth=presetOf(P.ori==='l'?'r2':P.ori==='p'?'r2l':'');if(oth){const o=S2.ori;S2.ori=oth.ori;if(fitShape(W,L,wh,oth).ok)adj.other=oth.label;S2.ori=o;}}}
+  // nothing in this panel direction fits all the panels: show the most that fit (rows filled from one side) and the rest in red, not the chosen rows sticking out
+  let fellBack=false;if(fixedRows&&SF&&!SF.ok&&!adj&&!twoSide&&F.count>0){SF=null;fellBack=true;}
   // ridged roof: when the chosen rows do not fit on one side, move every other row (or half of a single row) to the opposite side
   let moved=false;
   if(SF&&!SF.ok&&twoSide&&P.sides===1){const c=P.counts,a=c.length===1?[Math.ceil(c[0]/2)]:c.filter((_,i)=>i%2===0),b=c.length===1?[Math.floor(c[0]/2)]:c.filter((_,i)=>i%2===1),
