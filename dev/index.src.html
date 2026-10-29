@@ -139,7 +139,7 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .tabs{display:flex;flex-wrap:wrap;gap:10px;align-items:center;position:sticky;top:0;z-index:30;background:var(--bg);padding:8px 0;margin:-8px 0}
 @media (max-width:880px){.tabs,#tabs{justify-content:flex-start!important;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:8px}.tabs::-webkit-scrollbar{display:none}.tabs button{flex:none;font-size:15px;padding:8px 12px}.tabs .resetbtn.wide{flex:none}}
 .tab .panel,.tab .answer,.tab details,#rfq,#qtPanel,#pkgPanel{scroll-margin-top:70px}
-#sLoanNote{margin:6px 0 0;text-align:center;font-size:12.5px}#sVerdict .arr{display:inline-block;transform:translateY(-.1em)}#sVerdict.crtnum{white-space:nowrap;letter-spacing:-.01em}#sLine1 .vs{font-size:.8em;font-weight:500}#sLine1 .vsb{animation:none;text-shadow:none;font-size:inherit}#sLine1 small{display:block;line-height:1.4}#sLine1 small{font-size:.68em;font-weight:400;opacity:.85}
+#sProd{margin:8px 0 0;text-align:center;font-size:13.5px;line-height:1.5;color:var(--ink)}#sProd b{color:var(--forest)}#sLoanNote{margin:6px 0 0;text-align:center;font-size:12.5px}#sVerdict .arr{display:inline-block;transform:translateY(-.1em)}#sVerdict.crtnum{white-space:nowrap;letter-spacing:-.01em}#sLine1 .vs{font-size:.8em;font-weight:500}#sLine1 .vsb{animation:none;text-shadow:none;font-size:inherit}#sLine1 small{display:block;line-height:1.4}#sLine1 small{font-size:.68em;font-weight:400;opacity:.85}
 #s2Next.onsat{display:flex;margin:14px auto 4px}#s2Next.onsat[hidden]{display:none}
 /* tab 3 lays the panels out itself: on the satellite photo only the move / zoom buttons are needed */
 #t2SatBody .lyedit,#t2SatBody #placeTools label{display:none!important}
@@ -417,6 +417,7 @@ a.btn{text-decoration:none;display:inline-block}
       <label class="carebtn" id="careBox" hidden><input type="checkbox" id="s_care"> <span><b>คิดแบบระวัง</b> · ขายไฟได้ 80% · ผลิตไฟน้อยลง 10% · อินเวอร์เตอร์เสียปีที่ 5</span></label>
       <p class="line" id="sLine1"></p>
       <p class="note" id="sLine2"></p>
+      <p class="prodline" id="sProd" hidden></p>
       <div class="meter" id="sMeter"><span class="note" id="sMeterTxt"></span><div class="bar"><div class="fill" id="sMeterFill"></div></div></div>
       <ul class="tips" id="sTips"></ul>
       <div class="nextrow" id="sNext" hidden><button type="button" class="nextbtn" data-next="tReg"><span class="tn">2</span>ลงทะเบียนรับสิทธิ์ →</button><button type="button" class="nextbtn alt" data-next="t2"><span class="tn">3</span>พื้นที่พอไหม →</button></div>
@@ -1652,7 +1653,7 @@ function renderSimple(){
   $('s_billChips').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===+$('s_bill').value)));
   const billIn=parseFloat($('s_bill').value)||0;$('sMeter').hidden=!billIn;$('careBox').hidden=!billIn;if(!billIn)$('sPrice').hidden=true;
   $('t1').classList.toggle('pre',!billIn);glowTab('t2',billIn>0);$('sNext').hidden=!billIn;
-  if(!billIn){crtCycle(null);$('sLoanNote').hidden=true;const e=$('sVerdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('sSys').textContent='ยังไม่มีข้อมูล';$('sLine1').innerHTML='กรอก<b>ค่าไฟต่อเดือน</b>เพื่อดูผล';$('sLine2').textContent='';$('sTips').innerHTML='';renderFit();renderQuotes();return;}
+  if(!billIn){crtCycle(null);$('sProd').hidden=true;$('sLoanNote').hidden=true;const e=$('sVerdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('sSys').textContent='ยังไม่มีข้อมูล';$('sLine1').innerHTML='กรอก<b>ค่าไฟต่อเดือน</b>เพื่อดูผล';$('sLine2').textContent='';$('sTips').innerHTML='';renderFit();renderQuotes();return;}
   $('sSys').textContent=`ติดโซลาร์ ${fmt(S1.size,1)} kW${Math.abs(p.kwp-S1.size)>0.05?` (แผง ${fmt(p.kwp,2)} kWp)`:''} · ${R.loan?'กู้ธนาคารรัฐ':'จ่ายเงินสด'}${R.sub?` · หักเงินสนับสนุน ${fmt(R.sub)} บาท`:' · ไม่มีเงินให้เปล่า'}`;
   $('sPrice').hidden=false;$('sPrice').innerHTML=`คิดจากราคาติดตั้ง ${fmt(p.price*p.kwp/S1.size)} บาท/kW ${parseFloat($('s_total').value)>0&&S1.priceOk?'(จากราคาที่กรอก)':'(ราคากลาง)'} · <button type="button" class="linkbtn">แก้ได้</button>`;
   $('sVerdict').textContent=w;$('sVerdict').className='verdict-big '+c;fitCrt($('sVerdict'));
@@ -1666,6 +1667,9 @@ function renderSimple(){
   $('sLoanNote').hidden=!(R.loan>0);
   $('sLine2').textContent=`${R.loan?(()=>{const a=billIn-R.benefit/12+R.omAfter;return a>=0?`ผ่อนหมดแล้ว จ่ายค่าไฟราว ${fmt(a)} บาท/เดือน · `:`ผ่อนหมดแล้ว ไม่ต้องจ่ายค่าไฟ และได้เงินขายไฟราว ${fmt(-a)} บาท/เดือน · `;})():''}${R.loan?'ประหยัด':'หลังคืนทุน ได้ประโยชน์'}เดือนละราว ${fmt(R.benefit/12-R.omAfter)} บาท (หักค่าดูแลหลังปีที่ 7 แล้ว) · รวม ${p.years} ปี ${R.netAtTerm>=0?'ได้กำไร':'ขาดทุน'} ${fmt(Math.abs(R.netAtTerm))} บาท`;
   const pvM=R.sim.pvDay*365/12,pct=pvM?Math.min(1,R.sim.self*365/12/pvM):0,lab=pct>=.5?'ดีมาก':pct>=.35?'ปานกลาง':'ต่ำ';
+  // what the app expects the panels to make (year 1), and where it goes
+  {const selfM=R.sim.self*365/12+(R.sim.dis||0)*365/12,expM=R.expM||R.sim.exp*365/12;$('sProd').hidden=false;
+   $('sProd').innerHTML=`☀️ ระบบ ${fmt(p.kwp,2)} kWp ผลิตไฟได้ราว <b>${fmt(pvM)} หน่วย/เดือน</b> (≈${fmt(pvM/30,1)} หน่วย/วัน · ${fmt(pvM/30/p.kwp,1)} หน่วย/kWp/วัน${window.CAREFUL?' · คิดแดดน้อยลง 10%':''})<br>ใช้เองราว ${fmt(selfM)} · ขายคืนราว ${fmt(expM)} หน่วย/เดือน`;}
   $('sMeterFill').style.width=(pct*100).toFixed(0)+'%';$('sMeterFill').style.background=pct>=.5?'var(--forest)':pct>=.35?'#e08a00':'var(--bad)';
   $('sMeterTxt').textContent=`ใช้ไฟจากแผงเองได้ ${fmt(pct*100)}% (${lab}) · ส่วนที่เหลือขายได้หน่วยละ ${fmt(p.sell,2)} บาท`;
   const act=[];
