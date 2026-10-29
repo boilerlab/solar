@@ -1800,6 +1800,8 @@ function renderFit(){
   {const kw=need*pW/1000;if(kw<4.995)notes.unshift(`ติด ${fmt(kw,2)} kW ต่ำกว่า 5 kW ไม่เข้าเงื่อนไขรับเงินสนับสนุน (โครงการกำหนด 5–10 kW ต่อมิเตอร์)`);if(kw>10.05)notes.unshift(`ติด ${fmt(kw,2)} kW เกินเพดาน 10 kW ต่อมิเตอร์ของโครงการ ไม่เข้าเงื่อนไขรับเงินสนับสนุน · ไฟส่วนเกินขายเข้าสายได้ไม่เกิน 5 kW ณ เวลาใดๆ ที่เหลือต้องใช้เองในบ้าน แอปคิดตามนี้แล้ว · ระบบขนาดนี้ใช้อินเวอร์เตอร์ราว ${fmt(Math.ceil(kw/1.3),0)}–${fmt(Math.ceil(kw),0)} kW แบ่งแผงเป็นสตริงตามจำนวน MPPT เช่น 3 MPPT = ${splitRows(need,3).join(' / ')} แผง`);if(panelsFor(S1.size,pW)>=panelsFor(MAX_KWP,pW))notes.unshift(`ถึงจำนวนสูงสุดที่แอปให้ตั้ง ${panelsFor(MAX_KWP,pW)} แผง (${fmt(MAX_KWP,1)} kWp) พอสำหรับอินเวอร์เตอร์ 16 kW 3 MPPT`);}
   if(lyN)notes.unshift(`นับจากแผงที่วางบนภาพดาวเทียม ${lyN} แผง ดูภาพผังได้ในส่วนดาวเทียมด้านล่าง`);
   if(!notes.length)notes.push('ให้ช่างมาดูหน้างานยืนยันขนาดและโครงสร้างอีกครั้งก่อนเซ็นสัญญา');
+  // satellite placement only: the app cannot see where the roof edge is, so it never says "fits" by itself
+  if(!dims&&lyN&&c!=='v-bad'){v='เช็คบนภาพ';c='v-mid';line=`วาง <b>${lyN} แผง</b> (${fmt(lyN*pW/1000,2)} kW) บนภาพดาวเทียมแล้ว แต่แอปยังไม่รู้ขนาดหลังคา<br>ลากแผงให้อยู่บนหลังคา ถ้าอยู่ในหลังคาได้หมด = พอ ถ้าล้น = ไม่พอ · หรือใส่<b>ขนาดพื้นที่</b>ให้แอปคำนวณ`;}
   $('s2Verdict').textContent=v;$('s2Verdict').className='verdict-big '+c;fitCrt($('s2Verdict'));$('s2Line').innerHTML=line;
   $('s2Notes').innerHTML=notes.map(t=>`<li>${t}</li>`).join('');
   const svg=$('s2Svg');svg.style.display='';if(!dims){if(lyN&&lyVector(svg,need))return;svg.innerHTML='';svg.style.display='none';return;}
