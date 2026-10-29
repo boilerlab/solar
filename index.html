@@ -1059,11 +1059,11 @@ $('pasteCoords').addEventListener('click',async()=>{
     const i=$('coords');i.focus();i.select();coordHint(`เบราว์เซอร์นี้ไม่ให้ปุ่มอ่านคลิปบอร์ด ${PASTE_HOW} แทน`,'err');}
 });
 $('gpsBtn').addEventListener('click',()=>{
-  if(!navigator.geolocation){coordHint('เบราว์เซอร์นี้ไม่รองรับ GPS','err');return;}
+  if(!navigator.geolocation){if(typeof setGuide==='function')setGuide(1);coordHint('เบราว์เซอร์นี้ไม่รองรับ GPS','err');return;}
   coordHint('กำลังหาตำแหน่ง…','');
   navigator.geolocation.getCurrentPosition(
     pos=>setCoords(`${pos.coords.latitude}, ${pos.coords.longitude}`,`ใช้ตำแหน่งปัจจุบันแล้ว (ความแม่น ±${Math.round(pos.coords.accuracy)} ม.)`),
-    ()=>coordHint('ใช้ตำแหน่งไม่ได้ หน้านี้ไม่ได้รับอนุญาต ใช้ได้เมื่อเปิดไฟล์ในเครื่องด้วย Chrome และกดอนุญาตตำแหน่ง','err'),
+    ()=>{if(typeof setGuide==='function')setGuide(1);coordHint('ใช้ตำแหน่งไม่ได้ หน้านี้ไม่ได้รับอนุญาต ใช้ได้เมื่อเปิดไฟล์ในเครื่องด้วย Chrome และกดอนุญาตตำแหน่ง','err');},
     {enableHighAccuracy:true,timeout:15000});
 });
 // no coordinates yet: Google Maps centres this link on the viewer's own current location
@@ -1585,7 +1585,8 @@ $('s2Maps').addEventListener('click',openSat);
 // guided start in tab 4: current location → open Google Maps → paste coordinates, each blinks in turn
 let guide=-1;const GUIDE=['gpsBtn','lnkPick','pasteCoords'];
 function setGuide(i){guide=i;GUIDE.forEach((id,k)=>$(id).classList.toggle('blink',k===i));}
-GUIDE.forEach((id,k)=>$(id).addEventListener('click',()=>{if(guide===k)setGuide(k+1<GUIDE.length?k+1:-1);}));
+// GPS: stop the guide while waiting; only point at Google Maps if the location cannot be read
+GUIDE.forEach((id,k)=>$(id).addEventListener('click',()=>{if(guide!==k)return;if(id==='gpsBtn')setGuide(-1);else setGuide(k+1<GUIDE.length?k+1:-1);}));
 $('coords').addEventListener('paste',()=>{if(guide>=0)setGuide(-1);});
 let satT=0;$('coords').addEventListener('input',()=>{if(guide>=0&&parseCoords($('coords').value))setGuide(-1);clearTimeout(satT);satT=setTimeout(autoSat,900);});
 document.querySelectorAll('#tabs button[data-t]').forEach(b=>b.addEventListener('click',()=>{showTab(b.dataset.t);const s=$(b.dataset.t),target=s.querySelector('.answer')||s;requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'}));}));
@@ -1771,7 +1772,7 @@ function renderFit(){
   $('s2CountTxt').textContent=`${need} แผง · ${fmt(need*pW/1000,2)} kW`;
   $('s_sizeHint').textContent=S1.custom?`ตอนนี้ใช้ ${fmt(S1.size,2)} kW (${need} แผง) ที่ปรับจำนวนในข้อ 3 · กดขนาดด้านบนเพื่อเปลี่ยน`:`โครงการกำหนด 5–10 kW ต่อมิเตอร์ (แผง ${fmt(pW)} W ${min5} แผง ≈ 5 kW) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!S1.custom);
   document.querySelector('#t2 .sizeq').classList.toggle('needfill',!dims&&!lyN);
-  glowTab('t3',dims);$('s2Next').hidden=!(dims||lyN>0);$('s2Next').style.animation=dims?'':'none';
+  glowTab('t3',dims||lyN>0);$('s2Next').hidden=!(dims||lyN>0);
   [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
   $('s2Sb').placeholder=FIT[wh].sb;$('s2Params').hidden=!dims&&!lyN;S2.curA=F.a;
   $('s2RotTxt').textContent=!dims&&lyN?'หมุนกลุ่มแผงบนภาพดาวเทียม':F.count?(F.a===lyNum('lyPW',1.13)?'แผงแนวตั้ง':'แผงแนวนอน')+(S2.ori?'':' · อัตโนมัติ (วางได้มากสุด)'):'';
