@@ -1630,7 +1630,7 @@ $('roofPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!
 // remember the menu-1 size while an arrangement is chosen, and go back to it when the arrangement is cleared
 // a layout that names the panel direction (2 rows standing / lying) also sets it for the area check and the satellite block
 function applyLayOri(){const P=S2.lay&&presetOf(S2.lay);if(P&&!P.ori&&(S2.ori==='p'||S2.ori==='l')&&S2.oriBy==='lay'){S2.ori=null;S2.oriBy=null;}if(!P||!P.ori)return;S2.oriBy='lay';S2.ori=P.ori;LY.pRot=(($('lyOrient').value==='p')===(P.ori==='p'))?0:90;angTxt();if(LY.mode==='group'&&LY.img){buildGroup();lyResult();}}
-$('layPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;S2.lay=S2.lay===b.dataset.v?null:b.dataset.v;applyLayOri();simpleSync();});
+$('layPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;S2.autoNote=null;S2.lay=S2.lay===b.dataset.v?null:b.dataset.v;applyLayOri();simpleSync();});
 $('s_size').addEventListener('click',()=>{S2.lay=null;S1.custom=false;},true);
 $('s_care').addEventListener('change',()=>{S1.care=$('s_care').checked;simpleSync();});
 // +/- one panel: the count becomes the system size
@@ -1777,7 +1777,7 @@ $('s2Rot').addEventListener('click',()=>{
 [['s2PL','lyPL'],['s2PW','lyPW']].forEach(([a,b])=>$(a).addEventListener('input',()=>{$(b).value=$(a).value;$(b).dispatchEvent(new Event('input'));renderFit();}));
 $('s2Wt').addEventListener('input',()=>{$('panelW').value=$('s2Wt').value;$('panelW').dispatchEvent(new Event('input',{bubbles:true}));});
 $('s2Sb').addEventListener('input',()=>{const v=parseFloat($('s2Sb').value);S2.sb=isFinite(v)?v:undefined;renderFit();});
-['s_w','s_l','s_old'].forEach(id=>$(id).addEventListener('input',()=>{if(id!=='s_old'){S2.lyN=0;S2.dimWarn=false;}renderFit();}));
+['s_w','s_l','s_old'].forEach(id=>$(id).addEventListener('input',()=>{if(id!=='s_old'){S2.lyN=0;S2.dimWarn=false;S2.autoNote=null;}renderFit();}));
 ['s_w','s_l'].forEach(id=>$(id).addEventListener('focus',()=>{if(S2.dimWarn){S2.dimWarn=false;renderFit();}}));
 $('s2Why').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const q=$(b.dataset.q);q.scrollIntoView({behavior:'smooth',block:'center'});q.classList.add('flash');setTimeout(()=>q.classList.remove('flash'),1600);});
 function renderFit(){
@@ -1793,6 +1793,9 @@ function renderFit(){
   if(!fixedRows)P=autoRows(P);
   let need=P?P.n:panelsFor(S1.size,pW),min5=panelsFor(5,pW),F=fitLayout(W,L,wh),dims=W>0&&L>0,lyN=dims?0:(S2.lyN||0),n=dims?(twoSide&&!(P&&P.sides===1)?2*F.count:F.count):lyN,SF=P&&dims?fitShape(W,L,wh,P):null,needSide=(P&&P.sides===2)||(twoSide&&!P)?Math.ceil(need/2):need,aNeed=k=>Math.ceil(k*2.69*FIT[wh].area);
   // the chosen rows do not fit: work out the arrangement that does (same panel direction, more rows) and use it, saying so
+  // still no fit with more rows in this panel direction: switch to the other 2-row preset (standing ↔ lying) when that one fits
+  if(fixedRows&&SF&&!SF.ok&&!twoSide&&P.ori&&!(altP&&altP.rows!==P.rows&&fitShape(W,L,wh,altP).ok)){const oth=presetOf(P.ori==='l'?'r2':'r2l'),o=S2.ori;S2.ori=oth.ori;const q=autoRows(oth),ok=fitShape(W,L,wh,q).ok;S2.ori=o;
+    if(ok){S2.autoNote=`แบบ ${P.label} วางไม่ลง แอปเปลี่ยนเป็น <b>${oth.label}</b> ให้`;S2.lay=oth.id;applyLayOri();return renderFit();}}
   let adj=null;if(fixedRows&&SF&&!SF.ok&&!twoSide&&altP&&altP.rows!==P.rows){const s2=fitShape(W,L,wh,altP);if(s2.ok){adj={label:P.label,needW:SF.needW};P=altP;SF=s2;
     const oth=presetOf(P.ori==='l'?'r2':P.ori==='p'?'r2l':'');if(oth){const o=S2.ori;S2.ori=oth.ori;if(fitShape(W,L,wh,oth).ok)adj.other=oth.label;S2.ori=o;}}}
   // ridged roof: when the chosen rows do not fit on one side, move every other row (or half of a single row) to the opposite side
@@ -1840,6 +1843,7 @@ function renderFit(){
   if(!notes.length)notes.push('ให้ช่างมาดูหน้างานยืนยันขนาดและโครงสร้างอีกครั้งก่อนเซ็นสัญญา');
   // satellite placement only: the app cannot see where the roof edge is, so it never says "fits" by itself
   if(!dims&&lyN&&c!=='v-bad'){v='เช็คบนภาพ';c='v-mid';line=`วาง <b>${lyN} แผง</b> (${fmt(lyN*pW/1000,2)} kW) บนภาพดาวเทียมแล้ว แต่แอปยังไม่รู้ขนาดหลังคา<br>ลากแผงให้อยู่บนหลังคา ถ้าอยู่ในหลังคาได้หมด = พอ ถ้าล้น = ไม่พอ · หรือใส่<b>ขนาดพื้นที่</b>ให้แอปคำนวณ`;}
+  if(S2.autoNote&&c!=='v-bad')line=S2.autoNote+'<br>'+line;
   if(adj&&c!=='v-bad')line=`แอปจัดเป็น <b>${P.rows} แถว (${P.counts.join(' + ')})</b> ${Math.abs(SF.a-lyNum('lyPW',1.13))<1e-6?'แผงตั้ง':'แผงนอน'} วางได้ครบ ${need} แผง<br>แบบ ${adj.label} ยาวไม่พอ ต้องยาวอย่างน้อย ${fmt(adj.needW,1)} ม.${adj.other?` · หรือเลือก <b>${adj.other}</b> ก็วางได้`:''}`;
   $('s2Verdict').textContent=v;$('s2Verdict').className='verdict-big '+c;fitCrt($('s2Verdict'));$('s2Line').innerHTML=line;
   $('s2Notes').innerHTML=notes.map(t=>`<li>${t}</li>`).join('');
