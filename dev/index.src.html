@@ -438,7 +438,7 @@ a.btn{text-decoration:none;display:inline-block}
         <span class="hint" id="s_sizeHint">ข่าวบอกติดได้ไม่เกิน 10 kW บ้านส่วนใหญ่ 5 kW ก็พอ</span></div>
       <details class="more"><summary>ข้อมูลเพิ่ม (ไม่บังคับ)</summary>
         <div class="q" style="margin-top:12px"><label for="s_prov">จังหวัด (ใช้ค่าแสงแดดของพื้นที่)</label><select id="s_prov"></select></div>
-        <div class="q" style="margin-top:12px"><label for="s_total">ราคาที่ช่างเสนอ (รวมทั้งหมด)</label><div class="inrow"><input type="number" id="s_total" placeholder="ไม่ทราบ ใช้ราคากลาง" step="1000"><span class="unit">บาท</span></div><span class="hint" id="s_totalHint">ราคารวมทั้งระบบก่อนหักเงินสนับสนุน เช่น 5 kW ราว 135,000 บาท</span></div>
+        <div class="q" style="margin-top:12px"><label for="s_total">ราคาที่ช่างเสนอ (รวมทั้งหมด)</label><div class="inrow"><input type="number" id="s_total" placeholder="ไม่ทราบ ใช้ราคากลาง" step="1000"><span class="unit">บาท</span></div><span class="hint" id="s_totalHint">ราคารวมทั้งระบบก่อนหักเงินสนับสนุน เช่น 5 kW ราว 140,000 บาท</span></div>
       </details>
     </div>
   </section>
@@ -1629,7 +1629,7 @@ function simpleSync(){
   const t=parseFloat($('s_total').value),fee=parseFloat($('fee').value)||0,ppk=t>0?(t-fee)/S1.size:0;S1.priceOk=ppk>=10000;
   $('price').value=Math.round((S1.priceOk?ppk:28000)*S1.size/kwpReal);
   const th=$('s_totalHint');th.className='hint'+(t>0&&!S1.priceOk?' err':'');
-  th.textContent=t>0&&!S1.priceOk?`ราคานี้ต่ำผิดปกติ (${fmt(Math.max(0,ppk))} บาท/kW) แอปจึงยังใช้ราคากลาง 28,000 บาท/kW (ชุด 5 kW 140,000 บาท) · กรอกราคารวมทั้งระบบ เช่น 140,000`:'ราคารวมทั้งระบบก่อนหักเงินสนับสนุน เช่น 5 kW ราว 135,000 บาท';
+  th.textContent=t>0&&!S1.priceOk?`ราคานี้ต่ำผิดปกติ (${fmt(Math.max(0,ppk))} บาท/kW) แอปจึงยังใช้ราคากลาง 28,000 บาท/kW (ชุด 5 kW 140,000 บาท) · กรอกราคารวมทั้งระบบ เช่น 140,000`:'ราคารวมทั้งระบบก่อนหักเงินสนับสนุน เช่น 5 kW ราว 140,000 บาท';
   render();}
 chipGroup('s_pres',S1,'pres',simpleSync);chipGroup('s_loan',S1,'loan',simpleSync);chipGroup('s_size',S1,'size',simpleSync);chipGroup('s_grant',S1,'grant',simpleSync);
 $('sPrice').addEventListener('click',e=>{if(!e.target.closest('button'))return;const d=document.querySelector('#t1 details.more');d.open=true;d.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>$('s_total').focus(),400);});
