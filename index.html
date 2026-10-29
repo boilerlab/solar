@@ -164,7 +164,7 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .tabs{display:flex;flex-wrap:wrap;gap:10px;align-items:center;position:sticky;top:0;z-index:30;background:var(--bg);padding:8px 0;margin:-8px 0}
 @media (max-width:880px){.tabs,#tabs{justify-content:flex-start!important;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:8px}.tabs::-webkit-scrollbar{display:none}.tabs button{flex:none;font-size:15px;padding:8px 12px}.tabs .resetbtn.wide{flex:none}}
 .tab .panel,.tab .answer,.tab details,#rfq,#qtPanel,#pkgPanel{scroll-margin-top:70px}
-#sLine1 .vs{font-size:.8em;font-weight:500}#sLine1 .vsb{animation:none;text-shadow:none;font-size:inherit}#sLine1 small{display:block;line-height:1.4}#sLine1 small{font-size:.68em;font-weight:400;opacity:.85}
+#sVerdict.crtnum{white-space:nowrap;letter-spacing:-.01em}#sLine1 .vs{font-size:.8em;font-weight:500}#sLine1 .vsb{animation:none;text-shadow:none;font-size:inherit}#sLine1 small{display:block;line-height:1.4}#sLine1 small{font-size:.68em;font-weight:400;opacity:.85}
 #t2SatBody.compact>.field,#t2SatBody.compact #roofPanel>.row,#t2SatBody.compact .roofIntro,#t2SatBody.compact .roofbtns,#t2SatBody.compact #satMsg{display:none!important}.satmini{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 12px;margin:0 0 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:14px}.satmini[hidden]{display:none}
 .tabs .resetbtn.wide{font-family:var(--f-display);font-size:17px;font-weight:600;padding:10px 18px;border-radius:12px;border:2px solid #e3a2a2;background:#fbe9e9;color:#a33a3a;align-self:stretch}.tabs .resetbtn.wide:hover{background:#f7dada}@media (max-width:880px){.tabs .resetbtn.wide{font-size:15px;padding:8px 12px}}
 .nextrow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.nextbtn.alt{border-color:var(--cell);animation:none}
@@ -1648,7 +1648,11 @@ $('s_bill').addEventListener('input',simpleSync);$('s_total').addEventListener('
 $('s_prov').innerHTML=$('prov').innerHTML.replace('— จากพิกัด —','ไม่ระบุ');
 $('s_prov').addEventListener('change',()=>{$('prov').value=$('s_prov').value;if($('s_prov').value!=='')updateLoc(true);render();});
 // size the word to the screen width: count Thai base letters, ignore vowel and tone marks
-function fitCrt(el){const n=el.textContent.replace(/[ัิ-ฺ็-๎\s]/g,'').length||1;el.style.fontSize=Math.min(30,140/n)+'cqw';}
+// the result screen alternates the verdict with the monthly bill before → after installing
+let crtT=0,crtK='';
+function crtCycle(word,nums){const e=$('sVerdict');const k=word+'|'+nums;if(k===crtK)return;crtK=k;clearInterval(crtT);crtT=0;if(!word||!nums)return;
+  let i=0;crtT=setInterval(()=>{if(!e.isConnected)return;i^=1;e.textContent=i?nums:word;e.classList.toggle('crtnum',!!i);fitCrt(e);},2600);}
+function fitCrt(el){if(el.classList.contains('crtnum')){el.style.fontSize=Math.min(22,134/(el.textContent.length||1))+'cqw';return;}const n=el.textContent.replace(/[ัิ-ฺ็-๎\s]/g,'').length||1;el.style.fontSize=Math.min(30,140/n)+'cqw';}
 function verdictOf(R){
   if(R.loan>0){const n=R.benefit/12-R.pay-(R.omM||0);return n>=300?['คุ้ม','v-good']:n>=-200?['พอไหว','v-mid']:['ยังไม่คุ้ม','v-bad'];}
   const pb=R.payback;return pb!==null&&pb<=6?['คุ้ม','v-good']:pb!==null&&pb<=9?['พอไหว','v-mid']:['ยังไม่คุ้ม','v-bad'];}
@@ -1657,12 +1661,13 @@ function renderSimple(){
   $('s_billChips').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===+$('s_bill').value)));
   const billIn=parseFloat($('s_bill').value)||0;$('sMeter').hidden=!billIn;$('careBox').hidden=!billIn;if(!billIn)$('sPrice').hidden=true;
   $('t1').classList.toggle('pre',!billIn);glowTab('t2',billIn>0);$('sNext').hidden=!billIn;
-  if(!billIn){const e=$('sVerdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('sSys').textContent='ยังไม่มีข้อมูล';$('sLine1').innerHTML='กรอก<b>ค่าไฟต่อเดือน</b>เพื่อดูผล';$('sLine2').textContent='';$('sTips').innerHTML='';renderFit();renderQuotes();return;}
+  if(!billIn){crtCycle(null);const e=$('sVerdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('sSys').textContent='ยังไม่มีข้อมูล';$('sLine1').innerHTML='กรอก<b>ค่าไฟต่อเดือน</b>เพื่อดูผล';$('sLine2').textContent='';$('sTips').innerHTML='';renderFit();renderQuotes();return;}
   $('sSys').textContent=`ติดโซลาร์ ${fmt(S1.size,1)} kW${Math.abs(p.kwp-S1.size)>0.05?` (แผง ${fmt(p.kwp,2)} kWp)`:''} · ${R.loan?'กู้ธนาคารรัฐ':'จ่ายเงินสด'}${R.sub?` · หักเงินสนับสนุน ${fmt(R.sub)} บาท`:' · ไม่มีเงินให้เปล่า'}`;
   $('sPrice').hidden=false;$('sPrice').innerHTML=`คิดจากราคาติดตั้ง ${fmt(p.price*p.kwp/S1.size)} บาท/kW ${parseFloat($('s_total').value)>0&&S1.priceOk?'(จากราคาที่กรอก)':'(ราคากลาง)'} · <button type="button" class="linkbtn">แก้ได้</button>`;
   $('sVerdict').textContent=w;$('sVerdict').className='verdict-big '+c;fitCrt($('sVerdict'));
   // the bill the user typed vs what they pay once installed (rest of the bill, minus export income, plus the loan instalment)
   const afterBill=billIn-(R.saveY1+R.incY1)/12,afterAll=afterBill+(R.loan>0?R.pay+R.omM:0),cmp=`<span class="vs">ปกติจ่ายค่าไฟ ${fmt(billIn)} → ติดแล้ว${afterAll>=0?`จ่ายราว <b class="vsb">${fmt(afterAll)}</b>`:`ไม่ต้องจ่าย และได้เงินเข้าราว <b class="vsb">${fmt(-afterAll)}</b>`} บาท/เดือน</span>`;
+  {const aft=Math.max(0,Math.round(afterAll)),b=Math.round(billIn);crtCycle(w,aft<=b?`${b} → ${aft}`:`${b} ← ${aft}`);}
   if(R.loan>0)$('sLine1').innerHTML=(net>=0?`ทุกเดือน <b>เหลือ ${fmt(net)} บาท</b>`:`ทุกเดือน <b>ต้องควักเพิ่ม ${fmt(-net)} บาท</b>`)+`<br>${cmp}<br><small>${afterBill>=0?`ค่าไฟที่เหลือ ${fmt(afterBill)} (หักเงินขายไฟแล้ว) + ค่างวด ${fmt(R.pay)}`:`ค่างวด ${fmt(R.pay)} − เงินขายไฟส่วนที่เกินค่าไฟ ${fmt(-afterBill)} (ค่าไฟเหลือ 0)`} นาน ${p.ly} ปี${R.omM?` + ค่าดูแล ${fmt(R.omM)}`:''}</small>`;
   else if(R.outlay<=0)$('sLine1').innerHTML=`ไม่ต้องจ่ายเอง<br><b>เงินสนับสนุนครอบคลุมทั้งหมด</b><br>${cmp}`;
   else $('sLine1').innerHTML=`จ่ายเอง ${fmt(Math.max(0,R.outlay))} บาท${R.sub?` <span style="font-size:.75em;font-weight:500">(ต้องสำรองจ่ายร้านเต็ม ${fmt(R.capex)} ก่อน รัฐโอน ${fmt(R.sub)} เข้าพร้อมเพย์ทีหลัง)</span>`:''}<br><b>${R.payback!==null?`คืนทุนใน ${fmt(R.payback,1)} ปี`:'คืนทุนไม่ทันใน 20 ปี'}</b><br>${cmp}`;
