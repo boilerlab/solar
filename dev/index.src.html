@@ -1061,7 +1061,7 @@ function useRoofImage(im,sat){
   LY.sl=[];LY.polys=[];LY.cur=[];LY.removed.clear();LY.faces=[];LY.manual=[];LY.pin=null;$('lyApplied').textContent='';
   $('roofPanel').classList.remove('collapsed');roofTgl();
   $('drop').hidden=true;$('layoutWrap').hidden=false;$('roofClear').hidden=false;$('satNav').hidden=!sat;
-  satCompact(!!sat);
+  satCompact(!!sat);if(sat&&typeof setGuide==='function')setGuide(-1);
   if(sat){// scale is known from the zoom level: draw a 10 m scale bar and skip step 1
     const mpp=satMpp(sat.lat,sat.z)/s,y=44; // top-left, clear of the Google logo and imagery credit at the bottom
     LY.sl=[{x:24,y},{x:24+10/mpp,y}];$('lyMeters').value=10;
@@ -1293,7 +1293,7 @@ $('lyApply').addEventListener('click',()=>applyLy(true));
     const it=[...(e.clipboardData?.items||[])].find(i=>i.type.startsWith('image/'));
     if(it){e.preventDefault();showRoof(it.getAsFile());}
   });
-  $('roofClear').addEventListener('click',()=>{satCompact(false);if(roofURL)URL.revokeObjectURL(roofURL);roofURL=null;LY.img=null;LY.faces=[];LY.polys=[];LY.cur=[];LY.sl=[];$('layoutWrap').hidden=true;$('drop').hidden=false;$('roofClear').hidden=true;$('satNav').hidden=true;LY.sat=null;LY.pin=null;});
+  $('roofClear').addEventListener('click',()=>{satCompact(false);if(typeof setGuide==='function')setGuide(0);if(roofURL)URL.revokeObjectURL(roofURL);roofURL=null;LY.img=null;LY.faces=[];LY.polys=[];LY.cur=[];LY.sl=[];$('layoutWrap').hidden=true;$('drop').hidden=false;$('roofClear').hidden=true;$('satNav').hidden=true;LY.sat=null;LY.pin=null;});
 })();
 
 // PEA residential progressive tariff from Sept 2569 bills (baht/kWh, excl. service, Ft, VAT)
@@ -1559,7 +1559,7 @@ document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',(
 document.querySelectorAll('[data-guide]').forEach(b=>b.addEventListener('click',()=>{const d=$(b.dataset.guide);d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}));
 // tab 2 satellite section: open it, scroll to it, and start the blinking guide if no coordinates yet
 function openSat(){showTab('t2');$('t2Sat').open=true;requestAnimationFrame(()=>$('t2Sat').scrollIntoView({behavior:'smooth',block:'start'}));}
-$('t2Sat').addEventListener('toggle',()=>{if(!$('t2Sat').open)return;setTimeout(()=>$('t2Sat').scrollIntoView({behavior:'smooth',block:'start'}),60);requestAnimationFrame(()=>draw());if(!LY.img)setTimeout(autoSat,300);if(!$('coords').value.trim()&&guide<0)setGuide(0);});
+$('t2Sat').addEventListener('toggle',()=>{if(!$('t2Sat').open)return;setTimeout(()=>$('t2Sat').scrollIntoView({behavior:'smooth',block:'start'}),60);requestAnimationFrame(()=>draw());if(!LY.img)setTimeout(autoSat,300);if(!LY.sat&&guide<0)setGuide(0);});
 $('s2Maps').addEventListener('click',openSat);
 // guided start in tab 4: current location → open Google Maps → paste coordinates, each blinks in turn
 let guide=-1;const GUIDE=['gpsBtn','lnkPick','pasteCoords'];
