@@ -57,7 +57,7 @@
 .path li.done{background:var(--cell);border-color:var(--cell);color:#fff}.path li.done::before{content:"✓";background:#fff;color:var(--cell)}
 .path li.now{border:2px solid #f28c18;color:var(--forest);font-weight:700;background:var(--surface)}.path li.now::before{background:#f28c18}
 .rights{align-content:start;max-width:760px;margin:0 auto;width:100%}.rights .regbox{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-.regbox .btn.hot{animation:btnBlink 1s ease-in-out infinite;border:2px solid #f28c18}
+.regbox .btn.hot{border:2px solid #f28c18;box-shadow:0 0 0 3px rgba(242,140,24,.25)}
 .pkgbar{display:flex;flex-wrap:wrap;gap:10px;align-items:end}.pkgbar label{display:grid;gap:4px;font-size:13px}
 .pkglist{display:grid;gap:10px}.pkg{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:6px;background:var(--bg);font-size:14px}
 .pkg .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}.pkg .pr{font-family:var(--f-display);font-size:20px;font-weight:700;color:var(--forest)}
@@ -470,6 +470,10 @@ a.btn{text-decoration:none;display:inline-block}
     <div class="panel rights" id="rights">
       <div class="row"><h3>ลงทะเบียนรับสิทธิ์ 50,000</h3><span class="note">ลงทะเบียนได้ถึง 31 ม.ค. 70 · จัดสิทธิ์ตามลำดับเวลา · ใช้เวลาราว 10–15 นาที</span></div>
       <ol class="path" data-path></ol>
+      <div class="q"><h4>ลงทะเบียนแล้วหรือยัง</h4>
+        <div class="chips" data-rstat><button type="button" data-v="0">ยังไม่ลงทะเบียน</button><button type="button" data-v="2">ลงทะเบียนแล้ว ได้สิทธิ์แล้ว</button></div>
+        <span class="hint">แอปจำไว้ในเครื่องนี้ ได้สิทธิ์แล้วทำสัญญามาตรฐานกับร้านที่เลือกไว้ในข้อ 3</span></div>
+      <div id="regHow" hidden>
       <div class="regbox" id="regBtns">
         <a class="btn solid" data-reg="pea" href="https://peoplesolar.pea.co.th" target="_blank" rel="noopener">ลงทะเบียน PEA (ต่างจังหวัด) ↗</a>
         <a class="btn solid" data-reg="mea" href="https://peoplesolar.mea.or.th" target="_blank" rel="noopener">ลงทะเบียน MEA (กทม. นนทบุรี สมุทรปราการ) ↗</a>
@@ -486,9 +490,7 @@ a.btn{text-decoration:none;display:inline-block}
         </ol>
         <p class="note">หลังได้สิทธิ์ ในเว็บ PEA มีเมนู "สถานะและสิ่งที่ต้องทำ" "ผู้ให้บริการของฉัน" และ "เอกสารสำหรับขอสินเชื่อ" (ดาวน์โหลดไปยื่นธนาคาร) · ขั้นตอนเว็บ MEA อาจต่างจากนี้</p>
       </details>
-      <div class="q"><h4>ลงทะเบียนแล้วหรือยัง</h4>
-        <div class="chips" data-rstat><button type="button" data-v="0">ยังไม่ลงทะเบียน</button><button type="button" data-v="2">ลงทะเบียนแล้ว ได้สิทธิ์แล้ว</button></div>
-        <span class="hint">แอปจำไว้ในเครื่องนี้ ได้สิทธิ์แล้วทำสัญญามาตรฐานกับร้านที่เลือกไว้ในข้อ 3</span></div>
+      </div>
       <button type="button" class="nextbtn" id="rNext" data-next="t3" hidden><span class="tn">3</span>ได้สิทธิ์แล้ว กลับไปทำสัญญากับร้าน →</button>
     </div>
   </section>
@@ -548,7 +550,7 @@ a.btn{text-decoration:none;display:inline-block}
       <div class="row"><h3>เส้นทางรับสิทธิ์ 50,000</h3><span class="note" id="gateStat"></span></div>
       <ol class="path" data-path></ol>
       <div id="gateNo">
-        <p class="line">เลือกร้านและขอใบเสนอราคาได้เลย แล้วไปลงทะเบียนในข้อ 4</p>
+        <p class="line">เลือกร้านและขอใบเสนอราคาได้เลย</p>
         <p class="note">ตอนลงทะเบียน เว็บการไฟฟ้าให้เลือกผู้ให้บริการ (หรือเลือก "ยังไม่ตัดสินใจ" แล้วมาเพิ่มทีหลังได้) · <b>อย่าเซ็นสัญญาหรือจ่ายเงินให้ร้านก่อนได้สิทธิ์</b> · <button type="button" class="linkbtn" data-go-rights>วิธีลงทะเบียนในข้อ 4</button></p>
         <button type="button" class="linkbtn" id="peekBtn" hidden></button>
       </div>
@@ -1970,7 +1972,7 @@ document.querySelectorAll('#tabs [data-t="t3"],[data-next="t3"]').forEach(b=>b.a
 rfqRender(false);
 // ---- route: register -> got the right -> choose a shop -> quotes (kept on this phone without expiry, so people can come back weeks later)
 const RKEY='solarRights';let RT={stat:0},peek=false;
-try{const r=JSON.parse(localStorage.getItem(RKEY)||'null');if(r)RT={stat:+r.stat?2:0};}catch(e){}
+try{const r=JSON.parse(localStorage.getItem(RKEY)||'null');if(r)RT={stat:+r.stat?2:0,ans:!!r.ans||+r.stat===2};}catch(e){}
 const saveRT=()=>{try{localStorage.setItem(RKEY,JSON.stringify(RT));}catch(e){}};
 const PATH=['เลือกร้าน','ใบเสนอราคา','ลงทะเบียน','ได้สิทธิ์','ทำสัญญามาตรฐาน','ติดตั้ง/เชื่อมต่อ','รับ 50,000'];
 const thDate=iso=>{const [y,m,d]=(iso||'').split('-');return y?`${+d} ${['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][+m]} ${(+y+543)%100}`:'';};
@@ -1979,18 +1981,18 @@ function quotesFilled(){return [1,2,3].some(n=>parseFloat(($(`q${n}_total`)||{})
 function renderRights(){
   const prov=homeProv(),mea=prov?MEA_PROV.includes(prov):null;
   document.querySelectorAll('[data-reg]').forEach(a=>{a.classList.toggle('hot',RT.stat===0&&mea!==null&&(a.dataset.reg==='mea')===mea);});
-  document.querySelectorAll('[data-rstat]').forEach(g=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===RT.stat))));
+  document.querySelectorAll('[data-rstat]').forEach(g=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(!!RT.ans&&+b.dataset.v===RT.stat))));
   const now=RT.stat===2?4:quotesFilled()?2:0;
   document.querySelectorAll('[data-path]').forEach(ol=>{ol.innerHTML=PATH.map((t,i)=>`<li class="${i<now?'done':i===now?'now':''}">${t}</li>`).join('');const c=ol.querySelector('.now');if(c)ol.scrollLeft=Math.max(0,c.offsetLeft-ol.offsetLeft-40);});
   glowTab('tReg',quotesFilled()&&RT.stat!==2);
-  $('rNext').hidden=RT.stat!==2;
+  $('rNext').hidden=RT.stat!==2;$('regHow').hidden=!(RT.ans&&RT.stat===0);
   const open=true;$('gateNo').hidden=RT.stat===2;
   document.querySelectorAll('#t3 .afterR').forEach(e=>e.hidden=!open);
-  $('gateStat').textContent=RT.stat===2?'ได้สิทธิ์แล้ว · ทำสัญญามาตรฐานกับร้านได้':'เลือกร้านก่อน แล้วลงทะเบียนในข้อ 4';
+  $('gateStat').textContent=RT.stat===2?'ได้สิทธิ์แล้ว · ทำสัญญามาตรฐานกับร้านได้':'ยังไม่ได้ลงทะเบียน';
   $('peekBtn').hidden=true;
   const tb=document.querySelector('#tabs [data-t="t3"]');if(tb)tb.innerHTML='<span class="tn">3</span>เลือกร้าน';
 }
-document.querySelectorAll('[data-rstat]').forEach(g=>g.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;RT.stat=+b.dataset.v;saveRT();track('rights-'+RT.stat);renderRights();if(RT.stat===2&&g.closest('#gate'))$('pkgPanel').scrollIntoView({behavior:'smooth',block:'start'});}));
+document.querySelectorAll('[data-rstat]').forEach(g=>g.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;RT.stat=+b.dataset.v;RT.ans=true;saveRT();track('rights-'+RT.stat);renderRights();if(RT.stat===2&&g.closest('#gate'))$('pkgPanel').scrollIntoView({behavior:'smooth',block:'start'});}));
 $('peekBtn').addEventListener('click',()=>{peek=true;renderRights();$('pkgPanel').scrollIntoView({behavior:'smooth',block:'start'});});
 document.querySelectorAll('[data-go-rights]').forEach(b=>b.addEventListener('click',()=>{showTab('tReg');requestAnimationFrame(()=>$('rights').scrollIntoView({behavior:'smooth',block:'start'}));}));
 // ---- standard package prices that registered shops sent in (packages.json; empty until shops reply)
