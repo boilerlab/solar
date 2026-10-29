@@ -169,6 +169,8 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 /* tab 3 lays the panels out itself: on the satellite photo only the move / zoom buttons are needed */
 #t2SatBody .lyedit,#t2SatBody #placeTools label{display:none!important}
 #t2SatBody.compact>.field,#t2SatBody.compact #roofPanel>.row,#t2SatBody.compact .roofIntro,#t2SatBody.compact .roofbtns,#t2SatBody.compact #satMsg{display:none!important}.satmini{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 12px;margin:0 0 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:14px}.satmini[hidden]{display:none}
+/* registration sits apart from the numbered steps, like the reset tab */
+.tabs .regtab{background:#fff3e2;border-color:#f2b46a;color:#8a4a00}.tabs .regtab[aria-selected=true]{background:#e07d10;border-color:#e07d10;color:#fff}
 .tabs .resetbtn.wide{font-family:var(--f-display);font-size:17px;font-weight:600;padding:10px 18px;border-radius:12px;border:2px solid #e3a2a2;background:#fbe9e9;color:#a33a3a;align-self:stretch}.tabs .resetbtn.wide:hover{background:#f7dada}@media (max-width:880px){.tabs .resetbtn.wide{font-size:15px;padding:8px 12px}}
 .nextrow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.nextbtn.alt{border-color:var(--cell);animation:none}
 .tabs button{font:inherit;font-family:var(--f-display);font-size:17px;font-weight:600;padding:10px 18px;border-radius:12px;border:2px solid var(--fr-o);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;gap:8px;align-items:center}
@@ -424,8 +426,8 @@ a.btn{text-decoration:none;display:inline-block}
     <button type="button" data-t="t1" aria-selected="true"><span class="tn">1</span>คุ้มไหม?</button>
     <button type="button" data-t="t2" aria-selected="false"><span class="tn">2</span>พื้นที่พอไหม?</button>
     <button type="button" data-t="t3" aria-selected="false"><span class="tn">3</span>เลือกร้าน</button>
-    <button type="button" data-t="tReg" aria-selected="false"><span class="tn">4</span>ลงทะเบียน</button>
-    <button type="button" data-t="adv" aria-selected="false"><span class="tn">5</span>ตัวเลขละเอียด / ช่าง</button>
+    <button type="button" data-t="adv" aria-selected="false"><span class="tn">4</span>ตัวเลขละเอียด / ช่าง</button>
+    <button type="button" class="regtab" data-t="tReg" aria-selected="false">📝 ลงทะเบียนรับสิทธิ์</button>
     <button type="button" class="resetbtn wide" data-reset title="ล้างทุกคำตอบ">↺ เริ่มใหม่</button>
   </nav>
 
@@ -496,7 +498,7 @@ a.btn{text-decoration:none;display:inline-block}
   </section>
 
   <section class="tab simple" id="t2" hidden>
-    <div class="pageh"><h2>เช็คว่าพื้นที่พอวางแผงไหม</h2><p>หลังคา โรงรถ พื้นดิน หรือบ่อน้ำ วางแผงได้กี่แผ่น · หน้านี้ไม่ใช่การเช็คสิทธิ์เข้าโครงการ ดูวิธีลงทะเบียนในข้อ 4</p></div>
+    <div class="pageh"><h2>เช็คว่าพื้นที่พอวางแผงไหม</h2><p>หลังคา โรงรถ พื้นดิน หรือบ่อน้ำ วางแผงได้กี่แผ่น · หน้านี้ไม่ใช่การเช็คสิทธิ์เข้าโครงการ ดูวิธีลงทะเบียนในแท็บลงทะเบียนรับสิทธิ์</p></div>
     <div class="panel qs">
       <div class="q"><h4>จะติดตรงไหน</h4>
         <div class="chips" id="s_where"><button data-v="roof">หลังคาบ้าน</button><button data-v="garage">หลังคาโรงรถ</button><button data-v="ground">พื้นดินว่าง</button><button data-v="float">บ่อน้ำ (ลอยน้ำ)</button></div></div>
@@ -551,7 +553,7 @@ a.btn{text-decoration:none;display:inline-block}
       <ol class="path" data-path></ol>
       <div id="gateNo">
         <p class="line">เลือกร้านและขอใบเสนอราคาได้เลย</p>
-        <p class="note">ตอนลงทะเบียน เว็บการไฟฟ้าให้เลือกผู้ให้บริการ (หรือเลือก "ยังไม่ตัดสินใจ" แล้วมาเพิ่มทีหลังได้) · <b>อย่าเซ็นสัญญาหรือจ่ายเงินให้ร้านก่อนได้สิทธิ์</b> · <button type="button" class="linkbtn" data-go-rights>วิธีลงทะเบียนในข้อ 4</button></p>
+        <p class="note">ตอนลงทะเบียน เว็บการไฟฟ้าให้เลือกผู้ให้บริการ (หรือเลือก "ยังไม่ตัดสินใจ" แล้วมาเพิ่มทีหลังได้) · <b>อย่าเซ็นสัญญาหรือจ่ายเงินให้ร้านก่อนได้สิทธิ์</b> · <button type="button" class="linkbtn" data-go-rights>วิธีลงทะเบียน →</button></p>
         <button type="button" class="linkbtn" id="peekBtn" hidden></button>
       </div>
     </div>
@@ -1700,7 +1702,7 @@ function renderSimple(){
   if(R.care)act.unshift(`คิดแบบระวังอยู่: ปีที่ 5 อาจต้องจ่ายค่าอินเวอร์เตอร์ราว ${fmt(p.inv)} บาท ระหว่างที่ยังผ่อนอยู่ ควรเลือกรุ่นที่รับประกัน 10 ปี`);
   if(R.loan&&net<0)act.push('ช่วงผ่อนต้องเติมเงินเอง ลองจ่ายเงินสดบางส่วนเพื่อลดยอดกู้ หรือขอผ่อนนานขึ้น');
   if(p.kwh<200)act.push('บ้านใช้ไฟน้อย ประโยชน์ส่วนใหญ่มาจากการขายไฟ ค่าไฟที่ลดได้จะไม่มาก');
-  if(!act.length)act.push('ตัวเลขดีแล้ว ขั้นต่อไปคือเช็คพื้นที่ในข้อ 2 เลือกร้านในข้อ 3 แล้วลงทะเบียนรับสิทธิ์ในข้อ 4');
+  if(!act.length)act.push('ตัวเลขดีแล้ว ขั้นต่อไปคือเช็คพื้นที่ในข้อ 2 เลือกร้านในข้อ 3 แล้วลงทะเบียนรับสิทธิ์ (แท็บสีส้ม)');
   $('sTips').innerHTML=act.slice(0,3).concat(['ระวังคนเก็บมัดจำ "จองสิทธิ์" ลงทะเบียนผ่านช่องทางของรัฐเท่านั้น และอย่าโอนเงินก่อนเซ็นสัญญากับผู้ติดตั้ง']).map(t=>`<li>${t}</li>`).join('');
   renderFit();renderQuotes();
 }
