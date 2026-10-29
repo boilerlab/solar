@@ -55,7 +55,10 @@
     "info@siameastsolusions.com",
     "panadda.pho@siameastsolutions.com"
    ],
-   "status": "sent"
+   "status": "sent",
+   "bounced_to": [
+    "info@siameastsolusions.com"
+   ]
   },
   "sitron22@sitronpower.com": {
    "date": "2026-10-28",
@@ -65,7 +68,10 @@
     "sitron22@sitronpower.com",
     "sirikan@sitronpower.com"
    ],
-   "status": "sent"
+   "status": "sent",
+   "bounced_to": [
+    "sirikan@sitronpower.com"
+   ]
   },
   "sales_gov@lightmax.co.th": {
    "date": "2026-10-28",
@@ -103,6 +109,194 @@
    ],
    "status": "sent",
    "note": "ส่งก่อนคิว เห็นโพสต์ FB: 5kW 1φ 141,000 / 3φ 157,000 / 10kW 1φ 219,000 / 3φ 243,000 ไม่รวม VAT, 8/16 แผง, Huawei/Sigenergy, BG 50k/10k ครบ · ถามวัตต์แผง ราคารวม VAT consent"
+  },
+  "chowpermit@chowenergy.co.th": {
+   "date": "2026-10-29",
+   "thread": "1a18554b8c576bc6",
+   "name": "บริษัท เชาว์ เอ็นเนอร์ยี จำกัด (มหาชน)",
+   "to": [
+    "chowpermit@chowenergy.co.th",
+    "thanyaphat.l@chowenergy.co.th"
+   ],
+   "status": "sent"
+  },
+  "dhaitoon.kan@dohome.co.th": {
+   "date": "2026-10-29",
+   "thread": "1a1855508b792454",
+   "name": "บริษัท ดูโฮม จำกัด (มหาชน)",
+   "to": [
+    "dhaitoon.kan@dohome.co.th",
+    "phaitoon.kan@dohome.co.th"
+   ],
+   "status": "sent"
+  },
+  "phatcharaporn@telebiz.co.th": {
+   "date": "2026-10-29",
+   "thread": "1a1855559ccaa7e9",
+   "name": "บริษัท โปรเอ็น คอร์ป จำกัด (มหาชน)",
+   "to": [
+    "phatcharaporn@telebiz.co.th"
+   ],
+   "status": "sent"
+  },
+  "bordin@sirisoft.co.th": {
+   "date": "2026-10-29",
+   "thread": "1a18555b0e67a628",
+   "name": "บริษัท สิริซอฟต์ (มหาชน) จำกัด",
+   "to": [
+    "bordin@sirisoft.co.th"
+   ],
+   "status": "sent"
+  },
+  "thitichaya.plo@aal2008.com": {
+   "date": "2026-10-29",
+   "thread": "1a1855614e179c27",
+   "name": "บริษัท เอ เอ อีเลคทริ ไล (มหาชน) จำกัด",
+   "to": [
+    "thitichaya.plo@aal2008.com",
+    "thawatchai.bun@aal2008.com"
+   ],
+   "status": "sent"
+  },
+  "kemrex@kemrex.com": {
+   "date": "2026-10-29",
+   "thread": "1a1855661aea5ba4",
+   "name": "บริษัท เข็มเหล็ก จำกัด",
+   "to": [
+    "kemrex@kemrex.com",
+    "kemrex.et@kemrex.com"
+   ],
+   "status": "sent"
+  },
+  "admin@cseenergy.co.th": {
+   "date": "2026-10-29",
+   "thread": "1a18556b08c7283d",
+   "name": "บริษัท ครีเอทีฟ โซลูชั่น เอ็นเนอร์ยี่ จำกัด",
+   "to": [
+    "admin@cseenergy.co.th"
+   ],
+   "status": "sent"
+  },
+  "marketing@cssthai.com": {
+   "date": "2026-10-29",
+   "thread": "1a1855700b077d03",
+   "name": "บริษัท คอมมิวนิเคชั่น แอนด์ ซิสเต็มส์ โซลูชั่น จำกัด (มหาชน)",
+   "to": [
+    "marketing@cssthai.com"
+   ],
+   "status": "sent"
+  },
+  "info@qtcg.co.th": {
+   "date": "2026-10-29",
+   "thread": "1a185574e3420ee8",
+   "name": "บริษัท คิวทีซีจี จำกัด (มหาชน)",
+   "to": [
+    "info@qtcg.co.th"
+   ],
+   "status": "sent"
+  },
+  "admin.team@kgsolar.com": {
+   "date": "2026-10-29",
+   "thread": "1a18557a121e4608",
+   "name": "บริษัท เค.จี. คอร์ปอเรชั่น จำกัด",
+   "to": [
+    "admin.team@kgsolar.com",
+    "permit@kgcorp.com"
+   ],
+   "status": "sent"
+  },
+  "center@kcpmaster.com": {
+   "date": "2026-10-29",
+   "thread": "1a18557f37c3679f",
+   "name": "บริษัท เค.ซี.พี.มาสเตอร์ เอ็นจิเนียริ่ง จำกัด",
+   "to": [
+    "center@kcpmaster.com"
+   ],
+   "status": "sent"
+  },
+  "thamonwan@sentic.co.th": {
+   "date": "2026-10-29",
+   "thread": "1a1855845345a95d",
+   "name": "บริษัท เซนติก จำกัด",
+   "to": [
+    "thamonwan@sentic.co.th"
+   ],
+   "status": "sent"
+  },
+  "accounting.manager@solartech-center.co.th": {
+   "date": "2026-10-29",
+   "thread": "1a185589a5df922e",
+   "name": "บริษัท โซล่าเทค เซ็นเตอร์ จำกัด",
+   "to": [
+    "accounting.manager@solartech-center.co.th"
+   ],
+   "status": "sent"
+  },
+  "info@wp-energy.co.th": {
+   "date": "2026-10-29",
+   "thread": "1a18558ff049000c",
+   "name": "บริษัท ดับบลิวพี เอ็นเนอร์ยี่ จำกัด (มหาชน)",
+   "to": [
+    "info@wp-energy.co.th"
+   ],
+   "status": "sent"
+  },
+  "thermotracer@hotmail.com": {
+   "date": "2026-10-29",
+   "thread": "1a185595d49ac2e8",
+   "name": "บริษัท เทอร์โม เทรเซอร์ จำกัด",
+   "to": [
+    "thermotracer@hotmail.com",
+    "pornnarat.b@thermo-groups.com"
+   ],
+   "status": "sent"
+  },
+  "service@thaisolarway.com": {
+   "date": "2026-10-29",
+   "thread": "1a18559aea68fa65",
+   "name": "บริษัท ไทยโซลาร์ เวย์ จำกัด",
+   "to": [
+    "service@thaisolarway.com",
+    "ceo@thaisolarway.com"
+   ],
+   "status": "sent"
+  },
+  "bd1@blpower.co.th": {
+   "date": "2026-10-29",
+   "thread": "1a1855a03ac7a28c",
+   "name": "บริษัท บริลเลียนท์ พาวเวอร์ จำกัด",
+   "to": [
+    "bd1@blpower.co.th"
+   ],
+   "status": "sent"
+  },
+  "nathawut@blueprint.in.th": {
+   "date": "2026-10-29",
+   "thread": "1a1855a545cc23b1",
+   "name": "บริษัท บลูปริ้นต์ จำกัด",
+   "to": [
+    "nathawut@blueprint.in.th"
+   ],
+   "status": "sent"
+  },
+  "therdsak.l@bangkoksolarpower.com": {
+   "date": "2026-10-29",
+   "thread": "1a1855aab9eb60ea",
+   "name": "บริษัท บางกอกโซลาร์ พาวเวอร์ จำกัด",
+   "to": [
+    "therdsak.l@bangkoksolarpower.com",
+    "mayura.b@bangkoksolarpower.com"
+   ],
+   "status": "sent"
+  },
+  "patompong.b@powervaultthailand.com": {
+   "date": "2026-10-29",
+   "thread": "1a1855aff0118d88",
+   "name": "บริษัท พาวเวอร์วอลท์ (ประเทศไทย) จำกัด",
+   "to": [
+    "patompong.b@powervaultthailand.com"
+   ],
+   "status": "sent"
   }
  },
  "pending": []
