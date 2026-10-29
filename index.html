@@ -164,7 +164,7 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .tabs{display:flex;flex-wrap:wrap;gap:10px;align-items:center;position:sticky;top:0;z-index:30;background:var(--bg);padding:8px 0;margin:-8px 0}
 @media (max-width:880px){.tabs,#tabs{justify-content:flex-start!important;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:8px}.tabs::-webkit-scrollbar{display:none}.tabs button{flex:none;font-size:15px;padding:8px 12px}.tabs .resetbtn.wide{flex:none}}
 .tab .panel,.tab .answer,.tab details,#rfq,#qtPanel,#pkgPanel{scroll-margin-top:70px}
-#sLoanNote{margin:6px 0 0;text-align:center;font-size:12.5px}#sVerdict.crtnum{white-space:nowrap;letter-spacing:-.01em}#sLine1 .vs{font-size:.8em;font-weight:500}#sLine1 .vsb{animation:none;text-shadow:none;font-size:inherit}#sLine1 small{display:block;line-height:1.4}#sLine1 small{font-size:.68em;font-weight:400;opacity:.85}
+#sLoanNote{margin:6px 0 0;text-align:center;font-size:12.5px}#sVerdict .arr{display:inline-block;transform:translateY(-.1em)}#sVerdict.crtnum{white-space:nowrap;letter-spacing:-.01em}#sLine1 .vs{font-size:.8em;font-weight:500}#sLine1 .vsb{animation:none;text-shadow:none;font-size:inherit}#sLine1 small{display:block;line-height:1.4}#sLine1 small{font-size:.68em;font-weight:400;opacity:.85}
 #t2SatBody.compact>.field,#t2SatBody.compact #roofPanel>.row,#t2SatBody.compact .roofIntro,#t2SatBody.compact .roofbtns,#t2SatBody.compact #satMsg{display:none!important}.satmini{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 12px;margin:0 0 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:14px}.satmini[hidden]{display:none}
 .tabs .resetbtn.wide{font-family:var(--f-display);font-size:17px;font-weight:600;padding:10px 18px;border-radius:12px;border:2px solid #e3a2a2;background:#fbe9e9;color:#a33a3a;align-self:stretch}.tabs .resetbtn.wide:hover{background:#f7dada}@media (max-width:880px){.tabs .resetbtn.wide{font-size:15px;padding:8px 12px}}
 .nextrow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.nextbtn.alt{border-color:var(--cell);animation:none}
@@ -1652,7 +1652,7 @@ $('s_prov').addEventListener('change',()=>{$('prov').value=$('s_prov').value;if(
 // the result screen alternates the verdict with the monthly bill before → after installing
 let crtT=0,crtK='';
 function crtCycle(word,nums){const e=$('sVerdict');const k=word+'|'+nums;if(k===crtK)return;crtK=k;clearInterval(crtT);crtT=0;if(!word||!nums)return;
-  let i=0;crtT=setInterval(()=>{if(!e.isConnected)return;i^=1;e.textContent=i?nums:word;e.classList.toggle('crtnum',!!i);fitCrt(e);},2600);}
+  let i=0;crtT=setInterval(()=>{if(!e.isConnected)return;i^=1;if(i)e.innerHTML=nums.replace('→','<span class="arr">→</span>');else e.textContent=word;e.classList.toggle('crtnum',!!i);fitCrt(e);},2600);}
 function fitCrt(el){if(el.classList.contains('crtnum')){el.style.fontSize=Math.min(22,134/(el.textContent.length||1))+'cqw';return;}const n=el.textContent.replace(/[ัิ-ฺ็-๎\s]/g,'').length||1;el.style.fontSize=Math.min(30,140/n)+'cqw';}
 function verdictOf(R){
   if(R.loan>0){const n=R.benefit/12-R.pay-(R.omM||0);return n>=300?['คุ้ม','v-good']:n>=-200?['พอไหว','v-mid']:['ยังไม่คุ้ม','v-bad'];}
