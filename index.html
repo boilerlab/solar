@@ -166,6 +166,8 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .tab .panel,.tab .answer,.tab details,#rfq,#qtPanel,#pkgPanel{scroll-margin-top:70px}
 #sLoanNote{margin:6px 0 0;text-align:center;font-size:12.5px}#sVerdict .arr{display:inline-block;transform:translateY(-.1em)}#sVerdict.crtnum{white-space:nowrap;letter-spacing:-.01em}#sLine1 .vs{font-size:.8em;font-weight:500}#sLine1 .vsb{animation:none;text-shadow:none;font-size:inherit}#sLine1 small{display:block;line-height:1.4}#sLine1 small{font-size:.68em;font-weight:400;opacity:.85}
 #s2Next.onsat{display:flex;margin:14px auto 4px}#s2Next.onsat[hidden]{display:none}
+/* tab 3 lays the panels out itself: on the satellite photo only the move / zoom buttons are needed */
+#t2SatBody #placeTools,#t2SatBody .lyedit{display:none!important}
 #t2SatBody.compact>.field,#t2SatBody.compact #roofPanel>.row,#t2SatBody.compact .roofIntro,#t2SatBody.compact .roofbtns,#t2SatBody.compact #satMsg{display:none!important}.satmini{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 12px;margin:0 0 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:14px}.satmini[hidden]{display:none}
 .tabs .resetbtn.wide{font-family:var(--f-display);font-size:17px;font-weight:600;padding:10px 18px;border-radius:12px;border:2px solid #e3a2a2;background:#fbe9e9;color:#a33a3a;align-self:stretch}.tabs .resetbtn.wide:hover{background:#f7dada}@media (max-width:880px){.tabs .resetbtn.wide{font-size:15px;padding:8px 12px}}
 .nextrow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.nextbtn.alt{border-color:var(--cell);animation:none}
@@ -2058,6 +2060,7 @@ function renderQuotes(){
  {const lw=$('layoutWrap');lw.prepend($('lyHint'));lw.prepend(lw.querySelector('.lyresult'));lw.prepend(lw.querySelector('.canvaswrap'));
   // rotate and the other drawing tools sit right under the photo
   lw.querySelector('.canvaswrap').after($('placeTools'),$('lyMode').closest('.lytools'),$('satNav'));
+  $('lyMode').closest('.lytools').classList.add('lyedit');
   // how-to steps sit under the image, where the user is working
   const st=document.querySelector('#t2Sat .satsteps');lw.after(st);st.insertAdjacentHTML('beforebegin','<p class="satsteps-t">วิธีใช้</p>');}
  // phones have no Ctrl+V or drag-and-drop: the roof-image box opens the photo picker instead
