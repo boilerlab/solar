@@ -528,6 +528,7 @@ a.btn{text-decoration:none;display:inline-block}
         <label>กำลังแผง<span class="inrow"><input type="number" id="s2Wt" step="5" min="100" inputmode="numeric"><span class="unit">W</span></span></label>
         <label>เว้นจากขอบ<span class="inrow"><input type="number" id="s2Sb" step="0.1" min="0" inputmode="decimal"><span class="unit">ม.</span></span></label>
         <label title="ความกว้าง Mid clamp">ช่องห่างระหว่างแผง<span class="inrow"><input type="number" id="s2Gap" step="1" min="0" value="20" inputmode="numeric"><span class="unit">มม.</span></span></label>
+        <label title="ช่องระหว่างแถวแผง (ราง + End clamp ของแต่ละแถว)">ระยะห่างระหว่างแถว<span class="inrow"><input type="number" id="s2RGap" step="5" min="0" value="50" inputmode="numeric"><span class="unit">มม.</span></span></label>
       </div>
       <div class="sat2go" id="s2Go"><div class="orline"><span>ไม่รู้ขนาด หรืออยากดูหลังคาจริง</span></div></div>
       <ul class="tips" id="s2Notes"></ul>
@@ -1226,9 +1227,9 @@ $('lyClearRoof').addEventListener('click',()=>{LY.polys=[];LY.cur=[];LY.removed.
 $('lyReplace').addEventListener('click',()=>$('roofFile').click());
 // ---- manual placement: ghost panel follows the cursor, snaps to neighbours, aligns to the eave of the roof under it ----
 function pDims(){const sc=lyScale();if(!sc)return null;const cp=Math.cos(Math.min(60,Math.max(0,lyNum('lyPitch',15)))*Math.PI/180)||1;
-  const port=($('lyOrient').value==='p')!==(LY.pRot===90),pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),du=port?pw:pl,dv=port?pl:pw,g=GAP();
+  const port=($('lyOrient').value==='p')!==(LY.pRot===90),pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),du=port?pw:pl,dv=port?pl:pw,g=GAP(),rg=RGAP();
   const k=1.05;// drawn 5% larger than the measured size (user request: panels looked too small on the photo)
-  return{w:k*du/sc,h:k*dv*cp/sc,gw:k*(du+g)/sc,gh:k*(dv+g)*cp/sc};}
+  return{w:k*du/sc,h:k*dv*cp/sc,gw:k*(du+g)/sc,gh:k*(dv+rg)*cp/sc};}
 function corners(c,a,w,h){const ux=Math.cos(a),uy=Math.sin(a),vx=-uy,vy=ux,hw=w/2,hh=h/2;
   return[{x:c.x-ux*hw-vx*hh,y:c.y-uy*hw-vy*hh},{x:c.x+ux*hw-vx*hh,y:c.y+uy*hw-vy*hh},{x:c.x+ux*hw+vx*hh,y:c.y+uy*hw+vy*hh},{x:c.x-ux*hw+vx*hh,y:c.y-uy*hw+vy*hh}];}
 // ---- group mode: the planned number of panels sits on the photo as one block the user drags onto the roof ----
@@ -1701,6 +1702,8 @@ function renderSimple(){
 }
 // ---- question 2: will it fit? ----
 // gap between neighbouring panels = mid-clamp width (~20 mm), editable in the panel settings
+// gap between rows of panels on a roof (each row on its own rails with end clamps), editable
+function RGAP(){const e=document.getElementById('s2RGap'),v=e?parseFloat(e.value):NaN;return(isFinite(v)&&v>=0?v:50)/1000;}
 function GAP(){const e=document.getElementById('s2Gap'),v=e?parseFloat(e.value):NaN;return(isFinite(v)&&v>=0?v:20)/1000;}
 const FIT={roof:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},garage:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},ground:{sb:.5,gx:.02,gy:1.2,tilt:15,area:1.9},float:{sb:1,gx:.4,gy:.6,tilt:12,area:2.1}};
 // ---- tab 2 picture pickers: roof shape and panel arrangement ----
@@ -1748,7 +1751,7 @@ function renderPick(){const roofy=S2.where==='roof'||S2.where==='garage',roof=ro
   $('layPick').querySelectorAll('.opt').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.v===S2.lay));const pr=presetOf(b.dataset.v),sm=b.querySelector('small');sm.textContent=pr.sides===2?`${pr.counts.join('+')} | ${pr.countsB.join('+')}`:pr.counts.join(' + ');});}
 // does the chosen arrangement (rows × cols on one side) physically fit W × L? returns the orientation that fits
 function fitShape(W,L,where,P){const f={...FIT[where]};if(S2.sb>=0)f.sb=S2.sb;if(where!=='float')f.gx=GAP();const pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),ct=Math.cos(f.tilt*Math.PI/180);
-  const oris=S2.ori==='p'?[[pw,pl]]:S2.ori==='l'?[[pl,pw]]:[[pw,pl],[pl,pw]],dim=(a,b)=>{const bh=b*ct;return{a,bh,gx:f.gx,needW:P.cols*(a+f.gx)-f.gx+2*f.sb,needL:P.rows*bh+(P.rows-1)*GAP()+2*f.sb};};
+  const oris=S2.ori==='p'?[[pw,pl]]:S2.ori==='l'?[[pl,pw]]:[[pw,pl],[pl,pw]],dim=(a,b)=>{const bh=b*ct;return{a,bh,gx:f.gx,needW:P.cols*(a+f.gx)-f.gx+2*f.sb,needL:P.rows*bh+(P.rows-1)*(where==='roof'||where==='garage'?RGAP():GAP())+2*f.sb};};
   for(const[a,b]of oris){const d=dim(a,b);if(d.needW<=W+1e-9&&d.needL<=L+1e-9)return{ok:true,...d};}
   return{ok:false,...oris.map(([a,b])=>dim(a,b)).sort((x,y)=>x.needW*x.needL-y.needW*y.needL)[0]};}
 // the roof outline and panels drawn on the satellite photo, redrawn as a plain diagram (the photo itself cannot be copied)
@@ -1761,7 +1764,7 @@ function lyVector(svg,use){const pts=[...lyPolys().flat(),...LY.manual.flatMap(m
   LY.manual.forEach(m=>g+=pg(m.q,ON));
   const sc=lyScale();g+=`<text x="160" y="${VH-12}" text-anchor="middle" style="fill:var(--muted);font-size:12px">ภาพดาวเทียม · ใช้ ${LY.count}/${S2.lyN||LY.count} แผง${sc?` · ราว ${fmt(w*sc,1)} × ${fmt(h*sc,1)} ม.`:''}</text>`;
   svg.setAttribute('viewBox',`0 0 320 ${VH}`);svg.innerHTML=g;return true;}
-function fitLayout(W,L,where){const f={...FIT[where]};if(S2.sb>=0)f.sb=S2.sb;if(where!=='float')f.gx=GAP();const pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),ct=Math.cos(f.tilt*Math.PI/180);let best={count:0};
+function fitLayout(W,L,where){const f={...FIT[where]};if(S2.sb>=0)f.sb=S2.sb;if(where!=='float')f.gx=GAP();if(where==='roof'||where==='garage')f.gy=RGAP();const pl=lyNum('lyPL',2.38),pw=lyNum('lyPW',1.13),ct=Math.cos(f.tilt*Math.PI/180);let best={count:0};
   const oris=S2.ori==='p'?[[pw,pl]]:S2.ori==='l'?[[pl,pw]]:[[pw,pl],[pl,pw]];
   // tilted mounts (ground, floating) group panels into tables 1–3 panels deep; the shade gap f.gy is only needed between tables
   for(const[a,b]of oris)for(const k of (f.tilt>0?[1,2,3]:[1])){const bh=b*ct,px=a+f.gx,ty=k*bh+(k-1)*GAP()+f.gy,cols=Math.max(0,Math.floor((W-2*f.sb+f.gx)/px)),tables=Math.max(0,Math.floor((L-2*f.sb+f.gy)/ty)),rows=tables*k;
@@ -1781,6 +1784,7 @@ $('s2Rot').addEventListener('click',()=>{
 $('s2Wt').addEventListener('input',()=>{$('panelW').value=$('s2Wt').value;$('panelW').dispatchEvent(new Event('input',{bubbles:true}));});
 $('s2Sb').addEventListener('input',()=>{const v=parseFloat($('s2Sb').value);S2.sb=isFinite(v)?v:undefined;renderFit();});
 $('s2Gap').addEventListener('input',()=>{const v=parseFloat($('s2Gap').value);S2.gap=isFinite(v)?v:undefined;renderFit();if(LY.mode==='group'&&LY.img){buildGroup();lyResult();}else if(LY.img)draw();});
+$('s2RGap').addEventListener('input',()=>{const v=parseFloat($('s2RGap').value);S2.rgap=isFinite(v)?v:undefined;renderFit();if(LY.mode==='group'&&LY.img){buildGroup();lyResult();}else if(LY.img)draw();});
 ['s_w','s_l','s_old'].forEach(id=>$(id).addEventListener('input',()=>{if(id!=='s_old'){S2.lyN=0;S2.dimWarn=false;S2.autoNote=null;}renderFit();}));
 ['s_w','s_l'].forEach(id=>$(id).addEventListener('focus',()=>{if(S2.dimWarn){S2.dimWarn=false;renderFit();}}));
 $('s2Why').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const q=$(b.dataset.q);q.scrollIntoView({behavior:'smooth',block:'center'});q.classList.add('flash');setTimeout(()=>q.classList.remove('flash'),1600);});
@@ -1854,7 +1858,7 @@ function renderFit(){
   const svg=$('s2Svg');svg.style.display='';if(!dims){if(lyN&&lyVector(svg,need))return;svg.innerHTML='';svg.style.display='none';return;}
   // the whole roof outline is drawn at the size the user entered; a ridged roof shows both halves unfolded with the ridge across the middle.
   // panels that do not fit are drawn in red outside the outline
-  const f0={...FIT[wh]};if(S2.sb>=0)f0.sb=S2.sb;if(wh!=='float')f0.gx=GAP();
+  const f0={...FIT[wh]};if(S2.sb>=0)f0.sb=S2.sb;if(wh!=='float')f0.gx=GAP();const RG=wh==='roof'||wh==='garage'?RGAP():GAP();
   const bad=!!(SF&&!SF.ok),both=!!(P&&P.sides===2)||(twoSide&&!P),FH=twoSide?2*L:L;
   // fill order without a chosen arrangement: one row at a time from the eave, centre-out; on a ridged roof the next row goes to the opposite side
   // without a chosen arrangement: use as few rows as needed, rows taken from the eave (alternating sides on a ridged roof),
@@ -1864,7 +1868,7 @@ function renderFit(){
   {const ru=perRow?Math.ceil(used/perRow):0,base=ru?Math.floor(used/ru):0,extra=ru?used%ru:0;
    rowSeq.slice(0,ru).forEach(([sd,r],i)=>{const cnt=base+(i<extra?1:0),c0=Math.floor((perRow-cnt)/2);for(let c=c0;c<c0+cnt;c++)onSet.add(sd+r+'-'+c);});}
   let sh=null,mp=null,TOP=0,EW=W,EL;
-  if(bad){sh={a:SF.a,bh:SF.bh,gx:SF.gx,w:P.cols*(SF.a+SF.gx)-SF.gx,h:P.rows*SF.bh+(P.rows-1)*GAP()};EW=Math.max(W,f0.sb+sh.w);if(twoSide&&P.sides===2)TOP=Math.max(0,f0.sb+sh.h-L);}
+  if(bad){sh={a:SF.a,bh:SF.bh,gx:SF.gx,w:P.cols*(SF.a+SF.gx)-SF.gx,h:P.rows*SF.bh+(P.rows-1)*RG};EW=Math.max(W,f0.sb+sh.w);if(twoSide&&P.sides===2)TOP=Math.max(0,f0.sb+sh.h-L);}
   const aTop=twoSide?L:0,below=bad?Math.max(0,aTop+f0.sb+sh.h-FH):0;
   if(miss){const a=F.a||lyNum('lyPW',1.13),bh=F.bh||lyNum('lyPL',2.38)*Math.cos(f0.tilt*Math.PI/180),per=Math.max(1,Math.floor((W+GAP())/(a+GAP())));mp={a,bh,per};}
   EL=TOP+FH+below+(mp?0.4+Math.ceil(miss/mp.per)*(mp.bh+GAP()):0);
@@ -1876,8 +1880,8 @@ function renderFit(){
   let g=R(0,TOP,W,FH,'fill:var(--sun-soft);stroke:var(--fr-o);stroke-width:2');
   if(twoSide)g+=`<path d="M${ox} ${(oy+(TOP+L)*S).toFixed(1)}h${(W*S).toFixed(1)}" style="stroke:var(--forest);stroke-width:1.6;stroke-dasharray:6 4"/>`;
   const sides=[['A',1]];if(twoSide&&both)sides.push(['B',1]);
-  if(SF&&SF.ok){const h=P.rows*SF.bh+(P.rows-1)*GAP(),y0=(L-h)/2;
-    for(const[sd]of(P.sides===2?sides:[['A']])){const cs=sd==='A'?P.counts:P.countsB;cs.forEach((cnt,ri)=>{const r=P.rows-1-ri,x0=(W-(cnt*(SF.a+SF.gx)-SF.gx))/2,y=y0+r*(SF.bh+GAP());for(let k=0;k<cnt;k++)g+=R(x0+k*(SF.a+SF.gx),sd==='A'?yA(y):yB(y,SF.bh),SF.a,SF.bh,BLUE);});}}
+  if(SF&&SF.ok){const h=P.rows*SF.bh+(P.rows-1)*RG,y0=(L-h)/2;
+    for(const[sd]of(P.sides===2?sides:[['A']])){const cs=sd==='A'?P.counts:P.countsB;cs.forEach((cnt,ri)=>{const r=P.rows-1-ri,x0=(W-(cnt*(SF.a+SF.gx)-SF.gx))/2,y=y0+r*(SF.bh+RG);for(let k=0;k<cnt;k++)g+=R(x0+k*(SF.a+SF.gx),sd==='A'?yA(y):yB(y,SF.bh),SF.a,SF.bh,BLUE);});}}
   else if(bad){for(const[sd]of(P.sides===2&&twoSide?sides:[['A']]))(sd==='A'?P.counts:P.countsB).forEach((cnt,ri)=>{const r=P.rows-1-ri;for(let k=0;k<cnt;k++){const x=f0.sb+k*(sh.a+sh.gx),y=f0.sb+r*(sh.bh+0.02),inside=x+sh.a<=W-f0.sb+1e-6&&y+sh.bh<=L-f0.sb+1e-6;g+=R(x,sd==='A'?yA(y):yB(y,sh.bh),sh.a,sh.bh,inside?BLUE:RED);}});
     g+=R(0,TOP,W,FH,'fill:none;stroke:var(--forest);stroke-width:2');}
   else if(n){const f=f0,tw=F.cols*F.px-f.gx,x0=(W-tw)/2,y0=(L-F.th)/2,rowY=r=>Math.floor(r/F.k)*F.ty+(r%F.k)*(F.bh+GAP()),ord=[];
@@ -2074,7 +2078,7 @@ function saveState(){if(noSave)return;try{
   const tab=(document.querySelector('#tabs [aria-selected=true]')||{}).dataset?.t||'t1';
   localStorage.setItem(STKEY,JSON.stringify({ts:Date.now(),tab,y:scrollY,sat:$('t2Sat').open,maps:awaitingMaps,
     v:Object.fromEntries(['s_bill','s_total','s_w','s_l','coords','s2Sb'].map(id=>[id,$(id).value])),old:$('s_old').checked,
-    S1:{pres:S1.pres,loan:S1.loan,size:S1.size,grant:S1.grant,baseSize:S1.baseSize,care:S1.care,custom:S1.custom},S2:{where:S2.where,mat:S2.mat,dir:S2.dir,shade:S2.shade,ori:S2.ori,sb:S2.sb,gap:S2.gap,roof:S2.roof,lay:S2.lay}}));}catch(e){}}
+    S1:{pres:S1.pres,loan:S1.loan,size:S1.size,grant:S1.grant,baseSize:S1.baseSize,care:S1.care,custom:S1.custom},S2:{where:S2.where,mat:S2.mat,dir:S2.dir,shade:S2.shade,ori:S2.ori,sb:S2.sb,gap:S2.gap,rgap:S2.rgap,roof:S2.roof,lay:S2.lay}}));}catch(e){}}
 let stT=0;const saveSoon=()=>{clearTimeout(stT);stT=setTimeout(saveState,300);};
 ['input','change','click'].forEach(ev=>document.addEventListener(ev,saveSoon,true));
 window.addEventListener('pagehide',saveState);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveState();});
@@ -2082,7 +2086,7 @@ let restored=null;
 try{const s=JSON.parse(localStorage.getItem(STKEY)||'null');if(s&&Date.now()-s.ts<12*3600e3&&location.hash!=='#demo')restored=s;}catch(e){}
 if(restored){
   Object.entries(restored.v||{}).forEach(([id,v])=>{if($(id)&&v!=null)$(id).value=v;});$('s_old').checked=!!restored.old;
-  Object.assign(S1,restored.S1||{});Object.assign(S2,restored.S2||{});if(S2.gap>=0)$('s2Gap').value=S2.gap;
+  Object.assign(S1,restored.S1||{});Object.assign(S2,restored.S2||{});if(S2.gap>=0)$('s2Gap').value=S2.gap;if(S2.rgap>=0)$('s2RGap').value=S2.rgap;
   [['s_pres',S1.pres],['s_loan',S1.loan],['s_size',S1.size],['s_grant',S1.grant],['s_where',S2.where],['s_mat',S2.mat],['s_dir',S2.dir],['s_shade',S2.shade]].forEach(([g,v])=>$(g).querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===String(v)))));
 }
 updateLoc(false);
