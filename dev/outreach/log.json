@@ -128,7 +128,10 @@
     "dhaitoon.kan@dohome.co.th",
     "phaitoon.kan@dohome.co.th"
    ],
-   "status": "sent"
+   "status": "sent",
+   "bounced_to": [
+    "dhaitoon.kan@dohome.co.th"
+   ]
   },
   "phatcharaporn@telebiz.co.th": {
    "date": "2026-10-29",
@@ -259,7 +262,10 @@
     "service@thaisolarway.com",
     "ceo@thaisolarway.com"
    ],
-   "status": "sent"
+   "status": "sent",
+   "bounced_to": [
+    "service@thaisolarway.com"
+   ]
   },
   "bd1@blpower.co.th": {
    "date": "2026-10-29",
