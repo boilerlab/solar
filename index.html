@@ -527,7 +527,7 @@ a.btn{text-decoration:none;display:inline-block}
         <label>แผงกว้าง<span class="inrow"><input type="number" id="s2PW" step="0.01" min="0.5" inputmode="decimal"><span class="unit">ม.</span></span></label>
         <label>กำลังแผง<span class="inrow"><input type="number" id="s2Wt" step="5" min="100" inputmode="numeric"><span class="unit">W</span></span></label>
         <label>เว้นจากขอบ<span class="inrow"><input type="number" id="s2Sb" step="0.1" min="0" inputmode="decimal"><span class="unit">ม.</span></span></label>
-        <label title="ความกว้าง Mid clamp + 5 มม.">ช่องห่างระหว่างแผง<span class="inrow"><input type="number" id="s2Gap" step="1" min="0" value="25" inputmode="numeric"><span class="unit">มม.</span></span></label>
+        <label title="ความกว้าง Mid clamp">ช่องห่างระหว่างแผง<span class="inrow"><input type="number" id="s2Gap" step="1" min="0" value="20" inputmode="numeric"><span class="unit">มม.</span></span></label>
       </div>
       <div class="sat2go" id="s2Go"><div class="orline"><span>ไม่รู้ขนาด หรืออยากดูหลังคาจริง</span></div></div>
       <ul class="tips" id="s2Notes"></ul>
@@ -1700,8 +1700,8 @@ function renderSimple(){
   renderFit();renderQuotes();
 }
 // ---- question 2: will it fit? ----
-// gap between neighbouring panels = mid-clamp width (~20 mm) + 5 mm, editable in the panel settings
-function GAP(){const e=document.getElementById('s2Gap'),v=e?parseFloat(e.value):NaN;return(isFinite(v)&&v>=0?v:25)/1000;}
+// gap between neighbouring panels = mid-clamp width (~20 mm), editable in the panel settings
+function GAP(){const e=document.getElementById('s2Gap'),v=e?parseFloat(e.value):NaN;return(isFinite(v)&&v>=0?v:20)/1000;}
 const FIT={roof:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},garage:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},ground:{sb:.5,gx:.02,gy:1.2,tilt:15,area:1.9},float:{sb:1,gx:.4,gy:.6,tilt:12,area:2.1}};
 // ---- tab 2 picture pickers: roof shape and panel arrangement ----
 // panels for a size: round to the nearest whole panel without going over the size (5 kW with 620 W = 8 panels, 4.96 kW)
