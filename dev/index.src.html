@@ -1887,6 +1887,10 @@ function loadVendors(){if(vendorsTried)return;vendorsTried=true;
 const MEA_PROV=['กรุงเทพมหานคร','นนทบุรี','สมุทรปราการ'];
 $('rfqProv').innerHTML='<option value="">— เลือกจังหวัด —</option>'+provSorted.map(([n])=>`<option>${n}</option>`).join('');
 let rfqEdited=false;
+/* Android: ปิดแป้นตัวเลขเมื่อกด Enter/เสร็จ หรือแตะนอกช่องกรอก */
+document.querySelectorAll('input[type=number],input[inputmode]').forEach(el=>{if(!el.hasAttribute('enterkeyhint'))el.setAttribute('enterkeyhint','done');});
+document.addEventListener('keydown',e=>{const t=e.target;if(e.key==='Enter'&&t.tagName==='INPUT'&&t.type!=='checkbox')t.blur();});
+document.addEventListener('pointerdown',e=>{const ae=document.activeElement;if(!ae||!/INPUT|TEXTAREA/.test(ae.tagName))return;if(e.target.closest('input,textarea,select,label'))return;ae.blur();},true);
 document.addEventListener('click',e=>{const a=e.target.closest('a[href*="peoplesolar.pea.co.th"],a[href*="peoplesolar.mea.or.th"]');if(a&&!a.closest('#rfqVendors'))track('register-'+(a.href.includes('pea')?'pea':'mea'));});
 function rfqRender(force){
   loadVendors();
