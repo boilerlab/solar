@@ -140,6 +140,7 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 @media (max-width:880px){.tabs,#tabs{justify-content:flex-start!important;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:8px}.tabs::-webkit-scrollbar{display:none}.tabs button{flex:none;font-size:15px;padding:8px 12px}.tabs .resetbtn.wide{flex:none}}
 .tab .panel,.tab .answer,.tab details,#rfq,#qtPanel,#pkgPanel{scroll-margin-top:70px}
 #sLoanNote{margin:6px 0 0;text-align:center;font-size:12.5px}#sVerdict .arr{display:inline-block;transform:translateY(-.1em)}#sVerdict.crtnum{white-space:nowrap;letter-spacing:-.01em}#sLine1 .vs{font-size:.8em;font-weight:500}#sLine1 .vsb{animation:none;text-shadow:none;font-size:inherit}#sLine1 small{display:block;line-height:1.4}#sLine1 small{font-size:.68em;font-weight:400;opacity:.85}
+#s2Next.onsat{display:flex;margin:14px auto 4px}#s2Next.onsat[hidden]{display:none}
 #t2SatBody.compact>.field,#t2SatBody.compact #roofPanel>.row,#t2SatBody.compact .roofIntro,#t2SatBody.compact .roofbtns,#t2SatBody.compact #satMsg{display:none!important}.satmini{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 12px;margin:0 0 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:14px}.satmini[hidden]{display:none}
 .tabs .resetbtn.wide{font-family:var(--f-display);font-size:17px;font-weight:600;padding:10px 18px;border-radius:12px;border:2px solid #e3a2a2;background:#fbe9e9;color:#a33a3a;align-self:stretch}.tabs .resetbtn.wide:hover{background:#f7dada}@media (max-width:880px){.tabs .resetbtn.wide{font-size:15px;padding:8px 12px}}
 .nextrow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.nextbtn.alt{border-color:var(--cell);animation:none}
@@ -1055,6 +1056,10 @@ function showRoof(file){
   const im=new Image();im.onload=()=>useRoofImage(im,null);im.src=roofURL;
 }
 // once the satellite photo is on screen, fold the location inputs above it into one line
+// "ไปข้อ 4" sits under the satellite move buttons while the photo is shown, otherwise in its own place
+let s2NextHome=null;
+function placeNext(){const nb=$('s2Next'),sn=$('satNav');if(!nb||!sn)return;if(!s2NextHome){s2NextHome=document.createComment('s2Next');nb.before(s2NextHome);}
+  const onSat=!!(LY.img&&!sn.hidden&&$('t2Sat').open);if(onSat){if(nb.previousElementSibling!==sn)sn.after(nb);nb.classList.add('onsat');}else if(nb.previousSibling!==s2NextHome){s2NextHome.after(nb);nb.classList.remove('onsat');}}
 function satCompact(on){const b=$('t2SatBody'),m=$('satMini');if(!b||!m)return;b.classList.toggle('compact',on);m.hidden=!on;if(on)$('satMiniTxt').textContent=$('coords').value||'';}
 function useRoofImage(im,sat){
   // centre the fetched photo on screen; repeat once the panels and result box below it have settled
@@ -1063,7 +1068,7 @@ function useRoofImage(im,sat){
   LY.sl=[];LY.polys=[];LY.cur=[];LY.removed.clear();LY.faces=[];LY.manual=[];LY.pin=null;$('lyApplied').textContent='';
   $('roofPanel').classList.remove('collapsed');roofTgl();
   $('drop').hidden=true;$('layoutWrap').hidden=false;$('roofClear').hidden=false;$('satNav').hidden=!sat;
-  satCompact(!!sat);if(sat&&typeof setGuide==='function')setGuide(-1);
+  satCompact(!!sat);setTimeout(placeNext,0);if(sat&&typeof setGuide==='function')setGuide(-1);
   if(sat){// scale is known from the zoom level: draw a 10 m scale bar and skip step 1
     const mpp=satMpp(sat.lat,sat.z)/s,y=44; // top-left, clear of the Google logo and imagery credit at the bottom
     LY.sl=[{x:24,y},{x:24+10/mpp,y}];$('lyMeters').value=10;
@@ -1296,7 +1301,7 @@ $('lyApply').addEventListener('click',()=>applyLy(true));
     const it=[...(e.clipboardData?.items||[])].find(i=>i.type.startsWith('image/'));
     if(it){e.preventDefault();showRoof(it.getAsFile());}
   });
-  $('roofClear').addEventListener('click',()=>{satCompact(false);if(typeof setGuide==='function')setGuide(0);if(roofURL)URL.revokeObjectURL(roofURL);roofURL=null;LY.img=null;LY.faces=[];LY.polys=[];LY.cur=[];LY.sl=[];$('layoutWrap').hidden=true;$('drop').hidden=false;$('roofClear').hidden=true;$('satNav').hidden=true;LY.sat=null;LY.pin=null;});
+  $('roofClear').addEventListener('click',()=>{satCompact(false);setTimeout(placeNext,0);if(typeof setGuide==='function')setGuide(0);if(roofURL)URL.revokeObjectURL(roofURL);roofURL=null;LY.img=null;LY.faces=[];LY.polys=[];LY.cur=[];LY.sl=[];$('layoutWrap').hidden=true;$('drop').hidden=false;$('roofClear').hidden=true;$('satNav').hidden=true;LY.sat=null;LY.pin=null;});
 })();
 
 // PEA residential progressive tariff from Sept 2569 bills (baht/kWh, excl. service, Ft, VAT)
@@ -1566,7 +1571,7 @@ document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',(
 document.querySelectorAll('[data-guide]').forEach(b=>b.addEventListener('click',()=>{const d=$(b.dataset.guide);d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}));
 // tab 2 satellite section: open it, scroll to it, and start the blinking guide if no coordinates yet
 function openSat(){showTab('t2');$('t2Sat').open=true;requestAnimationFrame(()=>$('t2Sat').scrollIntoView({behavior:'smooth',block:'start'}));}
-$('t2Sat').addEventListener('toggle',()=>{if(!$('t2Sat').open)return;setTimeout(()=>$('t2Sat').scrollIntoView({behavior:'smooth',block:'start'}),60);requestAnimationFrame(()=>draw());if(!LY.img)setTimeout(autoSat,300);if(!LY.sat&&guide<0)setGuide(0);});
+$('t2Sat').addEventListener('toggle',()=>{placeNext();if(!$('t2Sat').open)return;setTimeout(()=>$('t2Sat').scrollIntoView({behavior:'smooth',block:'start'}),60);requestAnimationFrame(()=>draw());if(!LY.img)setTimeout(autoSat,300);if(!LY.sat&&guide<0)setGuide(0);});
 $('s2Maps').addEventListener('click',openSat);
 // guided start in tab 4: current location → open Google Maps → paste coordinates, each blinks in turn
 let guide=-1;const GUIDE=['gpsBtn','lnkPick','pasteCoords'];
@@ -1574,6 +1579,9 @@ function setGuide(i){guide=i;GUIDE.forEach((id,k)=>$(id).classList.toggle('blink
 // GPS: stop the guide while waiting; only point at Google Maps if the location cannot be read
 GUIDE.forEach((id,k)=>$(id).addEventListener('click',()=>{if(guide!==k)return;if(id==='gpsBtn')setGuide(-1);else setGuide(k+1<GUIDE.length?k+1:-1);}));
 $('coords').addEventListener('paste',()=>{if(guide>=0)setGuide(-1);});
+// tapping the coordinate box empties it, ready for a paste; if nothing new is entered the old value comes back
+$('coords').addEventListener('focus',()=>{const e=$('coords');if(e.value){e.dataset.old=e.value;e.value='';}});
+$('coords').addEventListener('blur',()=>{const e=$('coords');if(!e.value.trim()&&e.dataset.old)e.value=e.dataset.old;delete e.dataset.old;});
 let satT=0;$('coords').addEventListener('input',()=>{if(guide>=0&&parseCoords($('coords').value))setGuide(-1);clearTimeout(satT);satT=setTimeout(autoSat,900);});
 document.querySelectorAll('#tabs button[data-t]').forEach(b=>b.addEventListener('click',()=>{showTab(b.dataset.t);const s=$(b.dataset.t),target=s.querySelector('.answer')||s;requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'}));}));
 // Google Maps buttons with no house coordinates yet: find the phone's position first, then open Maps there
@@ -1773,7 +1781,7 @@ function renderFit(){
   $('s2CountTxt').textContent=`${need} แผง · ${fmt(need*pW/1000,2)} kW`;
   $('s_sizeHint').textContent=S1.custom?`ตอนนี้ใช้ ${fmt(S1.size,2)} kW (${need} แผง) ที่ปรับจำนวนในข้อ 3 · กดขนาดด้านบนเพื่อเปลี่ยน`:`โครงการกำหนด 5–10 kW ต่อมิเตอร์ (แผง ${fmt(pW)} W ${min5} แผง ≈ 5 kW) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!S1.custom);
   document.querySelector('#t2 .sizeq').classList.toggle('needfill',!dims&&!lyN);document.querySelector('#t2 .sizeq').classList.toggle('warnfill',!!(dims&&S2.dimWarn));
-  glowTab('t3',dims||lyN>0);$('s2Next').hidden=!(dims||lyN>0);
+  glowTab('t3',dims||lyN>0);$('s2Next').hidden=!(dims||lyN>0);placeNext();
   [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
   $('s2Sb').placeholder=FIT[wh].sb;$('s2Params').hidden=!dims&&!lyN;S2.curA=F.a;
   $('s2RotTxt').textContent=!dims&&lyN?'หมุนกลุ่มแผงบนภาพดาวเทียม':F.count?(F.a===lyNum('lyPW',1.13)?'แผงแนวตั้ง':'แผงแนวนอน')+(S2.ori?'':' · อัตโนมัติ (วางได้มากสุด)'):'';
