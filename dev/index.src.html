@@ -139,7 +139,7 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .tabs{display:flex;flex-wrap:wrap;gap:10px;align-items:center;position:sticky;top:0;z-index:30;background:var(--bg);padding:8px 0;margin:-8px 0}
 @media (max-width:880px){.tabs,#tabs{justify-content:flex-start!important;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:8px}.tabs::-webkit-scrollbar{display:none}.tabs button{flex:none;font-size:15px;padding:8px 12px}.tabs .resetbtn.wide{flex:none}}
 .tab .panel,.tab .answer,.tab details,#rfq,#qtPanel,#pkgPanel{scroll-margin-top:70px}
-#sVerdict.crtnum{white-space:nowrap;letter-spacing:-.01em}#sLine1 .vs{font-size:.8em;font-weight:500}#sLine1 .vsb{animation:none;text-shadow:none;font-size:inherit}#sLine1 small{display:block;line-height:1.4}#sLine1 small{font-size:.68em;font-weight:400;opacity:.85}
+#sLoanNote{margin:6px 0 0;text-align:center;font-size:12.5px}#sVerdict.crtnum{white-space:nowrap;letter-spacing:-.01em}#sLine1 .vs{font-size:.8em;font-weight:500}#sLine1 .vsb{animation:none;text-shadow:none;font-size:inherit}#sLine1 small{display:block;line-height:1.4}#sLine1 small{font-size:.68em;font-weight:400;opacity:.85}
 #t2SatBody.compact>.field,#t2SatBody.compact #roofPanel>.row,#t2SatBody.compact .roofIntro,#t2SatBody.compact .roofbtns,#t2SatBody.compact #satMsg{display:none!important}.satmini{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 12px;margin:0 0 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:14px}.satmini[hidden]{display:none}
 .tabs .resetbtn.wide{font-family:var(--f-display);font-size:17px;font-weight:600;padding:10px 18px;border-radius:12px;border:2px solid #e3a2a2;background:#fbe9e9;color:#a33a3a;align-self:stretch}.tabs .resetbtn.wide:hover{background:#f7dada}@media (max-width:880px){.tabs .resetbtn.wide{font-size:15px;padding:8px 12px}}
 .nextrow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.nextbtn.alt{border-color:var(--cell);animation:none}
@@ -405,6 +405,7 @@ a.btn{text-decoration:none;display:inline-block}
     <div class="panel answer">
       <span class="stamp" aria-label="ข้อมูล ณ 27 ต.ค. 69">ข้อมูล<br>ณ 27 ต.ค.<br>69</span>
       <div class="crt"><div class="verdict-big v-idle" id="sVerdict">--/--</div></div>
+      <p class="note crtnote" id="sLoanNote" hidden>ค่างวดเก็บรวมในบิลค่าไฟ และธนาคารนำเงินขายไฟไปหักค่างวดก่อน จึงไม่ต้องสำรองจ่ายเต็มงวด ถ้าเงินขายไฟมากกว่าค่างวด งวดนั้นอาจไม่ต้องจ่าย (ตามข่าว · รอเงื่อนไขธนาคาร)</p>
       <div class="q billq"><h4>ค่าไฟเดือนละประมาณกี่บาท</h4>
         <div class="inrow big-in"><input type="number" id="s_bill" value="" placeholder="เช่น 1800" min="0" step="100" inputmode="numeric"><span class="unit">บาท/เดือน</span></div>
         <div class="chips" id="s_billChips"><button type="button" data-v="800">800</button><button type="button" data-v="1500">1,500</button><button type="button" data-v="2000">2,000</button><button type="button" data-v="2500">2,500</button><button type="button" data-v="4000">4,000</button></div></div>
@@ -1636,20 +1637,19 @@ function renderSimple(){
   $('s_billChips').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===+$('s_bill').value)));
   const billIn=parseFloat($('s_bill').value)||0;$('sMeter').hidden=!billIn;$('careBox').hidden=!billIn;if(!billIn)$('sPrice').hidden=true;
   $('t1').classList.toggle('pre',!billIn);glowTab('t2',billIn>0);$('sNext').hidden=!billIn;
-  if(!billIn){crtCycle(null);const e=$('sVerdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('sSys').textContent='ยังไม่มีข้อมูล';$('sLine1').innerHTML='กรอก<b>ค่าไฟต่อเดือน</b>เพื่อดูผล';$('sLine2').textContent='';$('sTips').innerHTML='';renderFit();renderQuotes();return;}
+  if(!billIn){crtCycle(null);$('sLoanNote').hidden=true;const e=$('sVerdict');e.textContent='--/--';e.className='verdict-big v-idle';fitCrt(e);$('sSys').textContent='ยังไม่มีข้อมูล';$('sLine1').innerHTML='กรอก<b>ค่าไฟต่อเดือน</b>เพื่อดูผล';$('sLine2').textContent='';$('sTips').innerHTML='';renderFit();renderQuotes();return;}
   $('sSys').textContent=`ติดโซลาร์ ${fmt(S1.size,1)} kW${Math.abs(p.kwp-S1.size)>0.05?` (แผง ${fmt(p.kwp,2)} kWp)`:''} · ${R.loan?'กู้ธนาคารรัฐ':'จ่ายเงินสด'}${R.sub?` · หักเงินสนับสนุน ${fmt(R.sub)} บาท`:' · ไม่มีเงินให้เปล่า'}`;
   $('sPrice').hidden=false;$('sPrice').innerHTML=`คิดจากราคาติดตั้ง ${fmt(p.price*p.kwp/S1.size)} บาท/kW ${parseFloat($('s_total').value)>0&&S1.priceOk?'(จากราคาที่กรอก)':'(ราคากลาง)'} · <button type="button" class="linkbtn">แก้ได้</button>`;
   $('sVerdict').textContent=w;$('sVerdict').className='verdict-big '+c;fitCrt($('sVerdict'));
   // the bill the user typed vs what they pay once installed (rest of the bill, minus export income, plus the loan instalment)
-  // what actually leaves the wallet each month: the (smaller) electricity bill plus the instalment; export income comes back separately
-  const billLeft=Math.max(0,billIn-R.saveY1/12),incM=R.incY1/12,paid=billLeft+(R.loan>0?R.pay+R.omM:0),
-    cmp=`<span class="vs">ปกติจ่ายค่าไฟ ${fmt(billIn)} → ติดแล้วจ่ายราว <b class="vsb">${fmt(paid)}</b> บาท/เดือน</span>`,
-    parts=`<small>ค่าไฟ ${fmt(billLeft)}${R.loan>0?` + ค่างวด ${fmt(R.pay)} นาน ${p.ly} ปี`:''}${R.omM?` + ค่าดูแล ${fmt(R.omM)}`:''} · ได้เงินขายไฟคืนราว ${fmt(incM)} บาท/เดือน (การไฟฟ้าโอนแยก)</small>`;
-  {const a=Math.round(paid),b=Math.round(billIn);crtCycle(w,a<=b?`${b} → ${a}`:`${b} ← ${a}`);}
-  if(R.loan>0)$('sLine1').innerHTML=(net>=0?`ทุกเดือน <b>เหลือ ${fmt(net)} บาท</b>`:`ทุกเดือน <b>ต้องควักเพิ่ม ${fmt(-net)} บาท</b>`)+`<br>${cmp}${parts}`;
-  else if(R.outlay<=0)$('sLine1').innerHTML=`ไม่ต้องจ่ายเอง<br><b>เงินสนับสนุนครอบคลุมทั้งหมด</b><br>${cmp}${parts}`;
-  else $('sLine1').innerHTML=`จ่ายเอง ${fmt(Math.max(0,R.outlay))} บาท${R.sub?` <span style="font-size:.75em;font-weight:500">(ต้องสำรองจ่ายร้านเต็ม ${fmt(R.capex)} ก่อน รัฐโอน ${fmt(R.sub)} เข้าพร้อมเพย์ทีหลัง)</span>`:''}<br><b>${R.payback!==null?`คืนทุนใน ${fmt(R.payback,1)} ปี`:'คืนทุนไม่ทันใน 20 ปี'}</b><br>${cmp}${parts}`;
-  $('sLine2').textContent=`${R.loan?`ผ่อนหมดแล้ว จ่ายแค่ค่าไฟราว ${fmt(billLeft+R.omAfter)} บาท/เดือน${R.omAfter?' (รวมค่าดูแล)':''} · `:''}${R.loan?'ประหยัด':'หลังคืนทุน ได้ประโยชน์'}เดือนละราว ${fmt(R.benefit/12-R.omAfter)} บาท (หักค่าดูแลหลังปีที่ 7 แล้ว) · รวม ${p.years} ปี ${R.netAtTerm>=0?'ได้กำไร':'ขาดทุน'} ${fmt(Math.abs(R.netAtTerm))} บาท`;
+  // the bill the user typed vs what they pay once installed (rest of the bill, minus export income, plus the loan instalment)
+  const afterBill=billIn-(R.saveY1+R.incY1)/12,afterAll=afterBill+(R.loan>0?R.pay+R.omM:0),cmp=`<span class="vs">ปกติจ่ายค่าไฟ ${fmt(billIn)} → ติดแล้ว${afterAll>=0?`จ่ายราว <b class="vsb">${fmt(afterAll)}</b>`:`ไม่ต้องจ่าย และได้เงินเข้าราว <b class="vsb">${fmt(-afterAll)}</b>`} บาท/เดือน</span>`;
+  {const aft=Math.max(0,Math.round(afterAll)),b=Math.round(billIn);crtCycle(w,`${b} → ${aft}`);}
+  if(R.loan>0)$('sLine1').innerHTML=(net>=0?`ทุกเดือน <b>เหลือ ${fmt(net)} บาท</b>`:`ทุกเดือน <b>ต้องควักเพิ่ม ${fmt(-net)} บาท</b>`)+`<br>${cmp}<small>${afterBill>=0?`ค่าไฟที่เหลือ ${fmt(afterBill)} (หักเงินขายไฟแล้ว) + ค่างวด ${fmt(R.pay)}`:`ค่างวด ${fmt(R.pay)} − เงินขายไฟส่วนที่เกินค่าไฟ ${fmt(-afterBill)} (ค่าไฟเหลือ 0)`} นาน ${p.ly} ปี${R.omM?` + ค่าดูแล ${fmt(R.omM)}`:''}</small>`;
+  else if(R.outlay<=0)$('sLine1').innerHTML=`ไม่ต้องจ่ายเอง<br><b>เงินสนับสนุนครอบคลุมทั้งหมด</b><br>${cmp}`;
+  else $('sLine1').innerHTML=`จ่ายเอง ${fmt(Math.max(0,R.outlay))} บาท${R.sub?` <span style="font-size:.75em;font-weight:500">(ต้องสำรองจ่ายร้านเต็ม ${fmt(R.capex)} ก่อน รัฐโอน ${fmt(R.sub)} เข้าพร้อมเพย์ทีหลัง)</span>`:''}<br><b>${R.payback!==null?`คืนทุนใน ${fmt(R.payback,1)} ปี`:'คืนทุนไม่ทันใน 20 ปี'}</b><br>${cmp}`;
+  $('sLoanNote').hidden=!(R.loan>0);
+  $('sLine2').textContent=`${R.loan?(()=>{const a=billIn-R.benefit/12+R.omAfter;return a>=0?`ผ่อนหมดแล้ว จ่ายค่าไฟราว ${fmt(a)} บาท/เดือน · `:`ผ่อนหมดแล้ว ไม่ต้องจ่ายค่าไฟ และได้เงินขายไฟราว ${fmt(-a)} บาท/เดือน · `;})():''}${R.loan?'ประหยัด':'หลังคืนทุน ได้ประโยชน์'}เดือนละราว ${fmt(R.benefit/12-R.omAfter)} บาท (หักค่าดูแลหลังปีที่ 7 แล้ว) · รวม ${p.years} ปี ${R.netAtTerm>=0?'ได้กำไร':'ขาดทุน'} ${fmt(Math.abs(R.netAtTerm))} บาท`;
   const pvM=R.sim.pvDay*365/12,pct=pvM?Math.min(1,R.sim.self*365/12/pvM):0,lab=pct>=.5?'ดีมาก':pct>=.35?'ปานกลาง':'ต่ำ';
   $('sMeterFill').style.width=(pct*100).toFixed(0)+'%';$('sMeterFill').style.background=pct>=.5?'var(--forest)':pct>=.35?'#e08a00':'var(--bad)';
   $('sMeterTxt').textContent=`ใช้ไฟจากแผงเองได้ ${fmt(pct*100)}% (${lab}) · ส่วนที่เหลือขายได้หน่วยละ ${fmt(p.sell,2)} บาท`;
