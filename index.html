@@ -231,9 +231,9 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 #t1 .answer>.crt{margin-top:22px}
 .carebtn{display:flex;gap:8px;align-items:flex-start;max-width:420px;text-align:left;font-size:13px;line-height:1.45;background:var(--surface);border:1.5px dashed #b45c00;border-radius:10px;padding:8px 12px;cursor:pointer}
 .carebtn input{margin-top:3px;accent-color:#b45c00}
-.pcount{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;max-width:420px}
-.pcount .btn{font-size:15px;padding:6px 14px;background:var(--surface)}
-.pcount span{font-family:var(--f-display);font-size:17px;font-weight:700;color:var(--forest);min-width:150px;text-align:center}
+.pcount{display:grid;grid-template-columns:repeat(2,minmax(0,150px));justify-content:center;gap:6px 12px;width:100%;margin:0 auto}
+.pcount .btn{font-size:15px;padding:8px 14px;background:var(--surface);width:100%}
+.pcount span{grid-column:1/-1;grid-row:2;font-family:var(--f-display);font-size:15px;font-weight:600;color:var(--forest);text-align:center}.laymin{display:none}
 .satsteps-t{margin:10px 0 0;font-family:var(--f-display);font-weight:600;color:var(--forest)}
 .laymin{margin:2px 0 0;font-size:12.5px;color:#2f3f48}
 .swipe .opt[aria-pressed=true]{border-color:#f28c18;box-shadow:0 0 0 3px rgba(242,140,24,.3)}
@@ -515,7 +515,6 @@ a.btn{text-decoration:none;display:inline-block}
         <div class="pickrow" id="roofRow"><h4>หลังคาแบบไหน <small>ปัดดูเพิ่ม →</small></h4><div class="swipe" id="roofPick"></div></div>
         <div class="pickrow"><h4>วางแผงแบบไหน <small>แตะซ้ำเพื่อยกเลิก</small></h4><div class="swipe" id="layPick"></div><p class="note laymin" id="layMin"></p></div>
       </div>
-      <p class="note">หมายถึงพื้นที่พอ ยังไม่ใช่สิทธิ์เข้าโครงการ</p>
       <p class="line" id="s2Line"></p>
       <button type="button" class="nextbtn" id="s2Next" data-next="t3" hidden><span class="tn">4</span>ไปข้อ 4 เลือกร้าน →</button>
       <svg id="s2Svg" class="fitsvg" viewBox="0 0 320 210" role="img" aria-label="ภาพจำลองการวางแผงบนพื้นที่"></svg>
@@ -662,7 +661,7 @@ a.btn{text-decoration:none;display:inline-block}
         <p class="note">พิกัดบ้านและภาพดาวเทียมอยู่ในข้อ 3 · <button type="button" class="linkbtn" data-go="roof">แก้ตำแหน่งที่ข้อ 3</button></p>
         <div class="field">
           <label for="coords">พิกัดจาก Google Maps</label>
-          <input type="text" id="coords" value="" placeholder="เช่น 14.9799, 102.0978 หรือวางลิงก์ Google Maps">
+          <input type="text" id="coords" value="" placeholder="วางพิกัด หรือลิงก์ Google Maps">
           <div class="locbtns">
             <button class="btn sm" type="button" id="gpsBtn">ตำแหน่งปัจจุบัน</button>
             <a class="btn sm" id="lnkPick" href="https://www.google.com/maps/@?api=1&amp;map_action=map&amp;basemap=satellite&amp;zoom=19" target="_blank" rel="noopener">เปิด Google Maps</a>
@@ -794,7 +793,7 @@ a.btn{text-decoration:none;display:inline-block}
         <p class="note" id="satMsg" hidden></p>
         <label class="drop" id="drop" for="roofFile" tabindex="0">
           <input type="file" id="roofFile" accept="image/*" hidden>
-          <span id="dropText"><span class="big">วางภาพหลังคาที่นี่</span><br>แคปหน้าจอภาพดาวเทียมแล้วกด Ctrl+V ลากไฟล์ภาพมาวาง หรือคลิกเพื่อเลือกไฟล์ ใช้ภาพโดรนหรือภาพถ่ายที่ลูกค้าส่งมาก็ได้</span>
+          <span id="dropText"><span class="big">รอรูปหลังคา</span><br><small>หรือแตะเพื่อเลือกภาพเอง</small></span>
         </label>
         <div class="layout" id="layoutWrap" hidden>
           <p class="lyhint" id="lyHint"></p>
@@ -2029,7 +2028,6 @@ function renderQuotes(){
   // how-to steps sit under the image, where the user is working
   const st=document.querySelector('#t2Sat .satsteps');lw.after(st);st.insertAdjacentHTML('beforebegin','<p class="satsteps-t">วิธีใช้</p>');}
  // phones have no Ctrl+V or drag-and-drop: the roof-image box opens the photo picker instead
- if(matchMedia('(pointer:coarse)').matches)$('dropText').innerHTML='<span class="big">แตะตรงนี้เพื่อเลือกภาพหลังคา</span><br>1) ใน Google Maps เปิดภาพดาวเทียม ซูมให้เห็นหลังคาเต็มจอ แล้วแคปหน้าจอ<br>2) กลับมาแตะตรงนี้ เลือกภาพจากอัลบั้ม / แกลเลอรี<br>ใช้ภาพโดรนหรือภาพที่ลูกค้าส่งมาก็ได้';
  // location and the roof-layout tool live in tab 2's satellite section (moved here so the elements keep their handlers)
  $('t2SatBody').append($('coords').closest('.field'),$('roofPanel'));$('roofPanel').classList.remove('collapsed');
  $('t2SatBody').insertAdjacentHTML('afterbegin','<div class="satmini" id="satMini" hidden><span>📍 <b id="satMiniTxt"></b></span><button type="button" class="btn sm" id="satMiniBtn">เปลี่ยนตำแหน่ง / ซูม</button></div>');
