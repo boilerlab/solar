@@ -191,8 +191,8 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 .answer .billq h4 svg{background:var(--surface)}
 .answer .billq .unit{color:var(--forest);font-weight:600}
 .answer .sizeq{width:100%;max-width:420px;text-align:left;border:2px solid transparent;border-radius:14px;padding:8px 10px}
-.answer .sizeq.needfill{border-color:#f28c18;animation:tabGlow 1.1s ease-in-out infinite}
-@media (prefers-reduced-motion:reduce){.answer .sizeq.needfill{animation:none}}
+.answer .sizeq.needfill,.answer .sizeq.warnfill{border-color:#f28c18;animation:tabGlow 1.1s ease-in-out infinite}.sizeq .dimwarn{display:none;color:#b45a00;font-weight:600}.sizeq.warnfill .dimwarn{display:block}
+@media (prefers-reduced-motion:reduce){.answer .sizeq.needfill,.answer .sizeq.warnfill{animation:none}}
 .answer{grid-template-columns:minmax(0,1fr)}
 .pick,.pickrow{min-width:0}
 .pick{width:100%;max-width:420px;display:grid;gap:12px;text-align:left}
@@ -472,6 +472,7 @@ a.btn{text-decoration:none;display:inline-block}
       <div class="q sizeq"><h4>ขนาดพื้นที่</h4>
         <div class="inrow big-in"><input type="number" id="s_w" value="" placeholder="ยาว" step="0.5" min="0" inputmode="decimal" aria-label="ความยาว (เมตร)"><span class="unit">×</span><input type="number" id="s_l" value="" placeholder="กว้าง" step="0.5" min="0" inputmode="decimal" aria-label="ความกว้าง (เมตร)"><span class="unit">ม.</span></div>
         <span class="hint" id="s_dimHint"></span>
+        <span class="hint dimwarn">ผลคิดจากขนาดที่ใส่ไว้ · เทียบกับหลังคาบนภาพดาวเทียมด้วยว่าตรงกันไหม (แตะช่องเพื่อแก้)</span>
         <button type="button" class="mapsbtn" id="s2Maps"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>ดูหลังคาจากดาวเทียม</button>
         <span class="hint">ใส่ตำแหน่งบ้าน แล้ววัดขนาดใน Google Maps หรือวางแผงบนภาพดาวเทียม แอปนับแผงให้</span></div>
       <div class="q" id="q_mat"><h4>หลังคาทำจากอะไร</h4>
@@ -1277,7 +1278,8 @@ function applyLy(scroll){
   if(bi>=0&&lyNum('lyPitch',15)>0){const d=dirOf(LY.faces[bi].bearing);$('dir').selectedIndex=d[2];applyYield();msg+=` · ตั้งทิศหน้าแผงเป็น${d[1]}`;}
   render();
   // feed the panel count into tab 2's screen in place of a typed width × length
-  S2.lyN=LY.faces.reduce((a,f)=>a+f.panels.length,0)+LY.manual.length;$('s_w').value='';$('s_l').value='';renderFit();
+  S2.lyN=LY.faces.reduce((a,f)=>a+f.panels.length,0)+LY.manual.length;// keep the size the user typed; flag it so they compare it with the roof on the photo
+  if(parseFloat($('s_w').value)>0&&parseFloat($('s_l').value)>0)S2.dimWarn=true;renderFit();
   $('lyApplied').textContent=msg+' · ผลขึ้นที่จอด้านบนแล้ว';
   if(scroll&&!$('t2').hidden)setTimeout(()=>document.querySelector('#t2 .answer').scrollIntoView({behavior:'smooth',block:'start'}),400);
 }
@@ -1742,7 +1744,8 @@ $('s2Rot').addEventListener('click',()=>{
 [['s2PL','lyPL'],['s2PW','lyPW']].forEach(([a,b])=>$(a).addEventListener('input',()=>{$(b).value=$(a).value;$(b).dispatchEvent(new Event('input'));renderFit();}));
 $('s2Wt').addEventListener('input',()=>{$('panelW').value=$('s2Wt').value;$('panelW').dispatchEvent(new Event('input',{bubbles:true}));});
 $('s2Sb').addEventListener('input',()=>{const v=parseFloat($('s2Sb').value);S2.sb=isFinite(v)?v:undefined;renderFit();});
-['s_w','s_l','s_old'].forEach(id=>$(id).addEventListener('input',()=>{if(id!=='s_old')S2.lyN=0;renderFit();}));
+['s_w','s_l','s_old'].forEach(id=>$(id).addEventListener('input',()=>{if(id!=='s_old'){S2.lyN=0;S2.dimWarn=false;}renderFit();}));
+['s_w','s_l'].forEach(id=>$(id).addEventListener('focus',()=>{if(S2.dimWarn){S2.dimWarn=false;renderFit();}}));
 $('s2Why').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const q=$(b.dataset.q);q.scrollIntoView({behavior:'smooth',block:'center'});q.classList.add('flash');setTimeout(()=>q.classList.remove('flash'),1600);});
 function renderFit(){
   // W × LT is the whole roof outline; a ridged roof (gable, hip, butterfly) is split into two sides of W × LT/2
@@ -1767,7 +1770,7 @@ function renderFit(){
   $('s2Need').textContent=P?`ติด ${fmt(need*pW/1000,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} = ${need} แผง (${fmt(pW)} W) · วางแบบ ${P.label} ${P.sides===2?P.counts.join('+')+' | '+P.countsB.join('+'):P.counts.join(' + ')}`:`ติด ${fmt(need*pW/1000,2)} kW ${S1.custom?'(ปรับจำนวนแผงเอง)':'(จากข้อ 1)'} ต้องใช้แผง ${need} แผง (${fmt(pW)} W) พื้นที่ราว ${aNeed(need)} ตร.ม.`;
   $('s2CountTxt').textContent=`${need} แผง · ${fmt(need*pW/1000,2)} kW`;
   $('s_sizeHint').textContent=S1.custom?`ตอนนี้ใช้ ${fmt(S1.size,2)} kW (${need} แผง) ที่ปรับจำนวนในข้อ 3 · กดขนาดด้านบนเพื่อเปลี่ยน`:`โครงการกำหนด 5–10 kW ต่อมิเตอร์ (แผง ${fmt(pW)} W ${min5} แผง ≈ 5 kW) บ้านส่วนใหญ่ 5 kW ก็พอ`;$('s_sizeHint').classList.toggle('on',!!S1.custom);
-  document.querySelector('#t2 .sizeq').classList.toggle('needfill',!dims&&!lyN);
+  document.querySelector('#t2 .sizeq').classList.toggle('needfill',!dims&&!lyN);document.querySelector('#t2 .sizeq').classList.toggle('warnfill',!!(dims&&S2.dimWarn));
   glowTab('t3',dims||lyN>0);$('s2Next').hidden=!(dims||lyN>0);
   [['s2PL','lyPL'],['s2PW','lyPW'],['s2Wt','panelW']].forEach(([a,b])=>{if(document.activeElement!==$(a))$(a).value=$(b).value;});
   $('s2Sb').placeholder=FIT[wh].sb;$('s2Params').hidden=!dims&&!lyN;S2.curA=F.a;
