@@ -140,7 +140,7 @@ pre.summary{white-space:pre-wrap;font-family:var(--f-body);font-size:13.5px;back
 @media (max-width:880px){.tabs,#tabs{justify-content:flex-start!important;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:8px}.tabs::-webkit-scrollbar{display:none}.tabs button{flex:none;font-size:15px;padding:8px 12px}.tabs .resetbtn.wide{flex:none}}
 .tab .panel,.tab .answer,.tab details,#rfq,#qtPanel,#pkgPanel{scroll-margin-top:70px}
 #sProd{margin:8px 0 0;text-align:center;font-size:13.5px;line-height:1.5;color:var(--ink)}#sProd b{color:var(--forest)}#sLoanNote{margin:6px 0 0;text-align:center;font-size:12.5px}#sVerdict .arr{display:inline-block;transform:translateY(-.1em)}#sVerdict.crtnum{white-space:nowrap;letter-spacing:-.01em}#sLine1 .vs{font-size:.8em;font-weight:500}#sLine1 .vsb{animation:none;text-shadow:none;font-size:inherit}#sLine1 small{display:block;line-height:1.4}#sLine1 small{font-size:.68em;font-weight:400;opacity:.85}
-#s2Next.onsat{display:flex;margin:14px auto 4px}#s2Next.onsat[hidden]{display:none}
+#s2Next{margin:16px auto 4px}
 /* tab 3 lays the panels out itself: on the satellite photo only the move / zoom buttons are needed */
 #t2SatBody .lyedit,#t2SatBody #placeTools label{display:none!important}
 #t2SatBody.compact>.field,#t2SatBody.compact #roofPanel>.row,#t2SatBody.compact .roofIntro,#t2SatBody.compact .roofbtns,#t2SatBody.compact #satMsg{display:none!important}.satmini{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 12px;margin:0 0 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:14px}.satmini[hidden]{display:none}
@@ -1058,8 +1058,7 @@ function showRoof(file){
 // once the satellite photo is on screen, fold the location inputs above it into one line
 // "ไปข้อ 3" sits under the satellite move buttons while the photo is shown, otherwise in its own place
 let s2NextHome=null;
-function placeNext(){const nb=$('s2Next'),sn=$('satNav');if(!nb||!sn)return;if(!s2NextHome){s2NextHome=document.createComment('s2Next');nb.before(s2NextHome);}
-  const onSat=!!(LY.img&&!sn.hidden&&$('t2Sat').open);if(onSat){if(nb.previousElementSibling!==sn)sn.after(nb);nb.classList.add('onsat');}else if(nb.previousSibling!==s2NextHome){s2NextHome.after(nb);nb.classList.remove('onsat');}}
+function placeNext(){const nb=$('s2Next'),box=$('t2Sat');if(nb&&box&&nb.previousElementSibling!==box)box.after(nb);}
 function satCompact(on){const b=$('t2SatBody'),m=$('satMini');if(!b||!m)return;b.classList.toggle('compact',on);m.hidden=!on;if(on)$('satMiniTxt').textContent=$('coords').value||'';}
 function useRoofImage(im,sat){
   // centre the fetched photo on screen; repeat once the panels and result box below it have settled
@@ -1816,7 +1815,7 @@ function renderFit(){
   else{const cond=wh!=='roof'||S2.mat==='tile'||$('s_old').checked||S2.shade==='some'||(roofy&&S2.dir==='n');
     if(n<need){v=`พอแค่ ${fmt(n*pW/1000,1)} kW`;c='v-mid';line=`ติด ${fmt(S1.size,1)} kW ไม่พอ<br>วางได้สูงสุด ${n} แผง (${fmt(n*pW/1000,1)} kW)`;}
     else{v=cond?'พอ ต้องเช็คก่อน':'พื้นที่พอ';c=cond?'v-mid':'v-good';line=SF?`วางแบบ <b>${P.label}${moved?' (แบ่งสองฝั่ง)':''}</b> ได้ (${need} แผง ${fmt(need*pW/1000,1)} kW)<br>${twoSide?`แบ่งหลังคาเป็นฝั่งละ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุดฝั่งละ ${F.count} แผง`:`พื้นที่ ${fmt(W,1)} × ${fmt(L,1)} ม. วางได้สูงสุด ${F.count} แผง`}`:!dims&&LY.mode==='group'?`วาง <b>${n} แผง</b> (${fmt(n*pW/1000,2)} kW) บนภาพดาวเทียมแล้ว<br>ลากให้อยู่บนหลังคา ถ้าล้นหลังคา = พื้นที่ไม่พอ`:`วางได้ <b>${n} แผง</b>${twoSide&&dims?' (สองฝั่งรวมกัน)':!dims?' จากภาพดาวเทียม':''} (${fmt(n*pW/1000,1)} kW)<br>ใช้จริง ${need} แผง`;}}
-  if(wh==='roof'){if(S2.mat==='metal')notes.push('เมทัลชีทติดง่ายที่สุด ใช้ขายึดแบบหนีบลอน ไม่ต้องเจาะหลังคา');if(S2.mat==='tile')notes.push('กระเบื้องแตกง่าย ต้องใช้ขายึดแบบตะขอและช่างที่ชำนาญ ถ้าทำไม่ดีหลังคาจะรั่ว');if(S2.mat==='concrete')notes.push('ดาดฟ้าคอนกรีตใช้โครงตั้งเอียง ไม่ต้องเจาะ ต้องเว้นระยะไม่ให้แถวบังกันเอง');}
+  if(wh==='roof'){if(S2.mat==='tile')notes.push('กระเบื้องแตกง่าย ต้องใช้ขายึดแบบตะขอและช่างที่ชำนาญ ถ้าทำไม่ดีหลังคาจะรั่ว');if(S2.mat==='concrete')notes.push('ดาดฟ้าคอนกรีตใช้โครงตั้งเอียง ไม่ต้องเจาะ ต้องเว้นระยะไม่ให้แถวบังกันเอง');}
   if(wh==='garage')notes.push('หลังคาโรงรถส่วนมากโครงเบา ต้องให้ช่างหรือวิศวกรเช็คว่ารับน้ำหนักเพิ่มราว 15 กก./ตร.ม. ได้');
   if(wh==='ground')notes.push('ต้องทำฐานและโครงเหล็ก ล้อมรั้วกันคนและสัตว์ ยกให้พ้นระดับน้ำท่วม และเดินสายถึงมิเตอร์ ค่าติดตั้งมักสูงกว่าบนหลังคา');
   if(wh==='float')notes.push('ใช้ทุ่นลอยน้ำเฉพาะ บ่อต้องมีน้ำตลอดปี ค่าใช้จ่ายสูงกว่า ข่าวบอกว่าโครงการรองรับแต่ยังรอรายละเอียด');
