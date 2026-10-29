@@ -1110,7 +1110,7 @@ function lyNum(id,d){const v=parseFloat($(id).value);return isFinite(v)?v:d;}
 function lyScale(){if(LY.sl.length<2)return null;const m=lyNum('lyMeters',0);const px=Math.hypot(LY.sl[1].x-LY.sl[0].x,LY.sl[1].y-LY.sl[0].y);return m>0&&px>0?m/px:null;}
 function toImg(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*cv.width/r.width,y:(e.clientY-r.top)*cv.height/r.height};}
 function dispK(){const r=cv.getBoundingClientRect();return r.width?cv.width/r.width:1;}
-function setMode(m){if(LY.mode==='group'&&m!=='group'){LY.manual=LY.manual.filter(q=>!q.grp);}LY.mode=m;$('placeTools').hidden=m!=='place'&&m!=='group';if(m==='group'){buildGroup();lyResult();}else if(LY.img)lyCompute();document.querySelectorAll('#lyMode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));$('lyHint').textContent=matchMedia('(pointer:coarse)').matches?HINTS[m].replace(/คลิก/g,'แตะ'):HINTS[m];cv.style.cursor=m==='edit'?'pointer':'crosshair';draw();}
+function setMode(m){if(LY.mode==='group'&&m!=='group'){LY.manual=LY.manual.filter(q=>!q.grp);}LY.mode=m;if(typeof angTxt==='function')angTxt();$('placeTools').hidden=m!=='place'&&m!=='group';if(m==='group'){buildGroup();lyResult();}else if(LY.img)lyCompute();document.querySelectorAll('#lyMode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));$('lyHint').textContent=matchMedia('(pointer:coarse)').matches?HINTS[m].replace(/คลิก/g,'แตะ'):HINTS[m];cv.style.cursor=m==='edit'?'pointer':'crosshair';draw();}
 function inPoly(p,P){let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const a=P[i],b=P[j];if((a.y>p.y)!==(b.y>p.y)&&p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x)c=!c;}return c;}
 function segDist(p,a,b){const dx=b.x-a.x,dy=b.y-a.y,l=dx*dx+dy*dy;let t=l?((p.x-a.x)*dx+(p.y-a.y)*dy)/l:0;t=Math.max(0,Math.min(1,t));return Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy);}
 function segX(a,b,c,d){const o=(p,q,r)=>Math.sign((q.x-p.x)*(r.y-p.y)-(q.y-p.y)*(r.x-p.x));return o(a,b,c)*o(a,b,d)<0&&o(c,d,a)*o(c,d,b)<0;}
@@ -1260,8 +1260,8 @@ function ghostAt(p){
   const ok=!LY.manual.some(m=>Math.hypot(m.c.x-c.x,m.c.y-c.y)<Math.min(w,h)*0.9||qs.some(t=>inPoly(t,m.q))||m.q.some(t=>inPoly(t,qs)));
   return{c:{x:c.x,y:c.y},ang,w,h,gw,gh,q,ok,face};
 }
-function angTxt(){$('lyAngTxt').textContent=`เอียง ${LY.pAng}° · ${(($('lyOrient').value==='p')!==(LY.pRot===90))?'แนวตั้ง':'แนวนอน'}`;}
-$('lyRot').addEventListener('click',()=>{LY.pRot=LY.pRot?0:90;angTxt();draw();});
+function angTxt(){$('lyRot').textContent=LY.mode==='group'?'หมุนทั้งชุด 90°':'หมุนแผง 90° (R)';$('lyAngTxt').textContent=`เอียง ${LY.pAng}° · ${(($('lyOrient').value==='p')!==(LY.pRot===90))?'แนวตั้ง':'แนวนอน'}`;}
+$('lyRot').addEventListener('click',()=>{if(LY.mode==='group')LY.pAng=((LY.pAng+90+180)%360+360)%360-180;else LY.pRot=LY.pRot?0:90;angTxt();draw();});
 $('lyAngM').addEventListener('click',()=>{LY.pAng-=5;angTxt();draw();});
 $('lyAngP').addEventListener('click',()=>{LY.pAng+=5;angTxt();draw();});
 $('lyOrient').addEventListener('change',angTxt);
@@ -1613,7 +1613,9 @@ function chipGroup(id,obj,key,cb){const g=$(id);const sync=()=>g.querySelectorAl
 // picture pickers: a roof shape redraws the arrangements; an arrangement sets the system size from its panel count
 $('roofPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;S2.roof=b.dataset.v;renderFit();});
 // remember the menu-1 size while an arrangement is chosen, and go back to it when the arrangement is cleared
-$('layPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;S2.lay=S2.lay===b.dataset.v?null:b.dataset.v;simpleSync();});
+// a layout that names the panel direction (2 rows standing / lying) also sets it for the area check and the satellite block
+function applyLayOri(){const P=S2.lay&&presetOf(S2.lay);if(!P||!P.ori)return;S2.ori=P.ori;LY.pRot=(($('lyOrient').value==='p')===(P.ori==='p'))?0:90;angTxt();if(LY.mode==='group'&&LY.img){buildGroup();lyResult();}}
+$('layPick').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;S2.lay=S2.lay===b.dataset.v?null:b.dataset.v;applyLayOri();simpleSync();});
 $('s_size').addEventListener('click',()=>{S2.lay=null;S1.custom=false;},true);
 $('s_care').addEventListener('change',()=>{S1.care=$('s_care').checked;simpleSync();});
 // +/- one panel: the count becomes the system size
@@ -1685,8 +1687,8 @@ function splitRows(m,rows){const b=Math.floor(m/rows),e=m%rows;return[...Array(r
 // two choices per roof; the app adds rows by itself when the area is too short for the row (see autoRows in renderFit)
 // only:'two' = ridged roofs only, only:'one' = single-slope / flat areas only
 function layPresets(){const pW=parseFloat($('panelW').value)||620,n=panelsFor(S1.size,pW);
-  const mk=(id,label,rows,sides,only)=>{const a=sides===2?Math.ceil(n/2):n,counts=splitRows(a,rows),countsB=sides===2?splitRows(n-a,rows):[];return{id,label,rows:counts.length,sides,only,counts,countsB,cols:Math.max(...counts,...countsB),n};};
-  return [mk('r1','เรียงแถวเดียว',1,1),mk('s2','สองฝั่ง',1,2,'two'),mk('r2','2 แถว',2,1,'one')];}
+  const mk=(id,label,rows,sides,only,ori)=>{const a=sides===2?Math.ceil(n/2):n,counts=splitRows(a,rows),countsB=sides===2?splitRows(n-a,rows):[];return{id,label,rows:counts.length,sides,only,ori,counts,countsB,cols:Math.max(...counts,...countsB),n};};
+  return [mk('r1','เรียงแถวเดียว',1,1),mk('s2','สองฝั่ง',1,2,'two'),mk('r2','2 แถว แผงตั้ง',2,1,'one','p'),mk('r2l','2 แถว แผงนอน',2,1,'one','l')];}
 function presetOf(id){return layPresets().find(p=>p.id===id)||null;}
 function roofOf(){const r=S2.where==='roof'||S2.where==='garage'?(S2.roof||'shed'):'ground';return r;}
 // elevation drawing of a house with each roof shape
@@ -1703,8 +1705,8 @@ function laySVG(roof,P){const ln='stroke:#28495a;stroke-width:1.6;fill:none';let
   else if(roof==='butterfly')g+='<path d="M8 35h84" style="'+ln+';stroke-dasharray:3 2"/>';
   else if(roof==='hip'){g+='<path d="M30 35h40M8 6l22 29M92 6l-22 29M8 64l22-29M92 64l-22-29" style="'+ln+'"/>';A={x:24,y:38,w:52,h:22};B={x:24,y:10,w:52,h:22};}
   else{A={x:12,y:10,w:76,h:50};B=null;if(roof==='flat')g+='<rect x="11" y="9" width="78" height="52" style="'+ln+';stroke-width:1"/>';if(roof==='shed')g+='<path d="M50 12v8M47 17l3 3 3-3" style="'+ln+'"/>';}
-  const grid=(r,counts)=>{const rows=counts.length,cols=Math.max(1,...counts),c=Math.min((r.w-2)/cols,(r.h-2)/(rows*1.55)),pw=c*.9,ph=c*1.55*.9,y0=r.y+(r.h-rows*c*1.55)/2;let s='';
-    for(let i=0;i<rows;i++){const x0=r.x+(r.w-counts[rows-1-i]*c)/2;for(let j=0;j<counts[rows-1-i];j++)s+=`<rect x="${(x0+j*c+c*.05).toFixed(1)}" y="${(y0+i*c*1.55+c*.08).toFixed(1)}" width="${pw.toFixed(1)}" height="${ph.toFixed(1)}" style="fill:#1f4fa3;stroke:#fff;stroke-width:.6"/>`;}return s;};
+  const L=P&&P.ori==='l',ax=L?1.55:1,ay=L?1:1.55,grid=(r,counts)=>{const rows=counts.length,cols=Math.max(1,...counts),c=Math.min((r.w-2)/(cols*ax),(r.h-2)/(rows*ay)),pw=c*ax*.9,ph=c*ay*.9,y0=r.y+(r.h-rows*c*ay)/2;let s='';
+    for(let i=0;i<rows;i++){const x0=r.x+(r.w-counts[rows-1-i]*c*ax)/2;for(let j=0;j<counts[rows-1-i];j++)s+=`<rect x="${(x0+j*c*ax+c*.05).toFixed(1)}" y="${(y0+i*c*ay+c*.08).toFixed(1)}" width="${pw.toFixed(1)}" height="${ph.toFixed(1)}" style="fill:#1f4fa3;stroke:#fff;stroke-width:.6"/>`;}return s;};
   if(P){g+=grid(A,P.counts);if(P.sides===2&&B)g+=grid(B,P.countsB);}
   return `<svg viewBox="0 0 100 70" aria-hidden="true">${g}</svg>`;}
 let pickKey='';
@@ -1746,6 +1748,7 @@ $('s2Maps').hidden=true;$('s2Maps').nextElementSibling.hidden=true;$('s2Go').app
 $('s2Rot').addEventListener('click',()=>{
   // panels placed from the satellite photo (no width × length typed): rotate the panel block on the photo instead
   if(!(parseFloat($('s_w').value)>0&&parseFloat($('s_l').value)>0)&&S2.lyN){$('lyRot').click();return;}
+  {const P=S2.lay&&presetOf(S2.lay);if(P&&P.ori){S2.lay=P.ori==='p'?'r2l':'r2';applyLayOri();simpleSync();return;}}
   const pw=lyNum('lyPW',1.13);S2.ori=S2.ori?(S2.ori==='p'?'l':'p'):(S2.curA===pw?'l':'p');renderFit();});
 [['s2PL','lyPL'],['s2PW','lyPW']].forEach(([a,b])=>$(a).addEventListener('input',()=>{$(b).value=$(a).value;$(b).dispatchEvent(new Event('input'));renderFit();}));
 $('s2Wt').addEventListener('input',()=>{$('panelW').value=$('s2Wt').value;$('panelW').dispatchEvent(new Event('input',{bubbles:true}));});
