@@ -1667,7 +1667,7 @@ $('s_prov').addEventListener('change',()=>{$('prov').value=$('s_prov').value;if(
 let crtT=0,crtK='';
 function crtCycle(word,nums){const e=$('sVerdict');const k=word+'|'+nums;if(k===crtK)return;crtK=k;clearInterval(crtT);crtT=0;if(!word||!nums)return;
   let i=0;crtT=setInterval(()=>{if(!e.isConnected)return;i^=1;if(i)e.innerHTML=nums.replace('→','<span class="arr">→</span>');else e.textContent=word;e.classList.toggle('crtnum',!!i);fitCrt(e);},2600);}
-function fitCrt(el){if(el.classList.contains('crtnum')){el.style.fontSize=Math.min(22,134/(el.textContent.length||1))+'cqw';return;}const n=el.textContent.replace(/[ัิ-ฺ็-๎\s]/g,'').length||1;el.style.fontSize=Math.min(30,140/n)+'cqw';}
+function fitCrt(el){if(el.classList.contains('crtnum')){{const n=el.textContent.replace(/[ัิ-ฺ็-๎]/g,'').length||1;el.style.fontSize=Math.min(22,(/→/.test(el.textContent)?134:165)/n)+'cqw';}return;}const n=el.textContent.replace(/[ัิ-ฺ็-๎\s]/g,'').length||1;el.style.fontSize=Math.min(30,140/n)+'cqw';}
 function verdictOf(R){
   if(R.loan>0){const n=R.benefit/12-R.pay-(R.omM||0);return n>=300?['คุ้ม','v-good']:n>=-200?['พอไหว','v-mid']:['ยังไม่คุ้ม','v-bad'];}
   const pb=R.payback;return pb!==null&&pb<=6?['คุ้ม','v-good']:pb!==null&&pb<=9?['พอไหว','v-mid']:['ยังไม่คุ้ม','v-bad'];}
@@ -1681,9 +1681,8 @@ function renderSimple(){
   $('sPrice').hidden=false;$('sPrice').innerHTML=`คิดจากราคาติดตั้ง ${fmt(p.price*p.kwp/S1.size)} บาท/kW ${parseFloat($('s_total').value)>0&&S1.priceOk?'(จากราคาที่กรอก)':'(ราคากลาง)'} · <button type="button" class="linkbtn">แก้ได้</button>`;
   $('sVerdict').textContent=w;$('sVerdict').className='verdict-big '+c;fitCrt($('sVerdict'));
   // the bill the user typed vs what they pay once installed (rest of the bill, minus export income, plus the loan instalment)
-  // the bill the user typed vs what they pay once installed (rest of the bill, minus export income, plus the loan instalment)
   const afterBill=billIn-(R.saveY1+R.incY1)/12,afterAll=afterBill+(R.loan>0?R.pay+R.omM:0),cmp=`<span class="vs">ปกติจ่ายค่าไฟ ${fmt(billIn)} → ติดแล้ว${afterAll>=0?`จ่ายราว <b class="vsb">${fmt(afterAll)}</b>`:`ไม่ต้องจ่าย และได้เงินเข้าราว <b class="vsb">${fmt(-afterAll)}</b>`} บาท/เดือน</span>`;
-  {const aft=Math.max(0,Math.round(afterAll)),b=Math.round(billIn);crtCycle(w,`${b} → ${aft}`);}
+  {const aft=Math.max(0,Math.round(afterAll)),b=Math.round(billIn);crtCycle(w,R.loan>0?`${b} → ${aft}`:(R.payback!==null?`คืนทุน ${fmt(R.payback,1)} ปี`:'คืนทุนไม่ทัน'));}
   if(R.loan>0)$('sLine1').innerHTML=(net>=0?`ทุกเดือน <b>เหลือ ${fmt(net)} บาท</b>`:`ทุกเดือน <b>ต้องควักเพิ่ม ${fmt(-net)} บาท</b>`)+`<br>${cmp}<small>${afterBill>=0?`ค่าไฟที่เหลือ ${fmt(afterBill)} (หักเงินขายไฟแล้ว) + ค่างวด ${fmt(R.pay)}`:`ค่างวด ${fmt(R.pay)} − เงินขายไฟส่วนที่เกินค่าไฟ ${fmt(-afterBill)} (ค่าไฟเหลือ 0)`} นาน ${p.ly} ปี${R.omM?` + ค่าดูแล ${fmt(R.omM)}`:''}</small>`;
   else if(R.outlay<=0)$('sLine1').innerHTML=`ไม่ต้องจ่ายเอง<br><b>เงินสนับสนุนครอบคลุมทั้งหมด</b><br>${cmp}`;
   else $('sLine1').innerHTML=`จ่ายเอง ${fmt(Math.max(0,R.outlay))} บาท${R.sub?` <span style="font-size:.75em;font-weight:500">(ต้องสำรองจ่ายร้านเต็ม ${fmt(R.capex)} ก่อน รัฐโอน ${fmt(R.sub)} เข้าพร้อมเพย์ทีหลัง)</span>`:''}<br><b>${R.payback!==null?`คืนทุนใน ${fmt(R.payback,1)} ปี`:'คืนทุนไม่ทันใน 20 ปี'}</b><br>${cmp}`;
