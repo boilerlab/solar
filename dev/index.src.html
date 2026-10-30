@@ -1460,7 +1460,7 @@ function render(){
   const A=compute(p,false),B=compute(p,true),R=hy?B:A;
   const S=suggestions(p);
   const b0=R.b0,b1=R.b1;
-  if(document.activeElement!==$('billBaht'))$('billBaht').value=Math.round(b0.total);
+  if(document.activeElement!==$('billBaht'))$('billBaht').value=window.BILL_IN>0?window.BILL_IN:Math.round(b0.total);
   $('billHint').textContent=`ค่าไฟประมาณ ${fmt(b0.total)} บาท/เดือน (เฉลี่ย ${fmt(b0.total/Math.max(p.kwh,1),2)} บาท/หน่วย)`;
   $('capexHint').textContent=`งบลงทุนรวม ${fmt(R.capex)} บาท = แผง+ติดตั้ง ${fmt(p.kwp*p.price)}${hy?` + แบต/อินเวอร์เตอร์ไฮบริด ${fmt(R.battCost)}`:''} + ค่าตรวจเชื่อมต่อ ${fmt(p.fee)}`;
   if(R.sub||R.loan)$('capexHint').textContent+=` · หักเงินสนับสนุน ${fmt(R.sub)} (ตามข่าว)${R.loan?` · กู้ ${fmt(R.loan)} ผ่อน ${fmt(R.pay)} บาท/เดือน`:''} · เงินที่ลงเอง ${fmt(Math.max(0,R.outlay))} บาท`;
@@ -1559,7 +1559,8 @@ ${R.sub?`• หักเงินสนับสนุนจากรัฐ: ${
 }
 
 function kwhFromBill(baht){const p=read();let lo=0,hi=5000;for(let i=0;i<40;i++){const m=(lo+hi)/2;if(bill(m,p).total<baht)lo=m;else hi=m;}return Math.round(lo);}
-$('billBaht').addEventListener('input',()=>{const b=parseFloat($('billBaht').value);if(b>0)$('kwh').value=kwhFromBill(b);});
+$('billBaht').addEventListener('input',()=>{const b=parseFloat($('billBaht').value);window.BILL_IN=b>0?b:0;if(b>0)$('kwh').value=kwhFromBill(b);});
+$('kwh').addEventListener('input',()=>{window.BILL_IN=0;});
 document.querySelectorAll('#presets button').forEach(b=>b.addEventListener('click',()=>{$('day').value=b.dataset.d;render();}));
 function roofTgl(){$('roofToggle').textContent=$('roofPanel').classList.contains('collapsed')?'เปิดเครื่องมือวางแผง':'ย่อเก็บ';}
 $('roofToggle').addEventListener('click',()=>{$('roofPanel').classList.toggle('collapsed');roofTgl();});
@@ -1637,7 +1638,7 @@ function simpleSync(){
   setTimeout(()=>{$('lyTarget').value=S1.size;if(LY.img&&LY.mode==='group'){buildGroup();lyResult();}else if(LY.img&&LY.faces.length)lyCompute();},0);
   window.CAREFUL=!!S1.care;$('s_care').checked=!!S1.care;
   $('s_size').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===S1.size)));
-  const b=parseFloat($('s_bill').value)||0;$('billBaht').value=b;$('kwh').value=kwhFromBill(b);
+  const b=parseFloat($('s_bill').value)||0;window.BILL_IN=b;$('billBaht').value=b||'';$('kwh').value=kwhFromBill(b);
   $('day').value=S1.pres;$('useLoan').checked=!!S1.loan;$('useSub').checked=S1.grant!==0;const pWv=parseFloat($('panelW').value)||620,kwpReal=+(panelsFor(S1.size,pWv)*pWv/1000).toFixed(2);$('kwp').value=kwpReal;
   // a total under ~10,000 baht/kW is almost always a typo (e.g. 15,000 for a whole system); keep the market price and say so
   const t=parseFloat($('s_total').value),fee=parseFloat($('fee').value)||0,ppk=t>0?(t-fee)/S1.size:0;S1.priceOk=ppk>=10000;
