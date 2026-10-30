@@ -375,7 +375,7 @@ a.btn{text-decoration:none;display:inline-block}
 .drop:focus-visible{outline:2px solid var(--cell);outline-offset:2px}
 .drop img{max-width:100%;max-height:460px;border-radius:8px;display:block}
 .drop .big{font-family:var(--f-display);font-size:16px;color:var(--ink)}
-.billnow{display:flex;align-items:center;gap:14px;flex-wrap:nowrap;margin:10px 0 14px;padding:14px 18px;border-radius:14px;background:var(--leaf);border:2px solid var(--yel)}.billnow:empty{display:none}.billnow>div{display:flex;flex-direction:column}.billnow .bk{font-size:.85rem;color:var(--muted)}.billnow .bv{font:700 2rem/1.1 'IBM Plex Mono',ui-monospace,monospace;color:var(--forest)}.billnow .bv.pos{color:var(--good)}.billnow .bv.neg{color:var(--bad)}.billnow .bu{font-size:.8rem;color:var(--muted)}.billnow .ba{font-size:1.8rem;color:#e07a10;font-weight:700}
+.billnow{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap;margin:10px 0 14px;padding:14px 18px;border-radius:14px;background:var(--leaf);border:2px solid var(--yel)}.billnow:empty{display:none}.billnow>div{display:flex;flex-direction:column}.billnow .bk{font-size:.85rem;color:var(--muted)}.billnow .bv{font:700 2rem/1.1 'IBM Plex Mono',ui-monospace,monospace;color:var(--forest)}.billnow .bv.pos{color:var(--good)}.billnow .bv.neg{color:var(--bad)}.billnow .bu{font-size:.8rem;color:var(--muted)}.billnow .ba{font-size:1.8rem;color:#e07a10;font-weight:700}.billnow .bx{flex-basis:100%;font-size:.8rem;color:var(--muted);border-top:1px dashed var(--yel);padding-top:6px}
 @media (max-width:880px){#adv.main{gap:20px}#adv .results{display:contents}#adv .results>*{order:3;min-width:0}#adv .inputs{order:2}#adv #cashPanel{order:1}}
 @media (max-width:480px){.billnow{gap:10px;padding:12px 14px}.billnow .bv{font-size:1.6rem}.billnow .ba{font-size:1.4rem}}
 </style>
@@ -1515,7 +1515,7 @@ function render(){
    rows+=`<tr class="total"><td>รวมต่อเดือน</td><td class="num ${net>=0?'pos':''}">${net>=0?'+':'−'}${fmt(Math.abs(net))}</td></tr>`;
    $('cashTable').innerHTML=rows;
    {const bIn=parseFloat($('billBaht').value)||0,aft=bIn-sM-iM+pM;
-    $('billNow').innerHTML=bIn>0?`<div><span class="bk">ค่าไฟตอนนี้</span><span class="bv">${fmt(bIn)}</span><span class="bu">บาท/เดือน</span></div><span class="ba">→</span><div><span class="bk">หลังติด</span><span class="bv ${aft<=bIn?'pos':'neg'}">${aft>=0?fmt(aft):'+'+fmt(-aft)}</span><span class="bu">${aft>=0?'บาท/เดือน':'บาท/เดือน ได้เงินเข้า'}${R.loan>0?' · รวมค่างวด':''}</span></div>`:'';}
+    $('billNow').innerHTML=bIn>0?`<div><span class="bk">ค่าไฟตอนนี้</span><span class="bv">${fmt(bIn)}</span><span class="bu">บาท/เดือน</span></div><span class="ba">→</span><div><span class="bk">หลังติด</span><span class="bv ${aft<=bIn?'pos':'neg'}">${aft>=0?fmt(aft):'+'+fmt(-aft)}</span><span class="bu">${aft>=0?'บาท/เดือน':'บาท/เดือน ได้เงินเข้า'}</span></div><div class="bx">= ค่าไฟ ${fmt(bIn-sM)} − ขายไฟ ${fmt(iM)}${R.loan>0?` + ค่างวด ${fmt(pM)}`:''}</div>`:'';}
    const v=$('verdict');
    if(!R.loan){v.className='verdict ok';v.textContent=`ไม่ได้กู้ · ได้ประโยชน์ ${fmt(sM+iM)} บาท/เดือน`;}
    else if(net>=0){v.className='verdict ok';v.textContent=`ผ่อนตัวเองได้ · เหลือ ${fmt(net)} บาท/เดือน`;}
@@ -1543,7 +1543,7 @@ function render(){
 
   const rows=[['หน่วยที่ซื้อจากการไฟฟ้า',fmt(p.kwh),fmt(R.gridM)],['ค่าพลังงานไฟฟ้า',fmt(b0.e,2),fmt(b1.e,2)],['ค่าบริการ',fmt(b0.svc,2),fmt(b1.svc,2)],['ค่า Ft',fmt(b0.ft,2),fmt(b1.ft,2)],['VAT 7%',fmt(b0.vat,2),fmt(b1.vat,2)]];
   $('billTable').innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td></tr>`).join('')+
-    `<tr class="total"><td>ค่าไฟรวม/เดือน</td><td class="num">${fmt(b0.total)}</td><td class="num pos">${fmt(b1.total)}</td></tr>`+
+    `<tr class="total"><td>ค่าไฟรวม/เดือน<small>บิลค่าไฟ ยังไม่หักเงินขายไฟ</small></td><td class="num">${fmt(b0.total)}</td><td class="num pos">${fmt(b1.total)}</td></tr>`+
     `<tr class="total"><td>+ รายได้ขายไฟ/เดือน</td><td class="num"></td><td class="num pos">${fmt(R.incY1/12)}</td></tr>`;
 
   const panels=panelsFor(p.kwp,p.panelW);
