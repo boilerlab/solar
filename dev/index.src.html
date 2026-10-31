@@ -1973,7 +1973,7 @@ $('rfqCopy').addEventListener('click',()=>{track('copy');const t=$('rfqText').va
   if(navigator.clipboard)navigator.clipboard.writeText(t).then(ok,()=>{$('rfqText').select();document.execCommand('copy');ok();});else{$('rfqText').select();document.execCommand('copy');ok();}});
 $('rfqLine').addEventListener('click',()=>{track('line');window.open('https://line.me/R/share?text='+encodeURIComponent($('rfqText').value),'_blank','noopener');});
 if(navigator.share){$('rfqShare').hidden=false;$('rfqShare').addEventListener('click',()=>{track('share');navigator.share({text:$('rfqText').value}).catch(()=>{});});}
-document.querySelectorAll('#tabs [data-t="t3"],[data-next="t3"]').forEach(b=>b.addEventListener('click',()=>{rfqRender(false);if(!$('pkgProv').value)$('pkgProv').value=homeProv();pkgRender();renderRights();}));
+document.querySelectorAll('#tabs [data-t="t3"],[data-next="t3"]').forEach(b=>b.addEventListener('click',()=>{rfqRender(false);{const hp=homeProv();if(hp&&($('pkgProv').dataset.auto!=='0'))$('pkgProv').value=hp;}pkgRender();renderRights();}));
 rfqRender(false);
 // ---- route: register -> got the right -> choose a shop -> quotes (kept on this phone without expiry, so people can come back weeks later)
 const RKEY='solarRights';let RT={stat:0},peek=false;
@@ -2003,7 +2003,7 @@ document.querySelectorAll('[data-go-rights]').forEach(b=>b.addEventListener('cli
 // ---- standard package prices that registered shops sent in (packages.json; empty until shops reply)
 let PKGS=null,PKGS_AT='',pkgKw=0;
 function loadPkgs(){if(PKGS)return;PKGS=[];fetch('packages.json').then(r=>r.ok?r.json():null).then(d=>{if(!d||!Array.isArray(d.p))return;PKGS=d.p;PKGS_AT=thDate(d.at);pkgRender();}).catch(()=>{});}
-$('pkgProv').innerHTML='<option value="">ทุกจังหวัด</option>'+provSorted.map(([n])=>`<option>${n}</option>`).join('');
+$('pkgProv').innerHTML='<option value="">ทุกจังหวัด</option>'+provSorted.map(([n])=>`<option>${n}</option>`).join('');$('pkgProv').value='กรุงเทพมหานคร';
 const pkgVendor=k=>VENDORS.find(v=>v.src===k.src&&String(v.id)===String(k.vid));
 function pkgServes(k,prov){if(!prov)return true;const mea=MEA_PROV.includes(prov);if(k.src&&(k.src==='M')!==mea)return false;
   const sv=k.serve||(pkgVendor(k)||{}).serve||'*';return sv==='*'||(Array.isArray(sv)&&sv.includes(prov))||(!k.serve&&k.src==='M');}
@@ -2028,7 +2028,7 @@ function pkgRender(){loadPkgs();loadVendors();const L=$('pkgList');if(!L)return;
       <div><button type="button" class="btn sm" data-pkg="${i}">ใส่ในตารางเทียบ</button></div></div></div>`;}).join(''):
     `<p class="note">ยังไม่มีร้านที่${prov?`รับงานใน จ.${esc(prov)} `:''}แจ้งราคาขนาดนี้ · ลองเลือก "ทุกขนาด" หรือส่งข้อความขอราคาจากร้านใกล้บ้านด้านล่าง</p>`)+
     `<p class="note">${fmt(all.length)} แพ็กเกจจากร้านที่แจ้งราคาแล้ว${PKGS_AT?` · อัปเดต ${PKGS_AT}`:''} · เรียงจากราคาต่อ kW ถูกที่สุด</p>`;}
-$('pkgProv').addEventListener('change',pkgRender);
+$('pkgProv').addEventListener('change',()=>{$('pkgProv').dataset.auto='0';pkgRender();});
 ['s_prov','rfqProv'].forEach(id=>$(id).addEventListener('change',renderRights));$('coords').addEventListener('input',renderRights);
 renderRights();
 $('pkgKw').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;pkgKw=+b.dataset.v;$('pkgKw').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));pkgRender();});
