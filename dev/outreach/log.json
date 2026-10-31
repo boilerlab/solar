@@ -58,7 +58,11 @@
    "status": "sent",
    "bounced_to": [
     "info@siameastsolusions.com"
-   ]
+   ],
+   "bounced": [
+    "info@siameastsolusions.com"
+   ],
+   "note": "ตีกลับบางอีเมล อีกอีเมลส่งถึง"
   },
   "sitron22@sitronpower.com": {
    "date": "2026-10-28",
@@ -71,7 +75,11 @@
    "status": "sent",
    "bounced_to": [
     "sirikan@sitronpower.com"
-   ]
+   ],
+   "bounced": [
+    "sirikan@sitronpower.com"
+   ],
+   "note": "ตีกลับบางอีเมล อีกอีเมลส่งถึง"
   },
   "sales_gov@lightmax.co.th": {
    "date": "2026-10-28",
@@ -131,7 +139,11 @@
    "status": "sent",
    "bounced_to": [
     "dhaitoon.kan@dohome.co.th"
-   ]
+   ],
+   "bounced": [
+    "dhaitoon.kan@dohome.co.th"
+   ],
+   "note": "ตีกลับบางอีเมล อีกอีเมลส่งถึง"
   },
   "phatcharaporn@telebiz.co.th": {
    "date": "2026-10-29",
@@ -265,7 +277,11 @@
    "status": "sent",
    "bounced_to": [
     "service@thaisolarway.com"
-   ]
+   ],
+   "bounced": [
+    "service@thaisolarway.com"
+   ],
+   "note": "ตีกลับบางอีเมล อีกอีเมลส่งถึง"
   },
   "bd1@blpower.co.th": {
    "date": "2026-10-29",
