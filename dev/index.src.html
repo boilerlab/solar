@@ -549,10 +549,29 @@ a.btn{text-decoration:none;display:inline-block}
         </ul>
       </details>
     </div>
+    <div class="panel afterR" id="rfq">
+      <div class="row"><h3>ขอใบเสนอราคาจากร้านใกล้บ้าน</h3><span class="note">แอปเขียนข้อความขอราคาจากข้อมูลบ้านในข้อ 1 และ 2 ให้ คุณส่งเองทาง LINE หรือแชทของร้าน แอปไม่ได้ส่งหรือเก็บข้อมูลของคุณ</span></div>
+      <div class="rfqgrid">
+        <label>จังหวัด<select id="rfqProv"></select></label>
+        <label>อำเภอ / ตำบล (ไม่บังคับ)<input type="text" id="rfqArea" placeholder="เช่น อ.เมือง ต.ในเมือง"></label>
+      </div>
+      <label class="note rfqchk"><input type="checkbox" id="rfqCoords"> แนบพิกัดบ้าน (ร้านดูหลังคาจากภาพดาวเทียมก่อนได้)</label>
+      <textarea id="rfqText" rows="13" aria-label="ข้อความขอใบเสนอราคา"></textarea>
+      <div class="rfqbtns"><button type="button" class="btn solid" id="rfqLine">ส่งทาง LINE</button><button type="button" class="btn" id="rfqCopy">คัดลอกข้อความ</button><button type="button" class="btn" id="rfqShare" hidden>แชร์…</button></div>
+      <div id="rfqVendors" class="rfqv"></div>
+    </div>
     <div class="panel afterR" id="pkgPanel">
       <div class="row"><h3>ราคาแพ็กเกจจากร้าน</h3><span class="note">ราคาที่ร้านที่ขึ้นทะเบียนแจ้งกับ Boiler Lab เอง ไม่ใช่ราคาทางการ ยืนยันกับร้านอีกครั้งก่อนทำสัญญา</span></div>
       <div class="pkgbar"><label>จังหวัด<select id="pkgProv"></select></label><div class="chips" id="pkgKw"><button type="button" data-v="0" aria-pressed="true">ทุกขนาด</button><button type="button" data-v="5">5 kW</button><button type="button" data-v="7.5">7.5 kW</button><button type="button" data-v="10">10 kW</button></div></div>
       <div id="pkgList" class="pkglist"></div>
+    </div>
+    <div class="panel afterR" id="qtPanel">
+      <div class="row"><h3>เทียบใบเสนอราคา</h3><span class="note">กรอกจากใบเสนอราคาที่ได้ แอปคิดความคุ้มของแต่ละเจ้าให้ ด้วยข้อมูลบ้านจากข้อ 1</span></div>
+      <div class="tablewrap"><table class="qt">
+        <thead><tr><th id="qh1">เจ้าที่ 1</th><th id="qh2">เจ้าที่ 2</th><th id="qh3">เจ้าที่ 3</th></tr></thead>
+        <tbody id="qbody"></tbody>
+        <tfoot id="qres"></tfoot>
+      </table></div>
     </div>
     <div class="panel afterR">
         <h3>เลือกร้านที่ขึ้นทะเบียน</h3>
@@ -567,28 +586,10 @@ a.btn{text-decoration:none;display:inline-block}
           <li class="alert"><b>ต้องทำสัญญาด้วย "สัญญามาตรฐานของการไฟฟ้า" เท่านั้น</b> ถ้าใช้สัญญาแบบอื่น จะไม่ได้เงินสนับสนุน 50,000 บาท (ร่างคู่มือประชาชน 27 ต.ค. 69)</li>
           <li class="alert"><b>ขอหนังสือค้ำประกันธนาคาร (Bank Guarantee) จากร้าน เป็นสิทธิ์ของเรา</b> (ร่างสัญญามาตรฐาน)<br>· <b>50,000 บาท</b> ร้านให้วันเซ็นสัญญา ถ้าร้านติดตั้งไม่เสร็จใน 6 เดือนจนเราไม่ได้เงินสนับสนุน เรียกเงินจากธนาคารได้<br>· <b>10,000 บาท</b> ร้านให้ภายใน 15 วันหลังได้รับอนุญาตเชื่อมต่อ อายุ 7 ปี ค้ำการซ่อม ประกันอัคคีภัย และล้างแผง (ได้ฉบับนี้แล้วจึงคืนฉบับ 50,000)<br>· ร้านส่งมอบช้า เสียค่าปรับวันละ 0.1% ของค่าจ้าง</li>
           <li class="alert">อย่าเชื่อร้านที่รับปากว่า "ได้เงิน 50,000 แน่นอน" หรือ "กู้ผ่านแน่นอน" การไฟฟ้าและธนาคารเป็นคนพิจารณา ร้านรับรองแทนไม่ได้</li>
-          <li class="alert">ขอใบเสนอราคาอย่างน้อย 2–3 เจ้า แล้วกรอกเทียบในตารางด้านล่าง</li>
+          <li class="alert">ขอใบเสนอราคาอย่างน้อย 2–3 เจ้า แล้วกรอกเทียบในตารางด้านบน</li>
         </ul>
       </div>
-    <div class="panel afterR" id="rfq">
-      <div class="row"><h3>ขอใบเสนอราคาจากร้านใกล้บ้าน</h3><span class="note">แอปเขียนข้อความขอราคาจากข้อมูลบ้านในข้อ 1 และ 2 ให้ คุณส่งเองทาง LINE หรือแชทของร้าน แอปไม่ได้ส่งหรือเก็บข้อมูลของคุณ</span></div>
-      <div class="rfqgrid">
-        <label>จังหวัด<select id="rfqProv"></select></label>
-        <label>อำเภอ / ตำบล (ไม่บังคับ)<input type="text" id="rfqArea" placeholder="เช่น อ.เมือง ต.ในเมือง"></label>
-      </div>
-      <label class="note rfqchk"><input type="checkbox" id="rfqCoords"> แนบพิกัดบ้าน (ร้านดูหลังคาจากภาพดาวเทียมก่อนได้)</label>
-      <textarea id="rfqText" rows="13" aria-label="ข้อความขอใบเสนอราคา"></textarea>
-      <div class="rfqbtns"><button type="button" class="btn solid" id="rfqLine">ส่งทาง LINE</button><button type="button" class="btn" id="rfqCopy">คัดลอกข้อความ</button><button type="button" class="btn" id="rfqShare" hidden>แชร์…</button></div>
-      <div id="rfqVendors" class="rfqv"></div>
-    </div>
-    <div class="panel afterR" id="qtPanel">
-      <div class="row"><h3>เทียบใบเสนอราคา</h3><span class="note">กรอกจากใบเสนอราคาที่ได้ แอปคิดความคุ้มของแต่ละเจ้าให้ ด้วยข้อมูลบ้านจากข้อ 1</span></div>
-      <div class="tablewrap"><table class="qt">
-        <thead><tr><th id="qh1">เจ้าที่ 1</th><th id="qh2">เจ้าที่ 2</th><th id="qh3">เจ้าที่ 3</th></tr></thead>
-        <tbody id="qbody"></tbody>
-        <tfoot id="qres"></tfoot>
-      </table></div>
-    </div>    <div class="two afterR" style="align-items:start">
+    <div class="two afterR" style="align-items:start">
       <div class="panel" style="align-content:start">
         <h3>เงื่อนไขหลัก (จากเว็บ MEA ข่าว และร่างคู่มือประชาชน 27 ต.ค. 69)</h3>
         <p class="note">คู่มือของมหาดไทยยังเป็น<b>ร่าง</b> ยังไม่บังคับใช้ รายละเอียดอาจเปลี่ยน</p>
