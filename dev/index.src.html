@@ -353,6 +353,9 @@ a.btn{text-decoration:none;display:inline-block}
 .billnow{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap;margin:10px 0 14px;padding:14px 18px;border-radius:14px;background:var(--leaf);border:2px solid var(--yel)}.billnow:empty{display:none}.billnow>div{display:flex;flex-direction:column}.billnow .bk{font-size:.85rem;color:var(--muted)}.billnow .bv{font:700 2rem/1.1 'IBM Plex Mono',ui-monospace,monospace;color:var(--forest)}.billnow .bv.pos{color:var(--good)}.billnow .bv.neg{color:var(--bad)}.billnow .bu{font-size:.8rem;color:var(--muted)}.billnow .ba{font-size:1.8rem;color:#e07a10;font-weight:700}.billnow .bx{flex-basis:100%;font-size:.8rem;color:var(--muted);border-top:1px dashed var(--yel);padding-top:6px}
 @media (max-width:880px){#adv.main{gap:20px}#adv .results{display:contents}#adv .results>*{order:3;min-width:0}#adv .inputs{order:2}#adv #cashPanel{order:1}}
 @media (max-width:480px){.billnow{gap:10px;padding:12px 14px}.billnow .bv{font-size:1.6rem}.billnow .ba{font-size:1.4rem}}
+.pkghero{border:3px solid #f28c28!important;box-shadow:0 6px 24px rgba(242,140,40,.18)}.pkghero h3{font-size:1.35em}
+.pkg{grid-template-columns:200px minmax(0,1fr);align-items:start;gap:12px}.pkg .pbody{display:grid;gap:6px;min-width:0}.pimg{width:200px;aspect-ratio:4/3;object-fit:cover;border-radius:10px;background:var(--leaf);display:block}.pimg.ph{display:grid;place-items:center;font-size:12px;color:var(--muted);border:1px dashed var(--line)}.pkg.sample{border-style:dashed;opacity:.95}
+@media (max-width:560px){.pkg{grid-template-columns:minmax(0,1fr)}.pimg{width:100%}}
 </style>
 
 <!-- Boiler Lab gauge icon (owner's brand kit), defined once and reused -->
@@ -526,6 +529,11 @@ a.btn{text-decoration:none;display:inline-block}
   </section>
 
   <section class="tab" id="t3" hidden style="display:grid;gap:24px">
+    <div class="panel pkghero" id="pkgPanel">
+      <div class="row"><h3>ราคาแพ็กเกจจากร้าน</h3><span class="note">ราคาที่ร้านที่ขึ้นทะเบียนแจ้งกับ Boiler Lab เอง ไม่ใช่ราคาทางการ ยืนยันกับร้านอีกครั้งก่อนทำสัญญา</span></div>
+      <div class="pkgbar"><label>จังหวัด<select id="pkgProv"></select></label><div class="chips" id="pkgKw"><button type="button" data-v="0" aria-pressed="true">ทุกขนาด</button><button type="button" data-v="5">5 kW</button><button type="button" data-v="7.5">7.5 kW</button><button type="button" data-v="10">10 kW</button></div></div>
+      <div id="pkgList" class="pkglist"></div>
+    </div>
     <div class="panel" id="gate">
       <div class="row"><h3>เส้นทางรับสิทธิ์ 50,000</h3><span class="note" id="gateStat"></span></div>
       <ol class="path" data-path></ol>
@@ -559,11 +567,6 @@ a.btn{text-decoration:none;display:inline-block}
       <textarea id="rfqText" rows="13" aria-label="ข้อความขอใบเสนอราคา"></textarea>
       <div class="rfqbtns"><button type="button" class="btn solid" id="rfqLine">ส่งทาง LINE</button><button type="button" class="btn" id="rfqCopy">คัดลอกข้อความ</button><button type="button" class="btn" id="rfqShare" hidden>แชร์…</button></div>
       <div id="rfqVendors" class="rfqv"></div>
-    </div>
-    <div class="panel afterR" id="pkgPanel">
-      <div class="row"><h3>ราคาแพ็กเกจจากร้าน</h3><span class="note">ราคาที่ร้านที่ขึ้นทะเบียนแจ้งกับ Boiler Lab เอง ไม่ใช่ราคาทางการ ยืนยันกับร้านอีกครั้งก่อนทำสัญญา</span></div>
-      <div class="pkgbar"><label>จังหวัด<select id="pkgProv"></select></label><div class="chips" id="pkgKw"><button type="button" data-v="0" aria-pressed="true">ทุกขนาด</button><button type="button" data-v="5">5 kW</button><button type="button" data-v="7.5">7.5 kW</button><button type="button" data-v="10">10 kW</button></div></div>
-      <div id="pkgList" class="pkglist"></div>
     </div>
     <div class="panel afterR" id="qtPanel">
       <div class="row"><h3>เทียบใบเสนอราคา</h3><span class="note">กรอกจากใบเสนอราคาที่ได้ แอปคิดความคุ้มของแต่ละเจ้าให้ ด้วยข้อมูลบ้านจากข้อ 1</span></div>
@@ -2012,17 +2015,17 @@ function pkgFlags(k){const f=[],kwp=k.kwp||(k.panel&&k.panel.w&&k.panel.n?k.pane
 function pkgRender(){loadPkgs();loadVendors();const L=$('pkgList');if(!L)return;
   const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const prov=$('pkgProv').value,all=PKGS||[];
-  if(!all.length){L.innerHTML='<p class="note"><b>กำลังรวบรวมราคา</b> · Boiler Lab กำลังขอราคาชุดมาตรฐาน 5 / 7.5 / 10 kW จากร้านที่ขึ้นทะเบียน จะแสดงที่นี่เมื่อร้านตอบกลับ · ระหว่างนี้ส่งข้อความขอราคาจากร้านใกล้บ้านด้านล่างได้</p>';return;}
+  if(!all.length){L.innerHTML=`<div class="pkg sample"><img class="pimg" src="assets/pkg-sample.jpg" alt="ตัวอย่างรูปแพ็กเกจ" loading="lazy"><div class="pbody"><div class="top"><b>Sample <span class="flag">ตัวอย่าง · ไม่ใช่ร้านจริง</span></b><span class="pr">– บาท</span></div><div>5 kW 1 เฟส · On-Grid · แผง + อินเวอร์เตอร์ + กล่องควบคุม (combiner box)</div><div class="note">ร้านที่ส่งราคามา จะแสดงแบบนี้: รูปแพ็กเกจ ยี่ห้อแผง/อินเวอร์เตอร์ ประกัน สิ่งที่รวม/ไม่รวม และช่องทางติดต่อ</div></div></div>`+'<p class="note"><b>กำลังรวบรวมราคา</b> · Boiler Lab กำลังขอราคาชุดมาตรฐาน 5 / 7.5 / 10 kW จากร้านที่ขึ้นทะเบียน จะแสดงที่นี่เมื่อร้านตอบกลับ · ระหว่างนี้ส่งข้อความขอราคาจากร้านใกล้บ้านด้านล่างได้</p>';return;}
   const list=all.map((k,i)=>({k,i})).filter(({k})=>pkgServes(k,prov)&&(!pkgKw||Math.abs(k.kw-pkgKw)<.01)).sort((a,b)=>a.k.price/a.k.kw-b.k.price/b.k.kw);
   L.innerHTML=(list.length?list.map(({k,i})=>{const v=pkgVendor(k)||{},pn=k.panel||{},iv=k.inv||{},w=k.warr||{},fl=pkgFlags(k),kwp=k.kwp||(pn.w&&pn.n?pn.w*pn.n/1000:0);
-    return `<div class="pkg"><div class="top"><b>${esc(k.name||v.name)}</b><span class="pr">${fmt(k.price)} บาท</span></div>
+    return `<div class="pkg">${k.img?`<img class="pimg" src="${esc(k.img)}" alt="แพ็กเกจ ${esc(k.name||v.name)}" loading="lazy">`:'<div class="pimg ph">ยังไม่มีรูปแพ็กเกจ</div>'}<div class="pbody"><div class="top"><b>${esc(k.name||v.name)}</b><span class="pr">${fmt(k.price)} บาท</span></div>
       <div>${fmt(k.kw,k.kw%1?1:0)} kW${k.phase?` ${k.phase} เฟส`:''}${kwp?` · แผง ${fmt(kwp,2)} kWp`:''} · ${fmt(k.price/k.kw)} บาท/kW ${k.vat===false?'(ไม่รวม VAT)':'รวม VAT'}</div>
       <div class="note">แผง ${esc([pn.brand,pn.model].filter(Boolean).join(' ')||'ไม่ระบุ')}${pn.w?` ${pn.w} W`:''}${pn.n?` × ${pn.n}`:''}${pn.warr?` ประกัน ${pn.warr} ปี`:''} · อินเวอร์เตอร์ ${esc([iv.brand,iv.model].filter(Boolean).join(' ')||'ไม่ระบุ')}${iv.kw?` ${iv.kw} kW`:''}${iv.warr?` ประกัน ${iv.warr} ปี`:''}</div>
       <div class="note">ประกันงาน ${w.work??'–'} ปี · อัคคีภัย ${w.fire??'–'} ปี · ล้างแผง ${w.clean??'–'} ปี${k.std?' · ใช้สัญญามาตรฐาน':''}${k.bg?' · ให้หนังสือค้ำ':''}${k.survey!=null?` · ค่าสำรวจ ${k.survey?fmt(k.survey)+' บาท':'ฟรี'}`:''}</div>
       ${k.includes?`<div class="note">รวม: ${esc(k.includes)}</div>`:''}${k.excludes?`<div class="note">ไม่รวม: ${esc(k.excludes)}</div>`:''}
       ${fl.length?`<div>${fl.map(x=>`<span class="flag">${x}</span>`).join('')}</div>`:''}
       <div class="note">ราคา ณ ${esc(thDate(k.date))||'–'} · ร้านแจ้งเอง${v.phone?` · <a href="tel:${esc(v.phone.split(/[,/ ]/)[0])}">${esc(v.phone)}</a>`:''}${v.email?` · <a href="mailto:${esc(v.email)}">${esc(v.email)}</a>`:''}</div>
-      <div><button type="button" class="btn sm" data-pkg="${i}">ใส่ในตารางเทียบ</button></div></div>`;}).join(''):
+      <div><button type="button" class="btn sm" data-pkg="${i}">ใส่ในตารางเทียบ</button></div></div></div>`;}).join(''):
     `<p class="note">ยังไม่มีร้านที่${prov?`รับงานใน จ.${esc(prov)} `:''}แจ้งราคาขนาดนี้ · ลองเลือก "ทุกขนาด" หรือส่งข้อความขอราคาจากร้านใกล้บ้านด้านล่าง</p>`)+
     `<p class="note">${fmt(all.length)} แพ็กเกจจากร้านที่แจ้งราคาแล้ว${PKGS_AT?` · อัปเดต ${PKGS_AT}`:''} · เรียงจากราคาต่อ kW ถูกที่สุด</p>`;}
 $('pkgProv').addEventListener('change',pkgRender);
