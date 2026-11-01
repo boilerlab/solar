@@ -470,7 +470,7 @@ a.btn{text-decoration:none;display:inline-block}
         <div class="chips" id="s_grant"><button data-v="1">ให้เปล่า (หักจากราคา)</button><button data-v="0">เป็นเงินกู้ (ไม่มีส่วนลด)</button></div>
         <span class="hint">เงินสนับสนุนสูงสุด 50,000 บาทต่อราย (ให้เปล่า) · <b>จ่ายสด:</b> จ่ายร้านเต็มก่อน แล้วรัฐโอน 50,000 เข้าพร้อมเพย์ที่ผูกเลขบัตรประชาชน รัฐเบิกจ่ายภายใน 31 ธ.ค. 70 (ร่างคู่มือ) จึงอาจต้องรอนานหลายเดือนหลังติดตั้ง · <b>กู้:</b> ธนาคารจ่ายร้าน 50,000 เข้าธนาคารตรง ผ่อนแค่ส่วนที่เหลือผ่านบิลค่าไฟ ไม่เช็คเครดิตบูโร</span></div>
       <div class="q"><h4>ขนาดที่จะติด</h4>
-        <div class="chips" id="s_size"><button data-v="5">5 kW</button><button data-v="7.5">7.5 kW</button><button data-v="10">10 kW</button></div>
+        <div class="chips" id="s_size"><button data-v="5">5 kW</button><button data-v="10">10 kW</button></div>
         <span class="hint" id="s_sizeHint">ข่าวบอกติดได้ไม่เกิน 10 kW บ้านส่วนใหญ่ 5 kW ก็พอ</span></div>
       <details class="more"><summary>ข้อมูลเพิ่ม (ไม่บังคับ)</summary>
         <div class="q" style="margin-top:12px"><label for="s_prov">จังหวัด (ใช้ค่าแสงแดดของพื้นที่)</label><select id="s_prov"></select></div>
@@ -561,7 +561,7 @@ a.btn{text-decoration:none;display:inline-block}
   <section class="tab" id="t3" hidden style="display:grid;gap:24px">
     <div class="panel pkghero" id="pkgPanel">
       <div class="row"><h3>ราคาแพ็กเกจจากร้าน</h3><span class="note">ราคาที่ร้านที่ขึ้นทะเบียนแจ้งกับ Boiler Lab เอง ไม่ใช่ราคาทางการ ยืนยันกับร้านอีกครั้งก่อนทำสัญญา</span></div>
-      <div class="pkgbar"><label>จังหวัด<select id="pkgProv"></select></label><div class="chips" id="pkgKw"><button type="button" data-v="0" aria-pressed="true">ทุกขนาด</button><button type="button" data-v="5">5 kW</button><button type="button" data-v="7.5">7.5 kW</button><button type="button" data-v="10">10 kW</button></div></div>
+      <div class="pkgbar"><label>จังหวัด<select id="pkgProv"></select></label><div class="chips" id="pkgKw"><button type="button" data-v="0" aria-pressed="true">ทุกขนาด</button><button type="button" data-v="5">5 kW</button><button type="button" data-v="10">10 kW</button></div></div>
       <div id="pkgList" class="pkglist"></div>
     </div>
     <div class="panel" id="gate">
@@ -1743,7 +1743,7 @@ function RGAP(){const e=document.getElementById('s2RGap'),v=e?parseFloat(e.value
 function GAP(){const e=document.getElementById('s2Gap'),v=e?parseFloat(e.value):NaN;return(isFinite(v)&&v>=0?v:20)/1000;}
 const FIT={roof:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},garage:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},ground:{sb:.5,gx:.02,gy:1.2,tilt:15,area:1.9},float:{sb:1,gx:.4,gy:.6,tilt:12,area:2.1}};
 // ---- tab 2 picture pickers: roof shape and panel arrangement ----
-// panels for a size: round UP to reach the size (650 W: 5 kW = 8, 7.5 kW = 12) but never above the scheme's 10 kWp per meter (10 kW = 15 panels, 9.75 kWp)
+// panels for a size: round UP to reach the size (650 W: 5 kW = 8) but never above the scheme's 10 kWp per meter (10 kW = 15 panels, 9.75 kWp)
 function panelsFor(kw,w){let n=Math.max(1,Math.ceil(kw*1000/w-0.05));while(n>1&&n*w>10000+1e-6)n--;return n;}
 function roofTypes(){return [{id:'shed',label:'เพิงหมาแหงน',two:0},{id:'gable',label:'จั่ว',two:1},{id:'hip',label:'ปั้นหยา',two:1},{id:'butterfly',label:'ผีเสื้อ',two:1},{id:'flat',label:'ดาดฟ้า / แบน',two:0}];}
 // names say the shape: "เรียง N" = one row of N, "เรียง N สองฝั่ง" = a row of N on each side of the ridge, "R แถว × N" = R rows of N on one side
@@ -2058,7 +2058,7 @@ function pkgRegs(k,prov){const mea=prov?MEA_PROV.includes(prov):null;return [{sr
 function pkgRender(){loadPkgs();loadVendors();const L=$('pkgList');if(!L)return;
   const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const prov=$('pkgProv').value,all=PKGS||[];
-  if(!all.length){L.innerHTML=`<div class="pkg sample"><img class="pimg" src="assets/pkg-sample.jpg" alt="ตัวอย่างรูปแพ็กเกจ" loading="lazy"><div class="pbody"><div class="top"><b>Sample <span class="flag">ตัวอย่าง · ไม่ใช่ร้านจริง</span></b><span class="pr">– บาท</span></div><div>5 kW 1 เฟส · On-Grid · แผง + อินเวอร์เตอร์ + กล่องควบคุม (combiner box)</div><div class="note">ร้านที่ส่งราคามา จะแสดงแบบนี้: รูปแพ็กเกจ ยี่ห้อแผง/อินเวอร์เตอร์ ประกัน สิ่งที่รวม/ไม่รวม และช่องทางติดต่อ</div></div></div>`+'<p class="note"><b>กำลังรวบรวมราคา</b> · Boiler Lab กำลังขอราคาชุดมาตรฐาน 5 / 7.5 / 10 kW จากร้านที่ขึ้นทะเบียน จะแสดงที่นี่เมื่อร้านตอบกลับ · ระหว่างนี้ส่งข้อความขอราคาจากร้านใกล้บ้านด้านล่างได้</p>';return;}
+  if(!all.length){L.innerHTML=`<div class="pkg sample"><img class="pimg" src="assets/pkg-sample.jpg" alt="ตัวอย่างรูปแพ็กเกจ" loading="lazy"><div class="pbody"><div class="top"><b>Sample <span class="flag">ตัวอย่าง · ไม่ใช่ร้านจริง</span></b><span class="pr">– บาท</span></div><div>5 kW 1 เฟส · On-Grid · แผง + อินเวอร์เตอร์ + กล่องควบคุม (combiner box)</div><div class="note">ร้านที่ส่งราคามา จะแสดงแบบนี้: รูปแพ็กเกจ ยี่ห้อแผง/อินเวอร์เตอร์ ประกัน สิ่งที่รวม/ไม่รวม และช่องทางติดต่อ</div></div></div>`+'<p class="note"><b>กำลังรวบรวมราคา</b> · Boiler Lab กำลังขอราคาชุดมาตรฐาน 5 / 10 kW จากร้านที่ขึ้นทะเบียน จะแสดงที่นี่เมื่อร้านตอบกลับ · ระหว่างนี้ส่งข้อความขอราคาจากร้านใกล้บ้านด้านล่างได้</p>';return;}
   const list=all.map((k,i)=>({k,i})).filter(({k})=>pkgServes(k,prov)&&(!pkgKw||Math.abs(k.kw-pkgKw)<.01)).sort((a,b)=>(pkgScore(b.k).n-pkgScore(a.k).n)||(a.k.price/a.k.kw-b.k.price/b.k.kw));
   L.innerHTML=(list.length?list.map(({k,i})=>{const v=pkgVendor(k)||{},pn=k.panel||{},iv=k.inv||{},w=k.warr||{},fl=pkgFlags(k),kwp=k.kwp||(pn.w&&pn.n?pn.w*pn.n/1000:0);
     return `<div class="pkg">${vidEmbed(k.video)?`<button type="button" class="pimg vprev" data-emb="${esc(vidEmbed(k.video))}" aria-label="เล่นวิดีโอ ${esc(k.name||v.name)}">${k.img?`<img src="${esc(k.img)}" alt="" loading="lazy">`:''}<span class="play">▶</span></button>`:''}${!vidEmbed(k.video)?(k.img?`<img class="pimg" src="${esc(k.img)}" alt="แพ็กเกจ ${esc(k.name||v.name)}" loading="lazy">`:'<div class="pimg ph">ยังไม่มีรูปแพ็กเกจ</div>'):''}<div class="pbody"><div class="top"><b>${esc(k.name||v.name)}</b><span class="pr">${fmt(k.price)} บาท${(k.net||k.price>50000)?`<small class="net">จ่ายจริง${k.net?'':'ราว'} ${fmt(k.net||k.price-50000)}*</small>`:''}</span></div>
