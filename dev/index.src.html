@@ -356,6 +356,7 @@ a.btn{text-decoration:none;display:inline-block}
 .pkghero{border:3px solid #f28c28!important;box-shadow:0 6px 24px rgba(242,140,40,.18)}.pkghero h3{font-size:1.35em}
 .pkg{grid-template-columns:200px minmax(0,1fr);align-items:start;gap:12px}.pkg .pbody{display:grid;gap:6px;min-width:0}.pimg{width:200px;aspect-ratio:4/3;object-fit:cover;border-radius:10px;background:var(--leaf);display:block}.pimg.ph{display:grid;place-items:center;font-size:12px;color:var(--muted);border:1px dashed var(--line)}.pkg.sample{border-style:dashed;opacity:.95}
 @media (max-width:560px){.pkg{grid-template-columns:minmax(0,1fr)}.pimg{width:100%}}
+#adv .results.nodata>:not(#advEmpty):not(#roofPanel){display:none!important}#adv #advEmpty{order:0}.advempty{border:3px dashed #f28c28!important}
 </style>
 
 <!-- Boiler Lab gauge icon (owner's brand kit), defined once and reused -->
@@ -784,6 +785,7 @@ a.btn{text-decoration:none;display:inline-block}
     </form>
 
     <section class="results" aria-live="polite">
+      <div class="panel advempty" id="advEmpty" hidden><h3>ยังไม่มีข้อมูลค่าไฟ</h3><p class="line">กรอก<b>ค่าไฟต่อเดือน</b>ที่ข้อ 1 หรือในช่อง "ค่าไฟเฉลี่ยต่อเดือน" ทางซ้าย (บนมือถืออยู่ด้านล่าง) แล้วตัวเลขสรุปจะขึ้นที่นี่</p><button type="button" class="btn solid" id="advGo1">ไปข้อ 1 กรอกค่าไฟ →</button></div>
       <div class="panel collapsed" id="roofPanel">
         <div class="row"><h3>วางแผงบนภาพหลังคา</h3><span class="note" id="roofCoord"></span><button class="btn sm" type="button" id="roofToggle">เปิดเครื่องมือวางแผง</button></div>
         <p class="note roofIntro">ระบบ 5 kW ใช้แผงราว 8 แผง พื้นที่หลังคาประมาณ 25 ตร.ม. (10 kW ราว 50 ตร.ม.) หลังคาบ้านทั่วไปมักพอ เครื่องมือนี้ใช้เช็คหลังคาที่เล็ก มีหลายด้าน หรือหันไม่ตรงทิศใต้</p>
@@ -1460,7 +1462,7 @@ function suggestions(p){
 }
 
 function render(){
-  const p=read();$('dayOut').textContent=Math.round(p.day*100)+'%';
+  const p=read();{const nd=!(p.kwh>0);$('advEmpty').hidden=!nd;document.querySelector('#adv .results').classList.toggle('nodata',nd);}$('dayOut').textContent=Math.round(p.day*100)+'%';
   document.querySelectorAll('#presets button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.d===Math.round(p.day*100)));
   $('loanFields').hidden=!p.useLoan;$('sub').disabled=!p.useSub;
   const hy=sysType==='hybrid';
@@ -1915,6 +1917,7 @@ let rfqEdited=false;
 document.querySelectorAll('input[type=number],input[inputmode]').forEach(el=>{if(!el.hasAttribute('enterkeyhint'))el.setAttribute('enterkeyhint','done');});
 document.addEventListener('keydown',e=>{const t=e.target;if(e.key==='Enter'&&t.tagName==='INPUT'&&t.type!=='checkbox')t.blur();});
 document.addEventListener('pointerdown',e=>{const ae=document.activeElement;if(!ae||!/INPUT|TEXTAREA/.test(ae.tagName))return;if(e.target.closest('input,textarea,select,label'))return;ae.blur();},true);
+$('advGo1').addEventListener('click',()=>{const b=document.querySelector('#tabs [data-t="t1"]');if(b)b.click();scrollTo({top:0,behavior:'smooth'});setTimeout(()=>$('s_bill').focus(),400);});
 document.addEventListener('click',e=>{const a=e.target.closest('a[href*="peoplesolar.pea.co.th"],a[href*="peoplesolar.mea.or.th"]');if(a&&!a.closest('#rfqVendors'))track('register-'+(a.href.includes('pea')?'pea':'mea'));});
 function rfqRender(force){
   loadVendors();
