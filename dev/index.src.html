@@ -360,6 +360,7 @@ a.btn{text-decoration:none;display:inline-block}
 .pkg .pr small.net{display:block;font-size:.75em;color:var(--good);font-weight:600;text-align:right}.pkg .pbtns{display:flex;gap:8px;flex-wrap:wrap}.pkg .btn.vid{border-color:#f28c28;color:#a85a00}
 .pimg.vprev{position:relative;border:0;padding:0;cursor:pointer;background:#1c2735;overflow:hidden}.pimg.vprev img{width:100%;height:100%;object-fit:cover;display:block;opacity:.85}.pimg.vprev .play{position:absolute;inset:0;margin:auto;width:64px;height:64px;border-radius:50%;background:#f28c28;color:#fff;font-size:28px;display:grid;place-items:center;box-shadow:0 4px 16px rgba(0,0,0,.35)}.pimg.vfr{aspect-ratio:9/16;height:auto;max-height:70vh;border:0;background:#000}
 .pkg .note.miss{color:var(--muted);font-style:italic}
+.pscore{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}.pscore .bar{width:90px;height:6px;border-radius:4px;background:var(--line);overflow:hidden}.pscore .bar i{display:block;height:100%;background:var(--forest)}.ppromo{color:#a85a00}
 </style>
 
 <!-- Boiler Lab gauge icon (owner's brand kit), defined once and reused -->
@@ -2024,23 +2025,31 @@ function vidEmbed(u){u=String(u||'');let m;
   if(m=u.match(/^https:\/\/(?:www\.)?tiktok\.com\/@[\w.]+\/video\/(\d+)/))return 'https://www.tiktok.com/embed/v2/'+m[1];
   if(/^https:\/\/(?:www\.|m\.|web\.)?(?:facebook\.com|fb\.watch)\//.test(u))return 'https://www.facebook.com/plugins/video.php?href='+encodeURIComponent(u)+'&show_text=false&autoplay=true';
   return '';}
+function pkgScore(k){const pn=k.panel||{},iv=k.inv||{},w=k.warr||{};const items=[
+  ['ยี่ห้อแผง',!!pn.brand],['วัตต์/จำนวนแผง',!!(pn.w&&pn.n)],['ประกันแผง',!!pn.warr],['ยี่ห้ออินเวอร์เตอร์',!!iv.brand],['ประกันอินเวอร์เตอร์',!!iv.warr],
+  ['ประกันงาน',w.work!=null],['ประกันอัคคีภัย',w.fire!=null],['ล้างแผง',w.clean!=null],['สัญญามาตรฐาน',k.std!=null],['หนังสือค้ำ',k.bg!=null],
+  ['สิ่งที่รวม/ไม่รวม',!!(k.includes&&k.excludes)],['ค่าสำรวจ',k.survey!=null],['รูปหรือวิดีโอ',!!(k.img||k.video)],['งวดจ่ายเงิน',!!k.pay]];
+  return {n:items.filter(x=>x[1]).length,t:items.length,miss:items.filter(x=>!x[1]).map(x=>x[0])};}
+function pkgRegs(k,prov){const mea=prov?MEA_PROV.includes(prov):null;return [{src:k.src,vid:k.vid},...(k.also||[])].map(r=>({...r,v:VENDORS.find(v=>v.src===r.src&&String(v.id)===String(r.vid))})).filter(r=>r.v).map(r=>({...r,on:mea===null?true:(r.src==='M')===mea}));}
 function pkgRender(){loadPkgs();loadVendors();const L=$('pkgList');if(!L)return;
   const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const prov=$('pkgProv').value,all=PKGS||[];
   if(!all.length){L.innerHTML=`<div class="pkg sample"><img class="pimg" src="assets/pkg-sample.jpg" alt="ตัวอย่างรูปแพ็กเกจ" loading="lazy"><div class="pbody"><div class="top"><b>Sample <span class="flag">ตัวอย่าง · ไม่ใช่ร้านจริง</span></b><span class="pr">– บาท</span></div><div>5 kW 1 เฟส · On-Grid · แผง + อินเวอร์เตอร์ + กล่องควบคุม (combiner box)</div><div class="note">ร้านที่ส่งราคามา จะแสดงแบบนี้: รูปแพ็กเกจ ยี่ห้อแผง/อินเวอร์เตอร์ ประกัน สิ่งที่รวม/ไม่รวม และช่องทางติดต่อ</div></div></div>`+'<p class="note"><b>กำลังรวบรวมราคา</b> · Boiler Lab กำลังขอราคาชุดมาตรฐาน 5 / 7.5 / 10 kW จากร้านที่ขึ้นทะเบียน จะแสดงที่นี่เมื่อร้านตอบกลับ · ระหว่างนี้ส่งข้อความขอราคาจากร้านใกล้บ้านด้านล่างได้</p>';return;}
-  const list=all.map((k,i)=>({k,i})).filter(({k})=>pkgServes(k,prov)&&(!pkgKw||Math.abs(k.kw-pkgKw)<.01)).sort((a,b)=>a.k.price/a.k.kw-b.k.price/b.k.kw);
+  const list=all.map((k,i)=>({k,i})).filter(({k})=>pkgServes(k,prov)&&(!pkgKw||Math.abs(k.kw-pkgKw)<.01)).sort((a,b)=>(pkgScore(b.k).n-pkgScore(a.k).n)||(a.k.price/a.k.kw-b.k.price/b.k.kw));
   L.innerHTML=(list.length?list.map(({k,i})=>{const v=pkgVendor(k)||{},pn=k.panel||{},iv=k.inv||{},w=k.warr||{},fl=pkgFlags(k),kwp=k.kwp||(pn.w&&pn.n?pn.w*pn.n/1000:0);
     return `<div class="pkg">${vidEmbed(k.video)?`<button type="button" class="pimg vprev" data-emb="${esc(vidEmbed(k.video))}" aria-label="เล่นวิดีโอ ${esc(k.name||v.name)}">${k.img?`<img src="${esc(k.img)}" alt="" loading="lazy">`:''}<span class="play">▶</span></button>`:''}${!vidEmbed(k.video)?(k.img?`<img class="pimg" src="${esc(k.img)}" alt="แพ็กเกจ ${esc(k.name||v.name)}" loading="lazy">`:'<div class="pimg ph">ยังไม่มีรูปแพ็กเกจ</div>'):''}<div class="pbody"><div class="top"><b>${esc(k.name||v.name)}</b><span class="pr">${fmt(k.price)} บาท${(k.net||k.price>50000)?`<small class="net">จ่ายจริง${k.net?'':'ราว'} ${fmt(k.net||k.price-50000)}*</small>`:''}</span></div>
       <div>${fmt(k.kw,k.kw%1?1:0)} kW${k.phase?` ${k.phase} เฟส`:''}${kwp?` · แผง ${fmt(kwp,2)} kWp`:''} · ${fmt(k.price/k.kw)} บาท/kW ${k.vat===false?'(ไม่รวม VAT)':'รวม VAT'}</div>
+      ${(()=>{const sc=pkgScore(k),rg=pkgRegs(k,prov),use=rg.filter(r=>r.on);return `<div class="pscore" title="ยังไม่ได้: ${esc(sc.miss.join(', '))}"><span class="bar"><i style="width:${Math.round(sc.n/sc.t*100)}%"></i></span>ข้อมูลที่ร้านให้ ${sc.n}/${sc.t}</div>`+(rg.length?`<div class="note preg">ทำสัญญากับ: ${(use.length?use:rg).map(r=>`<b>${esc(r.v.name)}</b> (ทะเบียน ${r.src==='M'?'กฟน.':'กฟภ.'} ${esc(r.vid)})`).join(' · ')}${!prov&&rg.length>1?' · ตามการไฟฟ้าในพื้นที่บ้าน':''}</div>`:'');})()}
       <div class="note">แผง ${esc([pn.brand,pn.model].filter(Boolean).join(' ')||'ไม่ระบุ')}${pn.w?` ${pn.w} W`:''}${pn.n?` × ${pn.n}`:''}${pn.warr?` ประกัน ${pn.warr} ปี`:''} · อินเวอร์เตอร์ ${esc([iv.brand,iv.model].filter(Boolean).join(' ')||'ไม่ระบุ')}${iv.kw?` ${iv.kw} kW`:''}${iv.warr?` ประกัน ${iv.warr} ปี`:''}</div>
       <div class="note"${(w.work==null&&w.fire==null&&w.clean==null&&!k.std&&!k.bg&&k.survey==null)?' hidden':''}>ประกันงาน ${w.work??'–'} ปี · อัคคีภัย ${w.fire??'–'} ปี · ล้างแผง ${w.clean??'–'} ปี${k.std?' · ใช้สัญญามาตรฐาน':''}${k.bg?' · ให้หนังสือค้ำ':''}${k.survey!=null?` · ค่าสำรวจ ${k.survey?fmt(k.survey)+' บาท':'ฟรี'}`:''}</div>
       ${k.includes?`<div class="note">รวม: ${esc(k.includes)}</div>`:''}${k.excludes?`<div class="note">ไม่รวม: ${esc(k.excludes)}</div>`:''}
       ${fl.length?`<div>${fl.map(x=>typeof x==='string'?`<span class="flag">${x}</span>`:`<div class="note miss">${x.miss}</div>`).join('')}</div>`:''}
-      <div class="note">ราคา ณ ${esc(thDate(k.date))||'–'} · ร้านแจ้งเอง${v.phone?` · <a href="tel:${esc(v.phone.split(/[,/ ]/)[0])}">${esc(v.phone)}</a>`:''}${v.email?` · <a href="mailto:${esc(v.email)}">${esc(v.email)}</a>`:''}</div>
+      ${(()=>{const rg=pkgRegs(k,prov),c=(rg.find(r=>r.on)||{}).v||v;return `<div class="note">ราคา ณ ${esc(thDate(k.date))||'–'} · ร้านแจ้งเอง${c.phone?` · <a href="tel:${esc(c.phone.split(/[,/ ]/)[0])}">${esc(c.phone)}</a>`:''}${c.email?` · <a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`:''}${k.line?` · LINE ${esc(k.line)}`:''}</div>`;})()}
+      ${k.promo?`<div class="note ppromo">โปร: ${esc(k.promo)}</div>`:''}
       <div class="pbtns"><button type="button" class="btn sm" data-pkg="${i}">ใส่ในตารางเทียบ</button>${/^https:\/\/(www\.|m\.|web\.)?(facebook\.com|fb\.watch|youtube\.com|youtu\.be|tiktok\.com)\//.test(k.video||'')?`<a class="btn sm vid" href="${esc(k.video)}" target="_blank" rel="noopener">▶ ดูวิดีโอ</a>`:''}</div>
       ${(k.net||k.price>50000)?`<div class="note">*หลังหักเงินสนับสนุน 50,000 บาท เมื่อได้รับอนุมัติสิทธิ์${k.net?' (ตัวเลขจากร้าน)':''} · ต้องสำรองจ่ายเต็มก่อน</div>`:''}${k.kw<=5.7&&k.price>STD_SET?`<div class="note">สูงกว่าราคากลางชุดมาตรฐาน ${fmt(STD_SET)} บาท · ขอให้ร้านแยกรายการส่วนที่เพิ่ม</div>`:''}</div></div>`;}).join(''):
     `<p class="note">ยังไม่มีร้านที่${prov?`รับงานใน จ.${esc(prov)} `:''}แจ้งราคาขนาดนี้ · ลองเลือก "ทุกขนาด" หรือส่งข้อความขอราคาจากร้านใกล้บ้านด้านล่าง</p>`)+
-    `<p class="note">${fmt(all.length)} แพ็กเกจจากร้านที่แจ้งราคาแล้ว${PKGS_AT?` · อัปเดต ${PKGS_AT}`:''} · เรียงจากราคาต่อ kW ถูกที่สุด</p>`;}
+    `<p class="note">${fmt(all.length)} แพ็กเกจจากร้านที่แจ้งราคาแล้ว${PKGS_AT?` · อัปเดต ${PKGS_AT}`:''} · เรียงตามความครบของข้อมูลที่ร้านให้ แล้วตามราคาต่อ kW</p>`;}
 $('pkgProv').addEventListener('change',()=>{$('pkgProv').dataset.auto='0';pkgRender();});
 ['s_prov','rfqProv'].forEach(id=>$(id).addEventListener('change',renderRights));$('coords').addEventListener('input',renderRights);
 renderRights();
