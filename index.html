@@ -382,6 +382,7 @@ a.btn{text-decoration:none;display:inline-block}
 .pkg{grid-template-columns:200px minmax(0,1fr);align-items:start;gap:12px}.pkg .pbody{display:grid;gap:6px;min-width:0}.pimg{width:200px;aspect-ratio:4/3;object-fit:cover;border-radius:10px;background:var(--leaf);display:block}.pimg.ph{display:grid;place-items:center;font-size:12px;color:var(--muted);border:1px dashed var(--line)}.pkg.sample{border-style:dashed;opacity:.95}
 @media (max-width:560px){.pkg{grid-template-columns:minmax(0,1fr)}.pimg{width:100%}}
 #adv .results.nodata>:not(#advEmpty):not(#roofPanel){display:none!important}#adv #advEmpty{order:0}.advempty{border:3px dashed #f28c28!important}
+.pkg .pr small.net{display:block;font-size:.75em;color:var(--good);font-weight:600;text-align:right}.pkg .pbtns{display:flex;gap:8px;flex-wrap:wrap}.pkg .btn.vid{border-color:#f28c28;color:#a85a00}
 </style>
 
 <!-- Boiler Lab gauge icon (owner's brand kit), defined once and reused -->
@@ -2046,14 +2047,15 @@ function pkgRender(){loadPkgs();loadVendors();const L=$('pkgList');if(!L)return;
   if(!all.length){L.innerHTML=`<div class="pkg sample"><img class="pimg" src="assets/pkg-sample.jpg" alt="ตัวอย่างรูปแพ็กเกจ" loading="lazy"><div class="pbody"><div class="top"><b>Sample <span class="flag">ตัวอย่าง · ไม่ใช่ร้านจริง</span></b><span class="pr">– บาท</span></div><div>5 kW 1 เฟส · On-Grid · แผง + อินเวอร์เตอร์ + กล่องควบคุม (combiner box)</div><div class="note">ร้านที่ส่งราคามา จะแสดงแบบนี้: รูปแพ็กเกจ ยี่ห้อแผง/อินเวอร์เตอร์ ประกัน สิ่งที่รวม/ไม่รวม และช่องทางติดต่อ</div></div></div>`+'<p class="note"><b>กำลังรวบรวมราคา</b> · Boiler Lab กำลังขอราคาชุดมาตรฐาน 5 / 7.5 / 10 kW จากร้านที่ขึ้นทะเบียน จะแสดงที่นี่เมื่อร้านตอบกลับ · ระหว่างนี้ส่งข้อความขอราคาจากร้านใกล้บ้านด้านล่างได้</p>';return;}
   const list=all.map((k,i)=>({k,i})).filter(({k})=>pkgServes(k,prov)&&(!pkgKw||Math.abs(k.kw-pkgKw)<.01)).sort((a,b)=>a.k.price/a.k.kw-b.k.price/b.k.kw);
   L.innerHTML=(list.length?list.map(({k,i})=>{const v=pkgVendor(k)||{},pn=k.panel||{},iv=k.inv||{},w=k.warr||{},fl=pkgFlags(k),kwp=k.kwp||(pn.w&&pn.n?pn.w*pn.n/1000:0);
-    return `<div class="pkg">${k.img?`<img class="pimg" src="${esc(k.img)}" alt="แพ็กเกจ ${esc(k.name||v.name)}" loading="lazy">`:'<div class="pimg ph">ยังไม่มีรูปแพ็กเกจ</div>'}<div class="pbody"><div class="top"><b>${esc(k.name||v.name)}</b><span class="pr">${fmt(k.price)} บาท</span></div>
+    return `<div class="pkg">${k.img?`<img class="pimg" src="${esc(k.img)}" alt="แพ็กเกจ ${esc(k.name||v.name)}" loading="lazy">`:'<div class="pimg ph">ยังไม่มีรูปแพ็กเกจ</div>'}<div class="pbody"><div class="top"><b>${esc(k.name||v.name)}</b><span class="pr">${fmt(k.price)} บาท${k.price>50000?`<small class="net">จ่ายจริงราว ${fmt(k.price-50000)}*</small>`:''}</span></div>
       <div>${fmt(k.kw,k.kw%1?1:0)} kW${k.phase?` ${k.phase} เฟส`:''}${kwp?` · แผง ${fmt(kwp,2)} kWp`:''} · ${fmt(k.price/k.kw)} บาท/kW ${k.vat===false?'(ไม่รวม VAT)':'รวม VAT'}</div>
       <div class="note">แผง ${esc([pn.brand,pn.model].filter(Boolean).join(' ')||'ไม่ระบุ')}${pn.w?` ${pn.w} W`:''}${pn.n?` × ${pn.n}`:''}${pn.warr?` ประกัน ${pn.warr} ปี`:''} · อินเวอร์เตอร์ ${esc([iv.brand,iv.model].filter(Boolean).join(' ')||'ไม่ระบุ')}${iv.kw?` ${iv.kw} kW`:''}${iv.warr?` ประกัน ${iv.warr} ปี`:''}</div>
       <div class="note">ประกันงาน ${w.work??'–'} ปี · อัคคีภัย ${w.fire??'–'} ปี · ล้างแผง ${w.clean??'–'} ปี${k.std?' · ใช้สัญญามาตรฐาน':''}${k.bg?' · ให้หนังสือค้ำ':''}${k.survey!=null?` · ค่าสำรวจ ${k.survey?fmt(k.survey)+' บาท':'ฟรี'}`:''}</div>
       ${k.includes?`<div class="note">รวม: ${esc(k.includes)}</div>`:''}${k.excludes?`<div class="note">ไม่รวม: ${esc(k.excludes)}</div>`:''}
       ${fl.length?`<div>${fl.map(x=>`<span class="flag">${x}</span>`).join('')}</div>`:''}
       <div class="note">ราคา ณ ${esc(thDate(k.date))||'–'} · ร้านแจ้งเอง${v.phone?` · <a href="tel:${esc(v.phone.split(/[,/ ]/)[0])}">${esc(v.phone)}</a>`:''}${v.email?` · <a href="mailto:${esc(v.email)}">${esc(v.email)}</a>`:''}</div>
-      <div><button type="button" class="btn sm" data-pkg="${i}">ใส่ในตารางเทียบ</button></div></div></div>`;}).join(''):
+      <div class="pbtns"><button type="button" class="btn sm" data-pkg="${i}">ใส่ในตารางเทียบ</button>${/^https:\/\/(www\.|m\.|web\.)?(facebook\.com|fb\.watch|youtube\.com|youtu\.be|tiktok\.com)\//.test(k.video||'')?`<a class="btn sm vid" href="${esc(k.video)}" target="_blank" rel="noopener">▶ ดูวิดีโอ</a>`:''}</div>
+      ${k.price>50000?'<div class="note">*หลังหักเงินสนับสนุน 50,000 บาท เมื่อได้รับอนุมัติสิทธิ์ (ต้องสำรองจ่ายเต็มก่อน)</div>':''}</div></div>`;}).join(''):
     `<p class="note">ยังไม่มีร้านที่${prov?`รับงานใน จ.${esc(prov)} `:''}แจ้งราคาขนาดนี้ · ลองเลือก "ทุกขนาด" หรือส่งข้อความขอราคาจากร้านใกล้บ้านด้านล่าง</p>`)+
     `<p class="note">${fmt(all.length)} แพ็กเกจจากร้านที่แจ้งราคาแล้ว${PKGS_AT?` · อัปเดต ${PKGS_AT}`:''} · เรียงจากราคาต่อ kW ถูกที่สุด</p>`;}
 $('pkgProv').addEventListener('change',()=>{$('pkgProv').dataset.auto='0';pkgRender();});
