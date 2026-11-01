@@ -1743,9 +1743,8 @@ function RGAP(){const e=document.getElementById('s2RGap'),v=e?parseFloat(e.value
 function GAP(){const e=document.getElementById('s2Gap'),v=e?parseFloat(e.value):NaN;return(isFinite(v)&&v>=0?v:20)/1000;}
 const FIT={roof:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},garage:{sb:.3,gx:.02,gy:.02,tilt:0,area:1.15},ground:{sb:.5,gx:.02,gy:1.2,tilt:15,area:1.9},float:{sb:1,gx:.4,gy:.6,tilt:12,area:2.1}};
 // ---- tab 2 picture pickers: roof shape and panel arrangement ----
-// panels for a size: round to the nearest whole panel without going over the size (5 kW with 620 W = 8 panels, 4.96 kW)
-// panels for a size; from 5 kW up, never fall below the scheme's 5 kW minimum (5 kW with 650 W panels = 8 panels, 5.2 kW)
-function panelsFor(kw,w){let n=Math.max(1,Math.floor(kw*1000/w+0.05));if(kw>=4.999&&n*w<5000)n=Math.ceil(5000/w-1e-9);return n;}
+// panels for a size: round UP to reach the size (650 W: 5 kW = 8, 7.5 kW = 12) but never above the scheme's 10 kWp per meter (10 kW = 15 panels, 9.75 kWp)
+function panelsFor(kw,w){let n=Math.max(1,Math.ceil(kw*1000/w-0.05));while(n>1&&n*w>10000+1e-6)n--;return n;}
 function roofTypes(){return [{id:'shed',label:'เพิงหมาแหงน',two:0},{id:'gable',label:'จั่ว',two:1},{id:'hip',label:'ปั้นหยา',two:1},{id:'butterfly',label:'ผีเสื้อ',two:1},{id:'flat',label:'ดาดฟ้า / แบน',two:0}];}
 // names say the shape: "เรียง N" = one row of N, "เรียง N สองฝั่ง" = a row of N on each side of the ridge, "R แถว × N" = R rows of N on one side
 // arrangements only: the panel count comes from the system size (menu 1 or +/- panel), split evenly between rows
