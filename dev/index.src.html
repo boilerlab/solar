@@ -2016,7 +2016,7 @@ $('peekBtn').addEventListener('click',()=>{peek=true;renderRights();$('pkgPanel'
 document.querySelectorAll('[data-go-rights]').forEach(b=>b.addEventListener('click',()=>{showTab('tReg');requestAnimationFrame(()=>$('rights').scrollIntoView({behavior:'smooth',block:'start'}));}));
 // ---- standard package prices that registered shops sent in (packages.json; empty until shops reply)
 let PKGS=null,PKGS_AT='',pkgKw=0;
-function loadPkgs(){if(PKGS)return;PKGS=[];fetch('packages.json').then(r=>r.ok?r.json():null).then(d=>{if(!d||!Array.isArray(d.p))return;PKGS=d.p;PKGS_AT=thDate(d.at);pkgRender();}).catch(()=>{});}
+function loadPkgs(){if(PKGS)return;PKGS=[];fetch('packages.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(d=>{if(!d||!Array.isArray(d.p))return;PKGS=d.p;PKGS_AT=thDate(d.at);pkgRender();}).catch(()=>{});}
 $('pkgProv').innerHTML='<option value="">ทุกจังหวัด</option>'+provSorted.map(([n])=>`<option>${n}</option>`).join('');$('pkgProv').value='กรุงเทพมหานคร';
 const pkgVendor=k=>VENDORS.find(v=>v.src===k.src&&String(v.id)===String(k.vid));
 function pkgServes(k,prov){if(!prov)return true;const mea=MEA_PROV.includes(prov),srcs=[k.src,...(k.also||[]).map(a=>a.src)].filter(Boolean);if(srcs.length&&!srcs.includes(mea?'M':'P'))return false;if(mea&&k.src!=='M'&&srcs.includes('M'))return true;
