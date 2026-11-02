@@ -327,7 +327,14 @@
    "to": [
     "service@pst.co.th"
    ],
-   "status": "sent"
+   "status": "bounced",
+   "bounced_to": [
+    "service@pst.co.th"
+   ],
+   "bounced": [
+    "service@pst.co.th"
+   ],
+   "note": "ตีกลับ: 550 5.4.1 Recipient address rejected (Access denied)"
   },
   "marketing@planetcomm.com": {
    "date": "2026-11-01",
@@ -467,7 +474,14 @@
     "phongphan_won@ww.co.th",
     "pattraporn.wan@ww.co.th"
    ],
-   "status": "sent"
+   "status": "sent",
+   "bounced_to": [
+    "phongphan_won@ww.co.th"
+   ],
+   "bounced": [
+    "phongphan_won@ww.co.th"
+   ],
+   "note": "ตีกลับบางอีเมล อีกอีเมลส่งถึง"
   },
   "info@sparkgroup.co": {
    "date": "2026-11-01",
@@ -619,6 +633,291 @@
    "to": [
     "admin@energy-scape.com",
     "oraya@energy-scape.com"
+   ],
+   "status": "sent"
+  },
+  "info@energycycleth.com": {
+   "date": "2026-11-02",
+   "thread": "1a199eed5783983c",
+   "name": "บริษัท เอนเนอร์จี้ ไซเคิล จำกัด",
+   "to": [
+    "info@energycycleth.com",
+    "phuwarin.sr@alena-d.com"
+   ],
+   "status": "sent"
+  },
+  "office@sc-powerenergy.com": {
+   "date": "2026-11-02",
+   "thread": "1a199ef26639084b",
+   "name": "บริษัท เอสซี พาวเวอร์ เอ็นเนอร์จี จำกัด",
+   "to": [
+    "office@sc-powerenergy.com"
+   ],
+   "status": "sent"
+  },
+  "info@erlnet.co.th": {
+   "date": "2026-11-02",
+   "thread": "1a199ef76f11f41d",
+   "name": "บริษัท เออร์เนท จำกัด",
+   "to": [
+    "info@erlnet.co.th",
+    "saq@erlnet.co.th"
+   ],
+   "status": "sent"
+  },
+  "info@alt.co.th": {
+   "date": "2026-11-02",
+   "thread": "1a199efc73c77147",
+   "name": "บริษัท เอแอลที เทเลคอม จำกัด (มหาชน)",
+   "to": [
+    "info@alt.co.th"
+   ],
+   "status": "sent"
+  },
+  "isoon.srichundi@itl-engineering.com": {
+   "date": "2026-11-02",
+   "thread": "1a199f01be30e97b",
+   "name": "บริษัท ไอทีแอล เอ็นจิเนียริ่ง แอนด์ โซลูชั่น จำกัด",
+   "to": [
+    "isoon.srichundi@itl-engineering.com"
+   ],
+   "status": "sent"
+  },
+  "surisa@i2enterprise.com": {
+   "date": "2026-11-02",
+   "thread": "1a199f06b2139e6d",
+   "name": "บริษัท ไอ ทู เอ็นเตอร์ไพรซ์ จำกัด (มหาชน)",
+   "to": [
+    "surisa@i2enterprise.com"
+   ],
+   "status": "sent"
+  },
+  "teeramit@ipowerinter.com": {
+   "date": "2026-11-02",
+   "thread": "1a199f0ba60b4a8a",
+   "name": "บริษัท ไอ พาวเวอร์ เอ็นเตอร์ไพรส์ จำกัด",
+   "to": [
+    "teeramit@ipowerinter.com",
+    "teeraporn@ipowerinter.com"
+   ],
+   "status": "sent"
+  },
+  "marketingonline@ionenergy.ai": {
+   "date": "2026-11-02",
+   "thread": "1a199f10d1f57010",
+   "name": "บริษัท ไอออน เอนเนอร์ยี่ คอร์ปอเรชั่น จำกัด",
+   "to": [
+    "marketingonline@ionenergy.ai",
+    "waramas@ionenergy.ai"
+   ],
+   "status": "sent"
+  },
+  "psiservice@psisat.com": {
+   "date": "2026-11-02",
+   "thread": "1a199f15c435a252",
+   "name": "บริษัท พีเอสไอ เซอร์วิส จำกัด",
+   "to": [
+    "psiservice@psisat.com"
+   ],
+   "status": "sent"
+  },
+  "phoomphat@revenue-express.com": {
+   "date": "2026-11-02",
+   "thread": "1a199f1a875e06c1",
+   "name": "บริษัท เรเวนิว เอ็กซ์เพรส จำกัด",
+   "to": [
+    "phoomphat@revenue-express.com"
+   ],
+   "status": "sent"
+  },
+  "komkrijs@sena.co.th": {
+   "date": "2026-11-02",
+   "thread": "1a199f1fb0ce2486",
+   "name": "บริษัท เสนา โซลาร์ เอนเนอร์ยี่ จำกัด",
+   "to": [
+    "komkrijs@sena.co.th"
+   ],
+   "status": "sent"
+  },
+  "sale@ample-energy.com": {
+   "date": "2026-11-02",
+   "thread": "1a199f2491cf11d2",
+   "name": "บริษัท แอมเพิล เอ็นเนอร์จี้ จำกัด",
+   "to": [
+    "sale@ample-energy.com",
+    "saruda.k@bangkoksolarpower.com"
+   ],
+   "status": "sent"
+  },
+  "i.contact@icon35.com": {
+   "date": "2026-11-02",
+   "thread": "1a199f2980ef8455",
+   "name": "บริษัท ไอคอน 35 จำกัด",
+   "to": [
+    "i.contact@icon35.com"
+   ],
+   "status": "sent"
+  },
+  "gulf1_contact@gulf.co.th": {
+   "date": "2026-11-02",
+   "thread": "1a199f2edf2b2f29",
+   "name": "บริษัท 1อาทิตย์ จำกัด",
+   "to": [
+    "gulf1_contact@gulf.co.th"
+   ],
+   "status": "sent"
+  },
+  "coordination@ecotech.co.th": {
+   "date": "2026-11-02",
+   "thread": "1a199f33f6a2c9ee",
+   "name": "บริษัท กสิ เอ็นเตอร์ไพรส์ จำกัด",
+   "to": [
+    "coordination@ecotech.co.th"
+   ],
+   "status": "sent"
+  },
+  "wiwat.c@gpt.co.th": {
+   "date": "2026-11-02",
+   "thread": "1a199f395cb1adbb",
+   "name": "บริษัท โกลว์ พาวเวอร์ เทคโนโลยี จำกัด",
+   "to": [
+    "wiwat.c@gpt.co.th"
+   ],
+   "status": "sent"
+  },
+  "chompunoot@comsys.co.th": {
+   "date": "2026-11-02",
+   "thread": "1a199f3e695a3a56",
+   "name": "บริษัท คอมซิสคอร์ปอเรชั่น จำกัด",
+   "to": [
+    "chompunoot@comsys.co.th"
+   ],
+   "status": "sent"
+  },
+  "contact@kinturyenerey.com": {
+   "date": "2026-11-02",
+   "thread": "1a199f43d3c9603c",
+   "name": "บริษัท คินทูรี่ เอ็นเนอร์ยี่ จำกัด",
+   "to": [
+    "contact@kinturyenerey.com",
+    "contact@kinturyenergy.com"
+   ],
+   "status": "sent",
+   "bounced_to": [
+    "contact@kinturyenerey.com"
+   ],
+   "bounced": [
+    "contact@kinturyenerey.com"
+   ],
+   "note": "ตีกลับบางอีเมล (โดเมนสะกดผิด) อีกอีเมลส่งถึง"
+  },
+  "kanokwan@kunini.com": {
+   "date": "2026-11-02",
+   "thread": "1a199f48febd9c29",
+   "name": "บริษัท คุณินี จำกัด",
+   "to": [
+    "kanokwan@kunini.com"
+   ],
+   "status": "sent"
+  },
+  "hr@coolmaxthailand.com": {
+   "date": "2026-11-02",
+   "thread": "1a199f4e2fdca6ad",
+   "name": "บริษัท คูลแม๊กซ์ จำกัด",
+   "to": [
+    "hr@coolmaxthailand.com",
+    "coolmaxsolarcell@gmail.com"
+   ],
+   "status": "sent"
+  },
+  "kitsila.k@klink.co.th": {
+   "date": "2026-11-02",
+   "thread": "1a199f538822c6e8",
+   "name": "บริษัท เคลิงค์ แอดวานซ์ เทคโนโลยี จำกัด",
+   "to": [
+    "kitsila.k@klink.co.th"
+   ],
+   "status": "sent"
+  },
+  "ekkachai@clearsun.co.th": {
+   "date": "2026-11-02",
+   "thread": "1a199f58d9ff19b5",
+   "name": "บริษัท เคลียร์ซัน เซอร์วิส จำกัด",
+   "to": [
+    "ekkachai@clearsun.co.th"
+   ],
+   "status": "sent"
+  },
+  "permission@johnsolarenergy.com": {
+   "date": "2026-11-02",
+   "thread": "1a199f5e32f8cbdb",
+   "name": "บริษัท จอห์นโซลาร์ เอนเนอร์จี จำกัด",
+   "to": [
+    "permission@johnsolarenergy.com"
+   ],
+   "status": "sent"
+  },
+  "phusit@g-net.co.th": {
+   "date": "2026-11-02",
+   "thread": "1a199f6397f05818",
+   "name": "บริษัท จี-เน็ท เน็ทเวิร์คโซลูชั่น จำกัด",
+   "to": [
+    "phusit@g-net.co.th"
+   ],
+   "status": "sent"
+  },
+  "saharat@genetech21.com": {
+   "date": "2026-11-02",
+   "thread": "1a199f68ef728cd6",
+   "name": "บริษัท จีเนเทค21 จำกัด",
+   "to": [
+    "saharat@genetech21.com"
+   ],
+   "status": "sent"
+  },
+  "support@jss.co.th": {
+   "date": "2026-11-02",
+   "thread": "1a199f6e3b7947a9",
+   "name": "บริษัท เจเอสเอส เทคโนโลยี่ เอ็นจิเนียริ่ง จำกัด",
+   "to": [
+    "support@jss.co.th"
+   ],
+   "status": "sent"
+  },
+  "sutat.w@jiamenergygroup.com": {
+   "date": "2026-11-02",
+   "thread": "1a199f73930024a1",
+   "name": "บริษัท เจียมพัฒนาพลังงาน อินเตอร์เนชั่นแนล จำกัด",
+   "to": [
+    "sutat.w@jiamenergygroup.com"
+   ],
+   "status": "sent"
+  },
+  "admin@grandplanet.co.th": {
+   "date": "2026-11-02",
+   "thread": "1a199f79065fa2c2",
+   "name": "บริษัท ซัน พาวเวอร์ คอร์ป จำกัด",
+   "to": [
+    "admin@grandplanet.co.th",
+    "nuttapon1976@gmail.com"
+   ],
+   "status": "sent"
+  },
+  "admin@sunjisolar.com": {
+   "date": "2026-11-02",
+   "thread": "1a199f7e63b9a457",
+   "name": "บริษัท ซันจิ โซล่าร์ จำกัด",
+   "to": [
+    "admin@sunjisolar.com"
+   ],
+   "status": "sent"
+  },
+  "sales@sunnersys.co.th": {
+   "date": "2026-11-02",
+   "thread": "1a199f83ab04b1ac",
+   "name": "บริษัท ซันเนอร์ซิส จำกัด",
+   "to": [
+    "sales@sunnersys.co.th"
    ],
    "status": "sent"
   }
