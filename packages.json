@@ -1,5 +1,126 @@
 {
-  "at": "2026-10-28",
+  "at": "2026-11-02",
   "about": "ราคาแพ็กเกจที่ร้านที่ขึ้นทะเบียนแจ้งกับ Boiler Lab เอง (ไม่ใช่ราคาทางการ) รูปแบบแต่ละรายการดู dev/packages.example.json และ dev/PACKAGES.md",
-  "p": []
+  "p": [
+    {
+      "src": "P",
+      "vid": "00479",
+      "name": "TNS Solar",
+      "kw": 5,
+      "phase": 1,
+      "kwp": 5.2,
+      "price": 175000,
+      "net": 127000,
+      "vat": true,
+      "panel": {
+        "brand": "LONGi",
+        "w": 650,
+        "n": 8
+      },
+      "inv": {
+        "brand": "Huawei",
+        "model": "String Inverter"
+      },
+      "includes": "อุปกรณ์ ติดตั้ง และ VAT",
+      "video": "https://www.facebook.com/reel/1479239504111934",
+      "date": "2026-11-01",
+      "via": "Messenger",
+      "also": [
+        {
+          "src": "M",
+          "vid": "00639"
+        }
+      ]
+    },
+    {
+      "src": "P",
+      "vid": "00479",
+      "name": "TNS Solar",
+      "kw": 5,
+      "phase": 3,
+      "kwp": 5.2,
+      "price": 192000,
+      "net": 142000,
+      "vat": true,
+      "panel": {
+        "brand": "LONGi",
+        "w": 650,
+        "n": 8
+      },
+      "inv": {
+        "brand": "Huawei",
+        "model": "String Inverter"
+      },
+      "includes": "อุปกรณ์ ติดตั้ง และ VAT",
+      "video": "https://www.facebook.com/reel/1479239504111934",
+      "date": "2026-11-01",
+      "via": "Messenger",
+      "also": [
+        {
+          "src": "M",
+          "vid": "00639"
+        }
+      ]
+    },
+    {
+      "src": "P",
+      "vid": "00479",
+      "name": "TNS Solar",
+      "kw": 5,
+      "phase": 1,
+      "kwp": 5.2,
+      "price": 195000,
+      "net": 145000,
+      "vat": true,
+      "panel": {
+        "brand": "LONGi",
+        "w": 650,
+        "n": 8
+      },
+      "inv": {
+        "brand": "Atmoce",
+        "model": "Micro 2:1"
+      },
+      "includes": "อุปกรณ์ ติดตั้ง และ VAT",
+      "video": "https://www.facebook.com/reel/1479239504111934",
+      "date": "2026-11-01",
+      "via": "Messenger",
+      "also": [
+        {
+          "src": "M",
+          "vid": "00639"
+        }
+      ]
+    },
+    {
+      "src": "P",
+      "vid": "00479",
+      "name": "TNS Solar",
+      "kw": 5,
+      "phase": 3,
+      "kwp": 5.2,
+      "price": 209000,
+      "net": 159000,
+      "vat": true,
+      "panel": {
+        "brand": "LONGi",
+        "w": 650,
+        "n": 8
+      },
+      "inv": {
+        "brand": "Atmoce",
+        "model": "Micro 2:1"
+      },
+      "includes": "อุปกรณ์ ติดตั้ง และ VAT",
+      "video": "https://www.facebook.com/reel/1479239504111934",
+      "date": "2026-11-01",
+      "via": "Messenger",
+      "also": [
+        {
+          "src": "M",
+          "vid": "00639"
+        }
+      ]
+    }
+  ]
 }
