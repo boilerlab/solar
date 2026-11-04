@@ -30,7 +30,8 @@
           "src": "M",
           "vid": "00639"
         }
-      ]
+      ],
+      "img": "assets/pkg/tns-huawei-1p.jpg"
     },
     {
       "src": "P",
@@ -60,7 +61,8 @@
           "src": "M",
           "vid": "00639"
         }
-      ]
+      ],
+      "img": "assets/pkg/tns-huawei-3p.jpg"
     },
     {
       "src": "P",
@@ -90,7 +92,8 @@
           "src": "M",
           "vid": "00639"
         }
-      ]
+      ],
+      "img": "assets/pkg/tns-atmoce-1p.jpg"
     },
     {
       "src": "P",
@@ -120,7 +123,8 @@
           "src": "M",
           "vid": "00639"
         }
-      ]
+      ],
+      "img": "assets/pkg/tns-atmoce-3p.jpg"
     }
   ]
 }
