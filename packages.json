@@ -1,130 +1,158 @@
 {
-  "at": "2026-11-02",
-  "about": "ราคาแพ็กเกจที่ร้านที่ขึ้นทะเบียนแจ้งกับ Boiler Lab เอง (ไม่ใช่ราคาทางการ) รูปแบบแต่ละรายการดู dev/packages.example.json และ dev/PACKAGES.md",
-  "p": [
+ "at": "2026-11-05",
+ "about": "ราคาแพ็กเกจที่ร้านที่ขึ้นทะเบียนแจ้งกับ Boiler Lab เอง (ไม่ใช่ราคาทางการ) รูปแบบแต่ละรายการดู dev/packages.example.json และ dev/PACKAGES.md",
+ "p": [
+  {
+   "src": "P",
+   "vid": "00479",
+   "name": "TNS Solar",
+   "kw": 5,
+   "phase": 1,
+   "kwp": 5.2,
+   "price": 175000,
+   "net": 127000,
+   "vat": true,
+   "panel": {
+    "brand": "LONGi",
+    "w": 650,
+    "n": 8
+   },
+   "inv": {
+    "brand": "Huawei",
+    "model": "String Inverter"
+   },
+   "includes": "อุปกรณ์ ติดตั้ง และ VAT",
+   "video": "https://www.facebook.com/reel/1479239504111934",
+   "date": "2026-11-01",
+   "via": "Messenger",
+   "also": [
     {
-      "src": "P",
-      "vid": "00479",
-      "name": "TNS Solar",
-      "kw": 5,
-      "phase": 1,
-      "kwp": 5.2,
-      "price": 175000,
-      "net": 127000,
-      "vat": true,
-      "panel": {
-        "brand": "LONGi",
-        "w": 650,
-        "n": 8
-      },
-      "inv": {
-        "brand": "Huawei",
-        "model": "String Inverter"
-      },
-      "includes": "อุปกรณ์ ติดตั้ง และ VAT",
-      "video": "https://www.facebook.com/reel/1479239504111934",
-      "date": "2026-11-01",
-      "via": "Messenger",
-      "also": [
-        {
-          "src": "M",
-          "vid": "00639"
-        }
-      ],
-      "img": "assets/pkg/tns-huawei-1p.jpg"
-    },
-    {
-      "src": "P",
-      "vid": "00479",
-      "name": "TNS Solar",
-      "kw": 5,
-      "phase": 3,
-      "kwp": 5.2,
-      "price": 192000,
-      "net": 142000,
-      "vat": true,
-      "panel": {
-        "brand": "LONGi",
-        "w": 650,
-        "n": 8
-      },
-      "inv": {
-        "brand": "Huawei",
-        "model": "String Inverter"
-      },
-      "includes": "อุปกรณ์ ติดตั้ง และ VAT",
-      "video": "https://www.facebook.com/reel/1479239504111934",
-      "date": "2026-11-01",
-      "via": "Messenger",
-      "also": [
-        {
-          "src": "M",
-          "vid": "00639"
-        }
-      ],
-      "img": "assets/pkg/tns-huawei-3p.jpg"
-    },
-    {
-      "src": "P",
-      "vid": "00479",
-      "name": "TNS Solar",
-      "kw": 5,
-      "phase": 1,
-      "kwp": 5.2,
-      "price": 195000,
-      "net": 145000,
-      "vat": true,
-      "panel": {
-        "brand": "LONGi",
-        "w": 650,
-        "n": 8
-      },
-      "inv": {
-        "brand": "Atmoce",
-        "model": "Micro 2:1"
-      },
-      "includes": "อุปกรณ์ ติดตั้ง และ VAT",
-      "video": "https://www.facebook.com/reel/1479239504111934",
-      "date": "2026-11-01",
-      "via": "Messenger",
-      "also": [
-        {
-          "src": "M",
-          "vid": "00639"
-        }
-      ],
-      "img": "assets/pkg/tns-atmoce-1p.jpg"
-    },
-    {
-      "src": "P",
-      "vid": "00479",
-      "name": "TNS Solar",
-      "kw": 5,
-      "phase": 3,
-      "kwp": 5.2,
-      "price": 209000,
-      "net": 159000,
-      "vat": true,
-      "panel": {
-        "brand": "LONGi",
-        "w": 650,
-        "n": 8
-      },
-      "inv": {
-        "brand": "Atmoce",
-        "model": "Micro 2:1"
-      },
-      "includes": "อุปกรณ์ ติดตั้ง และ VAT",
-      "video": "https://www.facebook.com/reel/1479239504111934",
-      "date": "2026-11-01",
-      "via": "Messenger",
-      "also": [
-        {
-          "src": "M",
-          "vid": "00639"
-        }
-      ],
-      "img": "assets/pkg/tns-atmoce-3p.jpg"
+     "src": "M",
+     "vid": "00639"
     }
-  ]
+   ],
+   "img": "assets/pkg/tns-huawei-1p.jpg"
+  },
+  {
+   "src": "P",
+   "vid": "00479",
+   "name": "TNS Solar",
+   "kw": 5,
+   "phase": 3,
+   "kwp": 5.2,
+   "price": 192000,
+   "net": 142000,
+   "vat": true,
+   "panel": {
+    "brand": "LONGi",
+    "w": 650,
+    "n": 8
+   },
+   "inv": {
+    "brand": "Huawei",
+    "model": "String Inverter"
+   },
+   "includes": "อุปกรณ์ ติดตั้ง และ VAT",
+   "video": "https://www.facebook.com/reel/1479239504111934",
+   "date": "2026-11-01",
+   "via": "Messenger",
+   "also": [
+    {
+     "src": "M",
+     "vid": "00639"
+    }
+   ],
+   "img": "assets/pkg/tns-huawei-3p.jpg"
+  },
+  {
+   "src": "P",
+   "vid": "00479",
+   "name": "TNS Solar",
+   "kw": 5,
+   "phase": 1,
+   "kwp": 5.2,
+   "price": 195000,
+   "net": 145000,
+   "vat": true,
+   "panel": {
+    "brand": "LONGi",
+    "w": 650,
+    "n": 8
+   },
+   "inv": {
+    "brand": "Atmoce",
+    "model": "Micro 2:1"
+   },
+   "includes": "อุปกรณ์ ติดตั้ง และ VAT",
+   "video": "https://www.facebook.com/reel/1479239504111934",
+   "date": "2026-11-01",
+   "via": "Messenger",
+   "also": [
+    {
+     "src": "M",
+     "vid": "00639"
+    }
+   ],
+   "img": "assets/pkg/tns-atmoce-1p.jpg"
+  },
+  {
+   "src": "P",
+   "vid": "00479",
+   "name": "TNS Solar",
+   "kw": 5,
+   "phase": 3,
+   "kwp": 5.2,
+   "price": 209000,
+   "net": 159000,
+   "vat": true,
+   "panel": {
+    "brand": "LONGi",
+    "w": 650,
+    "n": 8
+   },
+   "inv": {
+    "brand": "Atmoce",
+    "model": "Micro 2:1"
+   },
+   "includes": "อุปกรณ์ ติดตั้ง และ VAT",
+   "video": "https://www.facebook.com/reel/1479239504111934",
+   "date": "2026-11-01",
+   "via": "Messenger",
+   "also": [
+    {
+     "src": "M",
+     "vid": "00639"
+    }
+   ],
+   "img": "assets/pkg/tns-atmoce-3p.jpg"
+  },
+  {
+   "src": "P",
+   "vid": "00362",
+   "name": "Energy Thai Trading Hub (ETTH)",
+   "kw": 5,
+   "phase": 1,
+   "price": 140000,
+   "vat": true,
+   "inv": {
+    "brand": "Deye",
+    "model": "Hybrid SUN-5K-SG04LP1-EU-SM2",
+    "kw": 5,
+    "type": "Hybrid"
+   },
+   "includes": "สำรวจหน้างาน ออกแบบ ติดตั้ง ประสานงานการไฟฟ้า ดูแลหลังการขาย · อินเวอร์เตอร์ไฮบริด รองรับแบตเตอรี่ในอนาคต",
+   "excludes": "แบตเตอรี่",
+   "promo": "ลด 10,000 บาท เฉพาะ 1,000 หลังคาแรก (จำนวนจำกัด)",
+   "line": "@etth",
+   "date": "2026-11-01",
+   "via": "Facebook",
+   "also": [
+    {
+     "src": "M",
+     "vid": "00622"
+    }
+   ],
+   "img": "assets/pkg/etth-deye-1p.jpg"
+  }
+ ]
 }
