@@ -2118,7 +2118,7 @@ function pkgRender(){loadPkgs();loadVendors();const L=$('pkgList');if(!L)return;
 function pkTrackInit(){document.querySelectorAll('#pkgList .pktrack.multi').forEach(T=>{const cards=[...T.children],pos=T.parentElement.querySelector('.pkpos');const cur=()=>{const x=T.scrollLeft;let b=0,bd=1e9;cards.forEach((c,j)=>{const d=Math.abs(c.offsetLeft-T.offsetLeft-x);if(d<bd){bd=d;b=j;}});return b;};
   T.addEventListener('scroll',()=>{if(pos)pos.textContent=`${cur()+1} / ${cards.length}`;},{passive:true});
   T._go=n=>{const j=Math.max(0,Math.min(cards.length-1,cur()+n));T.scrollTo({left:cards[j].offsetLeft-T.offsetLeft,behavior:'smooth'});};});}
-$('pkgProv').addEventListener('change',()=>{$('pkgProv').dataset.auto='0';pkgRender();});
+$('pkgProv').addEventListener('change',()=>{$('pkgProv').dataset.auto='0';pkgRender();const v=$('pkgProv').value,r=$('rfqProv');if(v&&r.value!==v&&[...r.options].some(o=>o.value===v)){r.value=v;r.dispatchEvent(new Event('change'));}});
 ['s_prov','rfqProv'].forEach(id=>$(id).addEventListener('change',renderRights));$('coords').addEventListener('input',renderRights);
 renderRights();
 $('pkgKw').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;pkgKw=+b.dataset.v;$('pkgKw').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));pkgRender();});
